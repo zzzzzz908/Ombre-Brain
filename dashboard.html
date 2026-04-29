@@ -2055,49 +2055,46 @@ function drawNetwork(ctx, W, H, data) {
 
   var positions = {};
   var cx = W / 2, cy = H / 2;
+  var minDim = Math.min(W, H);
 
-  // 初始位置：螺旋分布，避免一开始就重叠
+  // 初始位置：黄金角螺旋（向日葵分布），节点天然均匀
   nodes.forEach(function(n, i) {
-    var angle = (i / nodes.length) * Math.PI * 2 + Math.random() * 0.5;
-    var spread = Math.min(W, H) * (0.18 + 0.22 * (i / nodes.length));
+    var angle = i * 137.5 * Math.PI / 180;
+    var radius = minDim * 0.42 * Math.sqrt((i + 1) / nodes.length);
     positions[n.id] = {
-      x: cx + Math.cos(angle) * spread + (Math.random() - 0.5) * 40,
-      y: cy + Math.sin(angle) * spread + (Math.random() - 0.5) * 40,
+      x: cx + Math.cos(angle) * radius + (Math.random() - 0.5) * 24,
+      y: cy + Math.sin(angle) * radius + (Math.random() - 0.5) * 24,
     };
   });
 
-  // 力导向布局：增强排斥让节点离得更开
-  var REPULSION = 2200;
-  var IDEAL_DIST = 130;
-  var CENTER_PULL = 0.014;
-  for (var iter = 0; iter < 140; iter++) {
-    var damp = 1 - iter / 200;
-    // 节点间排斥
+  // 力导向：排斥力随画布大小自适应
+  var REPULSION = minDim * 8;
+  var IDEAL_DIST = minDim * 0.16;
+  var CENTER_PULL = 0.006;
+  for (var iter = 0; iter < 180; iter++) {
     for (var i = 0; i < nodes.length; i++) {
       for (var j = i + 1; j < nodes.length; j++) {
         var a = positions[nodes[i].id], b = positions[nodes[j].id];
         var dx = b.x - a.x, dy = b.y - a.y;
         var dist = Math.max(1, Math.sqrt(dx*dx + dy*dy));
-        var force = REPULSION / (dist * dist) * damp;
+        var force = REPULSION / (dist * dist);
         dx = (dx / dist) * force;
         dy = (dy / dist) * force;
         a.x -= dx; a.y -= dy;
         b.x += dx; b.y += dy;
       }
     }
-    // 边吸引
     edges.forEach(function(e) {
       var a = positions[e.source], b = positions[e.target];
       if (!a || !b) return;
       var dx = b.x - a.x, dy = b.y - a.y;
       var dist = Math.sqrt(dx*dx + dy*dy);
-      var force = (dist - IDEAL_DIST) * 0.014 * (e.similarity || 0.5);
+      var force = (dist - IDEAL_DIST) * 0.012 * (e.similarity || 0.5);
       dx = (dx / Math.max(1,dist)) * force;
       dy = (dy / Math.max(1,dist)) * force;
       a.x += dx; a.y += dy;
       b.x -= dx; b.y -= dy;
     });
-    // 中心引力（弱）
     nodes.forEach(function(n) {
       var p = positions[n.id];
       p.x += (cx - p.x) * CENTER_PULL;
@@ -2105,23 +2102,32 @@ function drawNetwork(ctx, W, H, data) {
     });
   }
 
-  // 把超出边界的拉回来
-  var margin = 40;
+  // 边界回拉
+  var margin = 50;
   nodes.forEach(function(n) {
     var p = positions[n.id];
     p.x = Math.max(margin, Math.min(W - margin, p.x));
-    p.y = Math.max(margin + 20, Math.min(H - margin - 30, p.y));
+    p.y = Math.max(margin + 18, Math.min(H - margin - 28, p.y));
   });
 
-  // 背景：径向渐变（中心更亮，外围温暖）
-  var bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.7);
-  bgGrad.addColorStop(0, '#FFFEF8');
-  bgGrad.addColorStop(0.6, '#FBF5E6');
-  bgGrad.addColorStop(1, '#F4ECD8');
-  ctx.fillStyle = bgGrad;
+  // 背景：极淡奶白
+  ctx.fillStyle = '#FFFEF8';
   ctx.fillRect(0, 0, W, H);
 
-  // 边：曲线 + 渐变透明，避免直线粗暴
+  // 装饰：背景小星点（随机散布，确定性 seed 防止抖动）
+  function pseudoRand(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+  for (var s = 0; s < 50; s++) {
+    var sx = pseudoRand(s * 17 + 1) * W;
+    var sy = pseudoRand(s * 23 + 7) * H;
+    var sr = pseudoRand(s * 31 + 3) * 0.9 + 0.3;
+    var op = pseudoRand(s * 13 + 5) * 0.18 + 0.08;
+    ctx.fillStyle = 'rgba(195, 170, 130, ' + op + ')';
+    ctx.beginPath();
+    ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 边：极细虚线弧
   edges.forEach(function(e) {
     var a = positions[e.source], b = positions[e.target];
     if (!a || !b) return;
@@ -2129,107 +2135,111 @@ function drawNetwork(ctx, W, H, data) {
     var midY = (a.y + b.y) / 2;
     var dx = b.x - a.x, dy = b.y - a.y;
     var len = Math.max(1, Math.sqrt(dx*dx + dy*dy));
-    var perpX = -dy / len * 6;
-    var perpY = dx / len * 6;
+    var perpX = -dy / len * 7;
+    var perpY = dx / len * 7;
 
+    ctx.setLineDash([2, 4]);
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.quadraticCurveTo(midX + perpX, midY + perpY, b.x, b.y);
-    ctx.strokeStyle = 'rgba(160, 140, 110, ' + (e.similarity * 0.22) + ')';
-    ctx.lineWidth = Math.max(0.4, e.similarity * 1.2);
+    ctx.strokeStyle = 'rgba(180, 160, 130, ' + (e.similarity * 0.22) + ')';
+    ctx.lineWidth = 0.7;
     ctx.stroke();
   });
+  ctx.setLineDash([]);
 
-  // 类型 → 节点颜色（更柔和饱和）
+  // 类型 → 颜色（pastel，跟 dashboard tabs 同一套）
   var colors = {
-    dynamic:   { fill: '#D8A37A', glow: '#E5BC9C' },
-    permanent: { fill: '#C5A158', glow: '#D8BB7B' },
-    feel:      { fill: '#C8848C', glow: '#DBA0A8' },
-    archived:  { fill: '#B0A698', glow: '#C8C0B2' },
+    dynamic:   { fill: '#F4D8C3', ring: '#D89F7A', glow: '#F1D6BD' },
+    permanent: { fill: '#F1E4B0', ring: '#C9A95E', glow: '#EFE2A6' },
+    feel:      { fill: '#EAC4C4', ring: '#B57878', glow: '#E8C4C4' },
+    archived:  { fill: '#E5DFD0', ring: '#A8A095', glow: '#DBD3C0' },
   };
 
-  // 按 score 排序，重要的最后画（在最上层）
+  // 按 score 排序：重要的最后画
   var sortedNodes = nodes.slice().sort(function(a, b) { return a.score - b.score; });
 
-  // === 第一遍：绘制节点（含光晕、本体、高光） ===
+  // === 节点：扁平柔光（无 3D 立体感） ===
   sortedNodes.forEach(function(n) {
     var p = positions[n.id];
-    var r = Math.max(5, Math.min(20, Math.sqrt(Math.max(0.5, n.score) * 70)));
+    var r = Math.max(6, Math.min(18, Math.sqrt(Math.max(0.5, n.score) * 60)));
     var c = colors[n.type] || colors.dynamic;
 
     // 外光晕（柔和扩散）
-    var outer = ctx.createRadialGradient(p.x, p.y, r, p.x, p.y, r + 18);
-    outer.addColorStop(0, c.glow + '50');
-    outer.addColorStop(0.5, c.glow + '20');
-    outer.addColorStop(1, c.glow + '00');
-    ctx.fillStyle = outer;
+    var halo = ctx.createRadialGradient(p.x, p.y, r * 0.7, p.x, p.y, r + 14);
+    halo.addColorStop(0, c.glow + '50');
+    halo.addColorStop(0.6, c.glow + '1A');
+    halo.addColorStop(1, c.glow + '00');
+    ctx.fillStyle = halo;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, r + 18, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, r + 14, 0, Math.PI * 2);
     ctx.fill();
 
-    // 节点本体（径向渐变给立体感）
-    var body = ctx.createRadialGradient(p.x - r*0.25, p.y - r*0.25, 0, p.x, p.y, r);
-    body.addColorStop(0, c.glow);
-    body.addColorStop(0.7, c.fill);
-    body.addColorStop(1, c.fill);
-    ctx.fillStyle = body;
+    // 节点本体（扁平 pastel 填充）
+    ctx.fillStyle = c.fill;
     ctx.beginPath();
     ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
     ctx.fill();
 
-    // resolved 节点：盖一层半透明纸色（淡化）
+    // 极细环线（增加精致感）
+    ctx.strokeStyle = c.ring;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // resolved：盖一层半透白
     if (n.resolved) {
-      ctx.fillStyle = 'rgba(250, 248, 242, 0.45)';
+      ctx.fillStyle = 'rgba(255, 254, 248, 0.55)';
       ctx.beginPath();
       ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // pinned 节点：薰衣草色细环
+    // pinned：薰衣草双环 + 4 个小闪光点
     if (n.pinned) {
-      ctx.strokeStyle = '#9F8BC0';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(159, 139, 192, 0.65)';
+      ctx.lineWidth = 1.3;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, r + 3, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, r + 4, 0, Math.PI * 2);
       ctx.stroke();
-    }
 
-    // 顶部高光（柔白）
-    var sheen = ctx.createRadialGradient(p.x - r*0.35, p.y - r*0.35, 0, p.x - r*0.2, p.y - r*0.2, r * 0.7);
-    sheen.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-    sheen.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = sheen;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.fillStyle = '#9F8BC0';
+      var sparkleR = r + 7;
+      for (var sp = 0; sp < 4; sp++) {
+        var ang = sp * Math.PI / 2 + Math.PI / 4;
+        var sxx = p.x + Math.cos(ang) * sparkleR;
+        var syy = p.y + Math.sin(ang) * sparkleR;
+        ctx.beginPath();
+        ctx.arc(sxx, syy, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   });
 
-  // === 第二遍：标签（只显示重要节点 + pinned，避免文字打架） ===
-  var scores = nodes.map(function(n){ return n.score; });
-  var maxScore = Math.max.apply(null, scores);
+  // === 标签（只显示重要 + pinned） ===
+  var maxScore = Math.max.apply(null, nodes.map(function(n){ return n.score; }));
   var threshold = maxScore * 0.45;
 
   nodes.forEach(function(n) {
     if (n.score < threshold && !n.pinned) return;
     var p = positions[n.id];
-    var r = Math.max(5, Math.min(20, Math.sqrt(Math.max(0.5, n.score) * 70)));
+    var r = Math.max(6, Math.min(18, Math.sqrt(Math.max(0.5, n.score) * 60)));
     var name = n.name.length > 9 ? n.name.slice(0, 9) + '…' : n.name;
 
     ctx.font = '500 10.5px Inter, "PingFang SC", sans-serif';
     var textW = ctx.measureText(name).width;
     var labelY = p.y + r + 14;
-
-    // 白色药丸背景（提升可读性）
-    var padX = 7, padY = 4;
+    var padX = 7;
+    var pillH = 16;
     var pillW = textW + padX * 2;
-    var pillH = 17;
     var pillX = p.x - pillW / 2;
     var pillY = labelY - 9;
     var radius = pillH / 2;
 
-    ctx.fillStyle = 'rgba(255, 253, 245, 0.92)';
-    ctx.strokeStyle = 'rgba(180, 160, 130, 0.18)';
-    ctx.lineWidth = 0.8;
+    ctx.fillStyle = 'rgba(255, 253, 245, 0.95)';
+    ctx.strokeStyle = 'rgba(180, 160, 130, 0.16)';
+    ctx.lineWidth = 0.7;
     ctx.beginPath();
     ctx.moveTo(pillX + radius, pillY);
     ctx.lineTo(pillX + pillW - radius, pillY);
