@@ -2047,93 +2047,208 @@ function drawNetwork(ctx, W, H, data) {
   var nodes = data.nodes, edges = data.edges;
   if (!nodes.length) {
     ctx.fillStyle = '#B8B2A6';
+    ctx.font = 'italic 14px Cormorant Garamond, serif';
+    ctx.textAlign = 'center';
     ctx.fillText('没有记忆格', W/2, H/2);
     return;
   }
 
   var positions = {};
   var cx = W / 2, cy = H / 2;
+
+  // 初始位置：螺旋分布，避免一开始就重叠
   nodes.forEach(function(n, i) {
-    var angle = (i / nodes.length) * Math.PI * 2;
-    var r = Math.min(W, H) * 0.35;
+    var angle = (i / nodes.length) * Math.PI * 2 + Math.random() * 0.5;
+    var spread = Math.min(W, H) * (0.18 + 0.22 * (i / nodes.length));
     positions[n.id] = {
-      x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 50,
-      y: cy + Math.sin(angle) * r + (Math.random() - 0.5) * 50,
+      x: cx + Math.cos(angle) * spread + (Math.random() - 0.5) * 40,
+      y: cy + Math.sin(angle) * spread + (Math.random() - 0.5) * 40,
     };
   });
 
-  for (var iter = 0; iter < 80; iter++) {
+  // 力导向布局：增强排斥让节点离得更开
+  var REPULSION = 2200;
+  var IDEAL_DIST = 130;
+  var CENTER_PULL = 0.014;
+  for (var iter = 0; iter < 140; iter++) {
+    var damp = 1 - iter / 200;
+    // 节点间排斥
     for (var i = 0; i < nodes.length; i++) {
       for (var j = i + 1; j < nodes.length; j++) {
         var a = positions[nodes[i].id], b = positions[nodes[j].id];
         var dx = b.x - a.x, dy = b.y - a.y;
         var dist = Math.max(1, Math.sqrt(dx*dx + dy*dy));
-        var force = 800 / (dist * dist);
+        var force = REPULSION / (dist * dist) * damp;
         dx = (dx / dist) * force;
         dy = (dy / dist) * force;
         a.x -= dx; a.y -= dy;
         b.x += dx; b.y += dy;
       }
     }
+    // 边吸引
     edges.forEach(function(e) {
       var a = positions[e.source], b = positions[e.target];
       if (!a || !b) return;
       var dx = b.x - a.x, dy = b.y - a.y;
       var dist = Math.sqrt(dx*dx + dy*dy);
-      var force = (dist - 100) * 0.01 * (e.similarity || 0.5);
+      var force = (dist - IDEAL_DIST) * 0.014 * (e.similarity || 0.5);
       dx = (dx / Math.max(1,dist)) * force;
       dy = (dy / Math.max(1,dist)) * force;
       a.x += dx; a.y += dy;
       b.x -= dx; b.y -= dy;
     });
+    // 中心引力（弱）
     nodes.forEach(function(n) {
       var p = positions[n.id];
-      p.x += (cx - p.x) * 0.01;
-      p.y += (cy - p.y) * 0.01;
+      p.x += (cx - p.x) * CENTER_PULL;
+      p.y += (cy - p.y) * CENTER_PULL;
     });
   }
 
-  ctx.fillStyle = '#FFFFFF';
+  // 把超出边界的拉回来
+  var margin = 40;
+  nodes.forEach(function(n) {
+    var p = positions[n.id];
+    p.x = Math.max(margin, Math.min(W - margin, p.x));
+    p.y = Math.max(margin + 20, Math.min(H - margin - 30, p.y));
+  });
+
+  // 背景：径向渐变（中心更亮，外围温暖）
+  var bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.7);
+  bgGrad.addColorStop(0, '#FFFEF8');
+  bgGrad.addColorStop(0.6, '#FBF5E6');
+  bgGrad.addColorStop(1, '#F4ECD8');
+  ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, W, H);
 
+  // 边：曲线 + 渐变透明，避免直线粗暴
   edges.forEach(function(e) {
     var a = positions[e.source], b = positions[e.target];
     if (!a || !b) return;
+    var midX = (a.x + b.x) / 2;
+    var midY = (a.y + b.y) / 2;
+    var dx = b.x - a.x, dy = b.y - a.y;
+    var len = Math.max(1, Math.sqrt(dx*dx + dy*dy));
+    var perpX = -dy / len * 6;
+    var perpY = dx / len * 6;
+
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.strokeStyle = 'rgba(150, 140, 120, ' + (e.similarity * 0.32) + ')';
-    ctx.lineWidth = Math.max(0.5, e.similarity * 1.6);
+    ctx.quadraticCurveTo(midX + perpX, midY + perpY, b.x, b.y);
+    ctx.strokeStyle = 'rgba(160, 140, 110, ' + (e.similarity * 0.22) + ')';
+    ctx.lineWidth = Math.max(0.4, e.similarity * 1.2);
     ctx.stroke();
   });
 
-  var colors = { dynamic: '#C99672', permanent: '#BC9D40', feel: '#B57878', archived: '#B8B2A6' };
-  nodes.forEach(function(n) {
-    var p = positions[n.id];
-    var r = Math.max(4, Math.min(14, n.score * 0.8));
-    var color = colors[n.type] || '#C99672';
+  // 类型 → 节点颜色（更柔和饱和）
+  var colors = {
+    dynamic:   { fill: '#D8A37A', glow: '#E5BC9C' },
+    permanent: { fill: '#C5A158', glow: '#D8BB7B' },
+    feel:      { fill: '#C8848C', glow: '#DBA0A8' },
+    archived:  { fill: '#B0A698', glow: '#C8C0B2' },
+  };
 
+  // 按 score 排序，重要的最后画（在最上层）
+  var sortedNodes = nodes.slice().sort(function(a, b) { return a.score - b.score; });
+
+  // === 第一遍：绘制节点（含光晕、本体、高光） ===
+  sortedNodes.forEach(function(n) {
+    var p = positions[n.id];
+    var r = Math.max(5, Math.min(20, Math.sqrt(Math.max(0.5, n.score) * 70)));
+    var c = colors[n.type] || colors.dynamic;
+
+    // 外光晕（柔和扩散）
+    var outer = ctx.createRadialGradient(p.x, p.y, r, p.x, p.y, r + 18);
+    outer.addColorStop(0, c.glow + '50');
+    outer.addColorStop(0.5, c.glow + '20');
+    outer.addColorStop(1, c.glow + '00');
+    ctx.fillStyle = outer;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, r + 4, 0, Math.PI * 2);
-    ctx.fillStyle = color + '20';
+    ctx.arc(p.x, p.y, r + 18, 0, Math.PI * 2);
     ctx.fill();
 
+    // 节点本体（径向渐变给立体感）
+    var body = ctx.createRadialGradient(p.x - r*0.25, p.y - r*0.25, 0, p.x, p.y, r);
+    body.addColorStop(0, c.glow);
+    body.addColorStop(0.7, c.fill);
+    body.addColorStop(1, c.fill);
+    ctx.fillStyle = body;
     ctx.beginPath();
     ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = n.resolved ? color + '70' : color;
     ctx.fill();
 
+    // resolved 节点：盖一层半透明纸色（淡化）
+    if (n.resolved) {
+      ctx.fillStyle = 'rgba(250, 248, 242, 0.45)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // pinned 节点：薰衣草色细环
     if (n.pinned) {
       ctx.strokeStyle = '#9F8BC0';
       ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 3, 0, Math.PI * 2);
       ctx.stroke();
     }
 
-    var name = n.name.length > 10 ? n.name.slice(0, 10) + '…' : n.name;
-    ctx.fillStyle = '#56504A';
-    ctx.font = '11px Inter, sans-serif';
+    // 顶部高光（柔白）
+    var sheen = ctx.createRadialGradient(p.x - r*0.35, p.y - r*0.35, 0, p.x - r*0.2, p.y - r*0.2, r * 0.7);
+    sheen.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+    sheen.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = sheen;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // === 第二遍：标签（只显示重要节点 + pinned，避免文字打架） ===
+  var scores = nodes.map(function(n){ return n.score; });
+  var maxScore = Math.max.apply(null, scores);
+  var threshold = maxScore * 0.45;
+
+  nodes.forEach(function(n) {
+    if (n.score < threshold && !n.pinned) return;
+    var p = positions[n.id];
+    var r = Math.max(5, Math.min(20, Math.sqrt(Math.max(0.5, n.score) * 70)));
+    var name = n.name.length > 9 ? n.name.slice(0, 9) + '…' : n.name;
+
+    ctx.font = '500 10.5px Inter, "PingFang SC", sans-serif';
+    var textW = ctx.measureText(name).width;
+    var labelY = p.y + r + 14;
+
+    // 白色药丸背景（提升可读性）
+    var padX = 7, padY = 4;
+    var pillW = textW + padX * 2;
+    var pillH = 17;
+    var pillX = p.x - pillW / 2;
+    var pillY = labelY - 9;
+    var radius = pillH / 2;
+
+    ctx.fillStyle = 'rgba(255, 253, 245, 0.92)';
+    ctx.strokeStyle = 'rgba(180, 160, 130, 0.18)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(pillX + radius, pillY);
+    ctx.lineTo(pillX + pillW - radius, pillY);
+    ctx.arcTo(pillX + pillW, pillY, pillX + pillW, pillY + radius, radius);
+    ctx.lineTo(pillX + pillW, pillY + pillH - radius);
+    ctx.arcTo(pillX + pillW, pillY + pillH, pillX + pillW - radius, pillY + pillH, radius);
+    ctx.lineTo(pillX + radius, pillY + pillH);
+    ctx.arcTo(pillX, pillY + pillH, pillX, pillY + pillH - radius, radius);
+    ctx.lineTo(pillX, pillY + radius);
+    ctx.arcTo(pillX, pillY, pillX + radius, pillY, radius);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#3A332C';
     ctx.textAlign = 'center';
-    ctx.fillText(name, p.x, p.y + r + 14);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, p.x, pillY + pillH / 2);
+    ctx.textBaseline = 'alphabetic';
   });
 }
 
