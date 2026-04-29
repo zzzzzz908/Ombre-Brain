@@ -644,78 +644,299 @@
   }
 
   /* ============================================
-     Detail panel
+     Memory Detail Modal · 记忆详情弹窗
      ============================================ */
-  .detail-panel {
+  .detail-backdrop {
+    display: none;
     position: fixed;
-    right: 0;
-    top: 0;
-    width: 480px;
-    height: 100vh;
-    background: var(--paper);
-    border-left: 1px solid var(--line);
-    padding: 44px 36px;
-    overflow-y: auto;
-    transform: translateX(100%);
-    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    inset: 0;
+    background: rgba(50, 42, 30, 0.36);
     z-index: 100;
-    box-shadow: var(--shadow-panel);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    backdrop-filter: blur(4px);
   }
-  .detail-panel.open { transform: translateX(0); }
-  .detail-panel .close-btn {
+  .detail-backdrop.show { display: block; opacity: 1; }
+
+  .detail-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    width: 92vw;
+    max-width: 780px;
+    max-height: 88vh;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    z-index: 101;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 24px 80px rgba(80, 70, 50, 0.18);
+  }
+  .detail-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .detail-modal .close-btn {
     position: absolute;
-    top: 18px;
-    right: 18px;
-    background: transparent;
+    top: 16px;
+    right: 16px;
+    background: var(--paper);
     border: 1px solid var(--line);
     color: var(--ink-2);
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.18s;
+    z-index: 2;
+    font-family: inherit;
   }
-  .detail-panel .close-btn:hover {
-    color: var(--ink);
-    border-color: var(--ink-3);
-  }
-  .detail-panel h2 {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 30px;
-    font-weight: 500;
-    margin-bottom: 4px;
-    color: var(--ink);
-    padding-right: 44px;
-    line-height: 1.2;
-    letter-spacing: -0.2px;
-  }
-  .detail-panel .h2-eyebrow {
-    margin-bottom: 24px;
-    margin-top: 4px;
-  }
-  .detail-meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px 24px;
-    margin-bottom: 28px;
-    padding-top: 18px;
-    border-top: 1px solid var(--line);
-  }
-  .detail-meta .field { font-size: 12.5px; color: var(--ink-1); }
-  .detail-meta .field label {
-    color: var(--ink-3);
-    display: block;
-    margin-bottom: 4px;
+  .detail-modal .close-btn:hover { color: var(--ink); border-color: var(--ink-3); }
+
+  .dm-header { padding: 36px 40px 22px; }
+  .dm-eyebrow {
     font-size: 9.5px;
     text-transform: uppercase;
-    letter-spacing: 1.4px;
+    letter-spacing: 1.6px;
+    color: var(--ink-3);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .dm-eyebrow .dot-mark {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--c-peach-deep);
+  }
+  .dm-eyebrow .dot-mark.permanent { background: var(--c-butter-deep); }
+  .dm-eyebrow .dot-mark.feel { background: var(--c-rose-deep); }
+  .dm-eyebrow .dot-mark.archived { background: var(--ink-3); }
+  .dm-eyebrow .sep { color: var(--ink-4); }
+  .dm-eyebrow .id-mono {
+    font-family: 'SF Mono', Consolas, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--ink-2);
+    font-size: 10px;
+  }
+  .dm-eyebrow .pos {
+    font-family: var(--serif);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-2);
+    font-size: 12.5px;
     font-weight: 500;
   }
+  .dm-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+    margin-bottom: 18px;
+    padding-right: 40px;
+  }
+  .dm-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 12px;
+    color: var(--ink-2);
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
+    flex-wrap: wrap;
+  }
+  .dm-meta-row .sep { color: var(--ink-4); }
+  .dm-imp-group { display: inline-flex; align-items: center; gap: 8px; }
+  .dm-imp-label {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .dm-imp-bar {
+    display: inline-flex;
+    gap: 2px;
+    align-items: center;
+  }
+  .dm-imp-bar .dot {
+    width: 9px;
+    height: 12px;
+    border-radius: 1.5px;
+    background: var(--c-lavender-deep);
+  }
+  .dm-imp-bar .dot.empty { background: var(--line-strong); }
+  .dm-imp-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1;
+    margin-left: 2px;
+  }
+
+  .dm-body { padding: 0 40px; }
+  .dm-section { padding: 14px 0 22px; }
+  .dm-section-eyebrow {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-2);
+    font-weight: 500;
+    margin-bottom: 12px;
+    padding-left: 10px;
+    border-left: 2px solid var(--c-peach-deep);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dm-section-eyebrow .count {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-3);
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+
+  .dm-summary {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14.5px;
+    color: var(--ink-1);
+    line-height: 1.75;
+    padding: 0 6px;
+  }
+
+  .dm-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .dm-tag {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-1);
+    font-size: 11px;
+    letter-spacing: 0.2px;
+    line-height: 1.5;
+  }
+  .dm-tag.add {
+    border: 1px dashed var(--ink-4);
+    color: var(--ink-3);
+    cursor: pointer;
+    background: transparent;
+  }
+  .dm-tag.add:hover { color: var(--ink-1); border-color: var(--ink-3); }
+
+  .dm-related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .dm-related-card {
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .dm-related-card:hover {
+    border-color: var(--ink-3);
+    box-shadow: 0 2px 8px rgba(80, 70, 50, 0.06);
+    transform: translateY(-1px);
+  }
+  .dm-related-time {
+    font-size: 10px;
+    color: var(--ink-3);
+    font-family: 'SF Mono', Consolas, monospace;
+    letter-spacing: 0.2px;
+  }
+  .dm-related-title {
+    font-size: 12.5px;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dm-related-preview {
+    font-size: 11px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .dm-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .dm-footer-hint {
+    font-size: 10px;
+    color: var(--ink-3);
+    font-family: 'SF Mono', Consolas, monospace;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .dm-footer-hint .sep { color: var(--ink-4); margin: 0 4px; }
+  .dm-footer-actions { display: flex; gap: 6px; }
+  .dm-action {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-1);
+    font-size: 11.5px;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: all 0.18s ease;
+  }
+  .dm-action:hover { color: var(--ink); border-color: var(--ink-3); }
+  .dm-action.active {
+    background: var(--c-lavender);
+    color: var(--c-lavender-text);
+    border-color: var(--c-lavender-deep);
+  }
+  .dm-action.primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .dm-action.primary:hover { background: var(--ink-1); border-color: var(--ink-1); }
+
   .detail-content {
     font-size: 13.5px;
     line-height: 1.9;
@@ -1525,10 +1746,37 @@
     .card-title { font-size: 14px; }
     .card-imp { font-size: 20px; }
 
-    /* Detail panel：满屏弹出 */
-    .detail-panel { width: 100%; padding: 28px 22px 60px; }
-    .detail-panel h2 { font-size: 24px; }
-    .detail-meta { grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+    /* Detail modal：手机全屏 */
+    .detail-modal {
+      width: 100vw;
+      max-width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      border-radius: 0;
+      top: 0;
+      left: 0;
+      transform: translate(0, 0) scale(0.98);
+    }
+    .detail-modal.open { transform: translate(0, 0) scale(1); }
+    .detail-modal .close-btn { top: 14px; right: 14px; }
+    .dm-header { padding: 28px 22px 18px; }
+    .dm-title { font-size: 26px; padding-right: 36px; margin-bottom: 14px; }
+    .dm-eyebrow { gap: 6px; margin-bottom: 12px; font-size: 9px; }
+    .dm-eyebrow .id-mono { font-size: 9.5px; }
+    .dm-meta-row { gap: 10px; font-size: 11px; }
+    .dm-imp-bar .dot { width: 7px; height: 10px; }
+    .dm-body { padding: 0 22px; }
+    .dm-section { padding: 12px 0 18px; }
+    .dm-related-grid { grid-template-columns: 1fr; gap: 8px; }
+    .dm-footer {
+      padding: 12px 18px;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .dm-footer-hint { display: none; }
+    .dm-footer-actions { justify-content: stretch; }
+    .dm-action { flex: 1; padding: 9px 10px; font-size: 11.5px; text-align: center; }
 
     /* Config / Settings */
     .config-section { padding: 20px 18px; }
@@ -1895,7 +2143,8 @@
   </div>
 </div>
 
-<div class="detail-panel" id="detail-panel">
+<div class="detail-backdrop" id="detail-backdrop" onclick="closeDetail()"></div>
+<div class="detail-modal" id="detail-modal">
   <button class="close-btn" onclick="closeDetail()">✕</button>
   <div id="detail-content"></div>
 </div>
@@ -2360,45 +2609,281 @@ async function searchBuckets(query) {
   }
 }
 
+// === Helpers for date/time formatting ===
+function formatFullDate(iso) {
+  if (!iso) return '—';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var dd = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + dd;
+}
+function getDayOfWeek(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  var names = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  return names[d.getDay()];
+}
+function formatTime(iso) {
+  if (!iso) return '—';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+// === Same-day & similar memories ===
+function findSameDayMemories(iso, excludeId) {
+  if (!iso || !allBuckets) return [];
+  var key = iso.slice(0, 10);
+  return allBuckets.filter(function(b) {
+    if (b.id === excludeId) return false;
+    if (!b.created) return false;
+    return b.created.slice(0, 10) === key;
+  });
+}
+
+async function ensureNetworkData() {
+  if (networkData) return;
+  try {
+    var res = await fetch(BASE + '/api/network');
+    networkData = await res.json();
+  } catch (e) {
+    console.error('Failed to load network data:', e);
+  }
+}
+
+function findSimilarMemories(id) {
+  if (!networkData || !networkData.edges) return [];
+  var edges = networkData.edges.filter(function(e) {
+    return e.source === id || e.target === id;
+  });
+  edges.sort(function(a, b) { return (b.similarity || 0) - (a.similarity || 0); });
+  var result = [];
+  edges.slice(0, 6).forEach(function(e) {
+    var otherId = e.source === id ? e.target : e.source;
+    var bucket = allBuckets.find(function(b) { return b.id === otherId; });
+    if (bucket) {
+      var copy = Object.assign({}, bucket);
+      copy.similarity = e.similarity;
+      result.push(copy);
+    }
+  });
+  return result;
+}
+
+// === Detail modal ===
+var currentDetailId = null;
+
 async function showDetail(id) {
-  var panel = document.getElementById('detail-panel');
+  currentDetailId = id;
+  var modal = document.getElementById('detail-modal');
+  var backdrop = document.getElementById('detail-backdrop');
   var content = document.getElementById('detail-content');
-  content.innerHTML = '<div class="loading">加载中…</div>';
-  panel.classList.add('open');
+  content.innerHTML = '<div class="loading" style="padding:80px 20px;">加载中…</div>';
+  modal.classList.add('open');
+  backdrop.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  // Lazy-load network data for similarity (don't block on it)
+  ensureNetworkData();
 
   try {
     var res = await fetch(BASE + '/api/bucket/' + id);
     var b = await res.json();
     var meta = b.metadata || {};
+
+    // Position in current filtered list
+    var list = filterBuckets(allBuckets);
+    var idx = list.findIndex(function(x) { return x.id === id; });
+    var posStr = idx >= 0 ? (idx + 1) + ' / ' + list.length : '';
+
+    // Importance bar (1-10)
+    var importance = meta.importance != null ? meta.importance : 5;
+    var impBar = '<span class="dm-imp-bar">';
+    for (var i = 1; i <= 10; i++) {
+      impBar += '<span class="dot' + (i > importance ? ' empty' : '') + '"></span>';
+    }
+    impBar += '</span>';
+
+    // Date / time / day of week
+    var created = meta.created;
+    var dateStr = formatFullDate(created);
+    var dow = getDayOfWeek(created);
+    var timeStr = formatTime(created);
+
+    // Type label (with colored dot)
     var typeLabel = meta.type || 'dynamic';
-    content.innerHTML =
-      '<div class="eyebrow h2-eyebrow">' + esc(typeLabel) + (meta.pinned ? ' <span class="sep">·</span> pinned' : '') + '</div>' +
-      '<h2>' + esc(meta.name || id) + '</h2>' +
-      '<div class="detail-meta">' +
-        '<div class="field"><label>ID</label>' + id + '</div>' +
-        '<div class="field"><label>类型</label>' + (meta.type || 'dynamic') + '</div>' +
-        '<div class="field"><label>域</label>' + (meta.domain || []).join(', ') + '</div>' +
-        '<div class="field"><label>标签</label>' + (meta.tags || []).join(', ') + '</div>' +
-        '<div class="field"><label>事件效价</label>V' + (meta.valence || 0.5).toFixed(2) + '</div>' +
-        '<div class="field"><label>唤醒度</label>A' + (meta.arousal || 0.3).toFixed(2) + '</div>' +
-        '<div class="field"><label>模型视角</label>' + (meta.model_valence != null ? 'V' + meta.model_valence.toFixed(2) : '—') + '</div>' +
-        '<div class="field"><label>重要度</label>' + (meta.importance || 5) + '/10</div>' +
-        '<div class="field"><label>权重分</label>' + b.score.toFixed(4) + '</div>' +
-        '<div class="field"><label>激活次数</label>' + (meta.activation_count || 1) + '</div>' +
-        '<div class="field"><label>已解决</label>' + (meta.resolved ? '✓' : '—') + '</div>' +
-        '<div class="field"><label>已消化</label>' + (meta.digested ? '✓' : '—') + '</div>' +
-        '<div class="field"><label>钉选</label>' + (meta.pinned ? '✓' : '—') + '</div>' +
-        '<div class="field"><label>创建</label>' + (meta.created || '—') + '</div>' +
-        '<div class="field"><label>最后活跃</label>' + (meta.last_active || '—') + '</div>' +
-      '</div>' +
-      '<div class="detail-content">' + esc(b.content) + '</div>';
+
+    // Same-day memories
+    var sameDay = findSameDayMemories(created, id);
+
+    // Semantically similar (may be empty if network not loaded yet)
+    var similar = findSimilarMemories(id);
+
+    // === Render ===
+    var html = '';
+
+    // Header
+    html += '<div class="dm-header">';
+    html += '<div class="dm-eyebrow">';
+    html += '<span class="dot-mark ' + esc(typeLabel) + '"></span>';
+    html += '<span>' + esc(typeLabel) + '</span>';
+    if (meta.pinned) html += '<span class="sep">·</span><span style="color:var(--c-lavender-text);">钉决</span>';
+    html += '<span class="sep">·</span>';
+    html += '<span class="id-mono">' + id.slice(0, 12) + '</span>';
+    if (posStr) {
+      html += '<span class="sep">·</span><span class="pos">' + posStr + '</span>';
+    }
+    html += '</div>';
+
+    html += '<div class="dm-title">' + esc(meta.name || id) + '</div>';
+
+    html += '<div class="dm-meta-row">';
+    html += '<span>' + dateStr + '</span>';
+    if (dow) {
+      html += '<span class="sep">·</span><span>' + dow + '</span>';
+    }
+    html += '<span class="sep">·</span><span>' + timeStr + '</span>';
+    html += '<span class="sep">|</span>';
+    html += '<span class="dm-imp-group"><span class="dm-imp-label">Importance</span>' + impBar + '<span class="dm-imp-num">' + importance + '</span></span>';
+    html += '</div>';
+    html += '</div>';
+
+    // Body
+    html += '<div class="dm-body">';
+
+    // Summary section (if exists)
+    if (meta.summary) {
+      html += '<div class="dm-section">';
+      html += '<div class="dm-section-eyebrow">摘要</div>';
+      html += '<div class="dm-summary">' + esc(meta.summary) + '</div>';
+      html += '</div>';
+    }
+
+    // Content
+    html += '<div class="dm-section">';
+    html += '<div class="dm-section-eyebrow">正文</div>';
+    html += '<div class="detail-content">' + esc(b.content) + '</div>';
+    html += '</div>';
+
+    // Tags
+    if (meta.tags && meta.tags.length) {
+      html += '<div class="dm-section">';
+      html += '<div class="dm-section-eyebrow">标签</div>';
+      html += '<div class="dm-tags">';
+      meta.tags.forEach(function(t) {
+        html += '<span class="dm-tag">' + esc(t) + '</span>';
+      });
+      html += '<span class="dm-tag add">+ AI 写入</span>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // Same-day other memories
+    if (sameDay.length > 0) {
+      html += '<div class="dm-section">';
+      html += '<div class="dm-section-eyebrow">' + (dow ? dow : '同日') + '其他记忆 <span class="count">' + sameDay.length + ' 条</span></div>';
+      html += '<div class="dm-related-grid">';
+      sameDay.slice(0, 6).forEach(function(s) {
+        html += '<div class="dm-related-card" onclick="showDetail(\'' + s.id + '\')">';
+        html += '<div class="dm-related-time">' + formatTime(s.created) + ' <span style="color:var(--ink-4);">·</span> ' + esc((s.id || '').slice(0, 8)) + '</div>';
+        html += '<div class="dm-related-title">' + esc(s.name) + '</div>';
+        html += '<div class="dm-related-preview">' + esc(s.content_preview || '') + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // Semantically similar
+    html += '<div class="dm-section" id="dm-similar-section">';
+    html += '<div class="dm-section-eyebrow">可能关联 <span class="count">语义相似</span></div>';
+    if (similar.length > 0) {
+      html += '<div class="dm-related-grid">';
+      similar.forEach(function(s) {
+        var simPct = s.similarity != null ? (s.similarity * 100).toFixed(0) + '%' : '';
+        html += '<div class="dm-related-card" onclick="showDetail(\'' + s.id + '\')">';
+        html += '<div class="dm-related-time">相似 ' + simPct + '</div>';
+        html += '<div class="dm-related-title">' + esc(s.name) + '</div>';
+        html += '<div class="dm-related-preview">' + esc(s.content_preview || '') + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div style="font-family:var(--serif);font-style:italic;color:var(--ink-3);font-size:12.5px;padding:6px 4px;">暂无相似记忆 · 数据加载中或这条记忆比较独特 ❀</div>';
+    }
+    html += '</div>';
+
+    html += '</div>'; // .dm-body
+
+    // Footer
+    html += '<div class="dm-footer">';
+    html += '<span class="dm-footer-hint">⎋ 关闭 <span class="sep">·</span> ←/→ 切换 <span class="sep">·</span> ⌘E 编辑</span>';
+    html += '<div class="dm-footer-actions">';
+    html += '<button class="dm-action' + (meta.pinned ? ' active' : '') + '" onclick="memAction(\'' + id + '\', \'pin\')">' + (meta.pinned ? '✓ 已钉决' : '★ 钉决') + '</button>';
+    html += '<button class="dm-action" onclick="memAction(\'' + id + '\', \'protect\')">⛨ 保护</button>';
+    html += '<button class="dm-action primary" onclick="memEdit(\'' + id + '\')">✎ 编辑</button>';
+    html += '</div>';
+    html += '</div>';
+
+    content.innerHTML = html;
+
+    // After network loads (if it loads later), refresh similarity section
+    if (similar.length === 0) {
+      setTimeout(function() {
+        if (currentDetailId === id) {
+          var nowSimilar = findSimilarMemories(id);
+          if (nowSimilar.length > 0) {
+            var sec = document.getElementById('dm-similar-section');
+            if (sec) {
+              var grid = '<div class="dm-related-grid">';
+              nowSimilar.forEach(function(s) {
+                var simPct = s.similarity != null ? (s.similarity * 100).toFixed(0) + '%' : '';
+                grid += '<div class="dm-related-card" onclick="showDetail(\'' + s.id + '\')">';
+                grid += '<div class="dm-related-time">相似 ' + simPct + '</div>';
+                grid += '<div class="dm-related-title">' + esc(s.name) + '</div>';
+                grid += '<div class="dm-related-preview">' + esc(s.content_preview || '') + '</div>';
+                grid += '</div>';
+              });
+              grid += '</div>';
+              sec.innerHTML = '<div class="dm-section-eyebrow">可能关联 <span class="count">语义相似</span></div>' + grid;
+            }
+          }
+        }
+      }, 800);
+    }
   } catch (e) {
-    content.innerHTML = '<div class="loading">加载失败: ' + e.message + '</div>';
+    content.innerHTML = '<div class="loading" style="padding:80px 20px;">加载失败: ' + e.message + '</div>';
   }
 }
 
 function closeDetail() {
-  document.getElementById('detail-panel').classList.remove('open');
+  currentDetailId = null;
+  document.getElementById('detail-modal').classList.remove('open');
+  document.getElementById('detail-backdrop').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function memAction(id, action) {
+  var actionMap = { pin: 'pin', protect: 'pin', important: 'important' };
+  var apiAction = actionMap[action] || action;
+  fetch(BASE + '/api/import/review', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ decisions: [{ bucket_id: id, action: apiAction }] })
+  }).then(function() {
+    // Refresh detail and bucket list
+    showDetail(id);
+    loadBuckets();
+  }).catch(function(e) {
+    alert('操作失败: ' + e.message);
+  });
+}
+
+function memEdit(id) {
+  alert('编辑功能 Phase 2B · 敬请期待 ❀');
 }
 
 var networkData = null;
@@ -2863,9 +3348,23 @@ function formatTimeAgo(iso) {
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeDetail();
-  if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
     e.preventDefault();
     document.getElementById('search-input').focus();
+  }
+  // Arrow keys navigate memories when modal open
+  if (currentDetailId && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+    var list = filterBuckets(allBuckets);
+    var idx = list.findIndex(function(b) { return b.id === currentDetailId; });
+    if (idx === -1) return;
+    if (e.key === 'ArrowLeft' && idx > 0) {
+      e.preventDefault();
+      showDetail(list[idx - 1].id);
+    } else if (e.key === 'ArrowRight' && idx < list.length - 1) {
+      e.preventDefault();
+      showDetail(list[idx + 1].id);
+    }
   }
 });
 
