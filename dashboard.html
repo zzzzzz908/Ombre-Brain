@@ -718,15 +718,17 @@
   }
   .detail-content {
     font-size: 13.5px;
-    line-height: 1.85;
+    line-height: 1.9;
     white-space: pre-wrap;
-    background: var(--bg-warm);
+    background: #FCEEE0;
     padding: 22px 24px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
+    border-radius: 12px;
+    border: 1px solid #F4D8C3;
+    border-left: 3px solid #D89F7A;
     max-height: 52vh;
     overflow-y: auto;
     color: var(--ink);
+    letter-spacing: 0.05px;
   }
 
   /* ============================================
@@ -826,28 +828,316 @@
   /* ============================================
      Network canvas
      ============================================ */
+  /* === 记忆星图：左栏 + 中央 + 底部控件 === */
+  .network-layout {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .network-sidebar {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: calc(100vh - 280px);
+    min-height: 520px;
+    overflow-y: auto;
+  }
+  .ns-section {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .ns-label {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-2);
+    font-weight: 500;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .ns-label .count {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--ink-3);
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+  /* 视图模式 */
+  .view-modes {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .vm-btn {
+    padding: 5px 11px;
+    font-size: 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-1);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s ease;
+    letter-spacing: 0.2px;
+  }
+  .vm-btn:hover { border-color: var(--ink-3); color: var(--ink); }
+  .vm-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  /* 图例 */
+  .legend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--ink-1);
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+  }
+  .legend-row:hover { background: var(--bg-warm); }
+  .legend-row.disabled { opacity: 0.35; }
+  .legend-row .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-row .legend-name { flex: 1; line-height: 1.2; }
+  .legend-row .legend-cn { color: var(--ink); font-weight: 500; display: block; }
+  .legend-row .legend-en {
+    color: var(--ink-3);
+    font-size: 10px;
+    text-transform: lowercase;
+    letter-spacing: 0.3px;
+    font-family: var(--serif);
+    font-style: italic;
+  }
+  .legend-row .legend-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  /* Importance 滑块 */
+  .imp-slider-wrap { padding: 4px 6px 0; }
+  .imp-slider {
+    width: 100%;
+    height: 3px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--line-strong);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  .imp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--ink-3);
+    cursor: pointer;
+  }
+  .imp-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--ink-3);
+    cursor: pointer;
+  }
+  .imp-value {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink);
+    font-weight: 500;
+    text-align: center;
+    margin-top: 6px;
+    line-height: 1;
+  }
+  /* 标签云 */
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .tag-pill {
+    padding: 3px 9px;
+    font-size: 10.5px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-1);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.1px;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .tag-pill:hover { border-color: var(--ink-3); }
+  .tag-pill.active {
+    background: var(--c-lavender);
+    border-color: var(--c-lavender-deep);
+    color: var(--c-lavender-text);
+  }
+  /* 中央画布区 */
+  .network-main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: calc(100vh - 280px);
+    min-height: 520px;
+  }
   #network-canvas {
     width: 100%;
-    height: calc(100vh - 240px);
+    flex: 1;
     background: var(--paper);
-    border-radius: 12px;
+    border-radius: 14px;
     border: 1px solid var(--line);
+    cursor: grab;
   }
-  .network-legend {
+  #network-canvas:active { cursor: grabbing; }
+  /* 底部控件 */
+  .network-controls {
     display: flex;
-    gap: 22px;
-    margin-bottom: 18px;
-    font-size: 11px;
-    color: var(--ink-2);
-    letter-spacing: 0.3px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    align-self: center;
   }
-  .legend-item { display: flex; align-items: center; gap: 7px; text-transform: lowercase; }
-  .legend-dot {
-    width: 8px;
-    height: 8px;
+  .nc-btn {
+    width: 28px; height: 28px;
     border-radius: 50%;
-    display: inline-block;
+    border: none;
+    background: transparent;
+    color: var(--ink-1);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.18s ease;
+    line-height: 1;
+    font-family: inherit;
   }
+  .nc-btn:hover { background: var(--bg-warm); color: var(--ink); }
+  .nc-zoom {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-1);
+    min-width: 50px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .nc-divider {
+    width: 1px;
+    height: 14px;
+    background: var(--line);
+    margin: 0 4px;
+  }
+  .nc-text-btn {
+    padding: 5px 12px;
+    border: none;
+    background: transparent;
+    color: var(--ink-1);
+    font-size: 11.5px;
+    cursor: pointer;
+    border-radius: 999px;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    transition: all 0.18s ease;
+  }
+  .nc-text-btn:hover { background: var(--bg-warm); color: var(--ink); }
+
+  /* 手机端筛选抽屉触发按钮 + 背景遮罩（默认隐藏，移动端启用） */
+  .ns-toggle {
+    display: none;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 11.5px;
+    color: var(--ink-1);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(80, 70, 50, 0.06);
+    letter-spacing: 0.3px;
+    transition: all 0.18s ease;
+  }
+  .ns-toggle:hover { color: var(--ink); border-color: var(--ink-3); }
+  .ns-toggle-flower { color: #C9A98A; font-size: 11px; }
+
+  .ns-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(50, 42, 30, 0.32);
+    z-index: 90;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .ns-backdrop.show {
+    display: block;
+    opacity: 1;
+  }
+
+  /* 抽屉关闭按钮（默认隐藏，移动端 .ns-close 规则下可见） */
+  .ns-close {
+    display: none;
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-2);
+    font-size: 13px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    line-height: 1;
+    transition: all 0.18s ease;
+  }
+  .ns-close:hover { color: var(--ink); border-color: var(--ink-3); }
 
   /* ============================================
      Loading state
@@ -1260,8 +1550,55 @@
     }
     .score-row .score-bars { display: none; }
 
-    /* Network canvas 可滚动，高度限制 */
-    #network-canvas { height: 60vh; }
+    /* 记忆星图：手机端侧栏改为左侧滑入抽屉 */
+    .network-layout {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .ns-toggle { display: inline-flex; }
+
+    .network-sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      max-height: 100vh;
+      min-height: 0;
+      width: 290px;
+      max-width: 86vw;
+      z-index: 95;
+      border: none;
+      border-right: 1px solid var(--line);
+      border-radius: 0 16px 16px 0;
+      padding: 28px 20px 24px;
+      gap: 20px;
+      box-shadow: 8px 0 32px rgba(80, 70, 50, 0.15);
+      transform: translateX(-110%);
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+    .network-sidebar.open {
+      transform: translateX(0);
+    }
+    /* 抽屉关闭按钮：手机端可见 */
+    .ns-close { display: flex !important; }
+    .ns-section { gap: 8px; }
+    .ns-label { padding-bottom: 5px; }
+    .imp-value { font-size: 20px; }
+    .legend-row { padding: 5px 8px; font-size: 12px; }
+    .tag-cloud { max-height: 200px; }
+
+    .network-main {
+      height: 70vh;
+      min-height: 0;
+      gap: 10px;
+      position: relative;
+    }
+    #network-canvas { flex: 1; }
+    .network-controls { padding: 6px 10px; }
+    .nc-btn { width: 26px; height: 26px; font-size: 13px; }
+    .nc-zoom { font-size: 12px; min-width: 42px; }
+    .nc-text-btn { padding: 4px 10px; font-size: 11px; }
 
     /* Auth 卡片：手机居中且紧凑 */
     .auth-card { padding: 40px 28px; }
@@ -1379,16 +1716,62 @@
     <div class="page-mark">❀</div>
     <div class="eyebrow view-eyebrow">Constellation <span class="sep">·</span> 记忆引力</div>
     <div class="view-title"><em>记忆星图</em></div>
-    <div class="view-subtitle">每一颗都是一段被记住的瞬间</div>
+    <div class="view-subtitle" id="network-subtitle">按 tag 共现与时间邻近自动连结 <span class="dot">·</span> 拖拽 pan，滚轮 zoom</div>
   </div>
 
-  <div class="network-legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#C99672"></span> dynamic</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#BC9D40"></span> permanent</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#B57878"></span> feel</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#B8B2A6"></span> archived</div>
+  <div class="network-layout">
+    <aside class="network-sidebar">
+      <button class="ns-close" onclick="closeNetworkSidebar()" aria-label="关闭筛选">✕</button>
+      <!-- 视图模式 -->
+      <div class="ns-section">
+        <div class="ns-label">视图模式</div>
+        <div class="view-modes">
+          <button class="vm-btn active" data-mode="star">星图</button>
+          <button class="vm-btn" data-mode="cluster">聚类</button>
+          <button class="vm-btn" data-mode="time">时间</button>
+          <button class="vm-btn" data-mode="type">类型</button>
+        </div>
+      </div>
+
+      <!-- 图例 -->
+      <div class="ns-section">
+        <div class="ns-label">图例 · 类型 <span class="count" id="legend-total">— 颗</span></div>
+        <div class="legend-list" id="legend-list"><div style="font-size:11px;color:var(--ink-3);font-style:italic;">加载中…</div></div>
+      </div>
+
+      <!-- Importance 阈值 -->
+      <div class="ns-section">
+        <div class="ns-label">Importance 阈值 <span class="count">≥ <span id="imp-display">1</span></span></div>
+        <div class="imp-slider-wrap">
+          <input type="range" min="1" max="10" value="1" class="imp-slider" id="imp-threshold">
+          <div class="imp-value" id="imp-value">1</div>
+        </div>
+      </div>
+
+      <!-- 标签 -->
+      <div class="ns-section">
+        <div class="ns-label">标签 · 点击筛选 <span class="count" id="tag-active-count">0/—</span></div>
+        <div class="tag-cloud" id="tag-cloud"><div style="font-size:11px;color:var(--ink-3);font-style:italic;padding:4px;">加载中…</div></div>
+      </div>
+    </aside>
+
+    <div class="network-main">
+      <button class="ns-toggle" onclick="toggleNetworkSidebar()" aria-label="筛选">
+        <span class="ns-toggle-flower">❀</span> 筛选
+      </button>
+      <canvas id="network-canvas"></canvas>
+      <div class="network-controls">
+        <button class="nc-btn" onclick="networkZoom(-0.15)" title="缩小">−</button>
+        <span class="nc-zoom" id="zoom-display">100%</span>
+        <button class="nc-btn" onclick="networkZoom(0.15)" title="放大">+</button>
+        <span class="nc-divider"></span>
+        <button class="nc-text-btn" onclick="networkReset()">⟲ 重置</button>
+        <span class="nc-divider"></span>
+        <button class="nc-text-btn" onclick="networkTimePlayback()">▶ 时间回放</button>
+      </div>
+    </div>
   </div>
-  <canvas id="network-canvas"></canvas>
+  <div class="ns-backdrop" onclick="closeNetworkSidebar()"></div>
 </div>
 
 <div class="content" id="import-view" style="display:none">
@@ -2019,6 +2402,15 @@ function closeDetail() {
 }
 
 var networkData = null;
+var networkFilters = {
+  importance: 1,
+  activeTags: new Set(),
+  hiddenTypes: new Set(),
+  viewMode: 'star',
+  zoom: 1.0,
+};
+var networkEventsBound = false;
+
 async function loadNetwork() {
   var canvas = document.getElementById('network-canvas');
   var ctx = canvas.getContext('2d');
@@ -2027,7 +2419,7 @@ async function loadNetwork() {
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   var W = canvas.offsetWidth, H = canvas.offsetHeight;
 
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = '#FFFEF8';
   ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#B8B2A6';
   ctx.font = 'italic 14px Cormorant Garamond, serif';
@@ -2037,10 +2429,188 @@ async function loadNetwork() {
   try {
     var res = await fetch(BASE + '/api/network');
     networkData = await res.json();
-    drawNetwork(ctx, W, H, networkData);
+    bindNetworkEvents();
+    buildNetworkSidebar();
+    redrawNetwork();
   } catch(e) {
     ctx.fillText('加载失败: ' + e.message, W/2, H/2 + 24);
   }
+}
+
+function applyNetworkFilters(data) {
+  if (!data) return data;
+  var f = networkFilters;
+  var nodes = data.nodes.filter(function(n) {
+    var imp = (n.importance != null) ? n.importance : 5;
+    if (imp < f.importance) return false;
+    if (f.hiddenTypes.has(n.type)) return false;
+    if (f.activeTags.size > 0) {
+      var nt = n.tags || [];
+      var hit = false;
+      f.activeTags.forEach(function(t) { if (nt.indexOf(t) !== -1) hit = true; });
+      if (!hit) return false;
+    }
+    return true;
+  });
+  var keep = {};
+  nodes.forEach(function(n) { keep[n.id] = true; });
+  var edges = data.edges.filter(function(e) { return keep[e.source] && keep[e.target]; });
+  return { nodes: nodes, edges: edges };
+}
+
+function redrawNetwork() {
+  if (!networkData) return;
+  var canvas = document.getElementById('network-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  var W = canvas.offsetWidth, H = canvas.offsetHeight;
+  drawNetwork(ctx, W, H, applyNetworkFilters(networkData));
+}
+
+function buildNetworkSidebar() {
+  if (!networkData) return;
+  var nodes = networkData.nodes;
+
+  // 总数
+  var totalEl = document.getElementById('legend-total');
+  if (totalEl) totalEl.textContent = nodes.length + ' 颗';
+
+  // 类型计数
+  var typeMap = { dynamic: 0, permanent: 0, feel: 0, archived: 0 };
+  nodes.forEach(function(n) {
+    if (n.type in typeMap) typeMap[n.type]++;
+    else typeMap.dynamic++;
+  });
+  var typeMeta = [
+    { key: 'dynamic',   cn: '日常动态',    en: 'dynamic',   color: '#D89F7A' },
+    { key: 'permanent', cn: '永久 / 钉决', en: 'permanent', color: '#C9A95E' },
+    { key: 'feel',      cn: '情感 · feel', en: 'feel',      color: '#B57878' },
+    { key: 'archived',  cn: '归档低活',    en: 'archived',  color: '#A8A095' },
+  ];
+  var listEl = document.getElementById('legend-list');
+  if (listEl) {
+    listEl.innerHTML = typeMeta.map(function(t) {
+      var disabled = networkFilters.hiddenTypes.has(t.key) ? ' disabled' : '';
+      return '<div class="legend-row' + disabled + '" data-type="' + t.key + '">' +
+        '<span class="legend-dot" style="background:' + t.color + '"></span>' +
+        '<span class="legend-name"><span class="legend-cn">' + t.cn + '</span><span class="legend-en">' + t.en + '</span></span>' +
+        '<span class="legend-num">' + typeMap[t.key] + '</span>' +
+      '</div>';
+    }).join('');
+    listEl.querySelectorAll('.legend-row').forEach(function(row) {
+      row.addEventListener('click', function() {
+        var t = row.dataset.type;
+        if (networkFilters.hiddenTypes.has(t)) networkFilters.hiddenTypes.delete(t);
+        else networkFilters.hiddenTypes.add(t);
+        buildNetworkSidebar();
+        redrawNetwork();
+      });
+    });
+  }
+
+  // 标签云
+  var tagCount = {};
+  nodes.forEach(function(n) {
+    (n.tags || []).forEach(function(t) { tagCount[t] = (tagCount[t] || 0) + 1; });
+  });
+  var sortedTags = Object.keys(tagCount).sort(function(a, b) { return tagCount[b] - tagCount[a]; }).slice(0, 80);
+  var cloudEl = document.getElementById('tag-cloud');
+  if (cloudEl) {
+    cloudEl.innerHTML = sortedTags.length === 0
+      ? '<div style="font-size:11px;color:var(--ink-3);font-style:italic;padding:4px;">暂无标签</div>'
+      : sortedTags.map(function(t) {
+          var active = networkFilters.activeTags.has(t) ? ' active' : '';
+          return '<button class="tag-pill' + active + '" data-tag="' + esc(t) + '">' + esc(t) + '</button>';
+        }).join('');
+    cloudEl.querySelectorAll('.tag-pill').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var t = btn.dataset.tag;
+        if (networkFilters.activeTags.has(t)) networkFilters.activeTags.delete(t);
+        else networkFilters.activeTags.add(t);
+        buildNetworkSidebar();
+        redrawNetwork();
+      });
+    });
+  }
+  var tagCountEl = document.getElementById('tag-active-count');
+  if (tagCountEl) tagCountEl.textContent = networkFilters.activeTags.size + '/' + sortedTags.length;
+}
+
+function bindNetworkEvents() {
+  if (networkEventsBound) return;
+  networkEventsBound = true;
+
+  // Importance 滑块
+  var slider = document.getElementById('imp-threshold');
+  if (slider) {
+    slider.addEventListener('input', function(e) {
+      var v = parseInt(e.target.value, 10);
+      networkFilters.importance = v;
+      var d = document.getElementById('imp-display');
+      var vv = document.getElementById('imp-value');
+      if (d) d.textContent = v;
+      if (vv) vv.textContent = v;
+      redrawNetwork();
+    });
+  }
+
+  // 视图模式（暂时只 star 实现，其他 placeholder）
+  document.querySelectorAll('.vm-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.vm-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      networkFilters.viewMode = btn.dataset.mode;
+      // TODO: 实现 cluster / time / type 布局
+      redrawNetwork();
+    });
+  });
+}
+
+function networkZoom(delta) {
+  networkFilters.zoom = Math.max(0.4, Math.min(2.5, networkFilters.zoom + delta));
+  var d = document.getElementById('zoom-display');
+  if (d) d.textContent = Math.round(networkFilters.zoom * 100) + '%';
+  redrawNetwork();
+}
+
+function networkReset() {
+  networkFilters = {
+    importance: 1,
+    activeTags: new Set(),
+    hiddenTypes: new Set(),
+    viewMode: 'star',
+    zoom: 1.0,
+  };
+  var s = document.getElementById('imp-threshold'); if (s) s.value = 1;
+  var d = document.getElementById('imp-display'); if (d) d.textContent = '1';
+  var v = document.getElementById('imp-value'); if (v) v.textContent = '1';
+  var z = document.getElementById('zoom-display'); if (z) z.textContent = '100%';
+  document.querySelectorAll('.vm-btn').forEach(function(b) { b.classList.remove('active'); });
+  var starBtn = document.querySelector('.vm-btn[data-mode="star"]');
+  if (starBtn) starBtn.classList.add('active');
+  buildNetworkSidebar();
+  redrawNetwork();
+}
+
+function networkTimePlayback() {
+  alert('时间回放功能正在路上 · 敬请期待 ❀');
+}
+
+function toggleNetworkSidebar() {
+  var bar = document.querySelector('.network-sidebar');
+  var bd  = document.querySelector('.ns-backdrop');
+  if (!bar || !bd) return;
+  var open = bar.classList.toggle('open');
+  bd.classList.toggle('show', open);
+}
+function closeNetworkSidebar() {
+  var bar = document.querySelector('.network-sidebar');
+  var bd  = document.querySelector('.ns-backdrop');
+  if (bar) bar.classList.remove('open');
+  if (bd)  bd.classList.remove('show');
 }
 
 function drawNetwork(ctx, W, H, data) {
@@ -2109,6 +2679,16 @@ function drawNetwork(ctx, W, H, data) {
     p.x = Math.max(margin, Math.min(W - margin, p.x));
     p.y = Math.max(margin + 18, Math.min(H - margin - 28, p.y));
   });
+
+  // 应用 zoom（围绕中心点缩放节点位置）
+  var zoom = (window.networkFilters && window.networkFilters.zoom) || 1.0;
+  if (zoom !== 1.0) {
+    nodes.forEach(function(n) {
+      var p = positions[n.id];
+      p.x = cx + (p.x - cx) * zoom;
+      p.y = cy + (p.y - cy) * zoom;
+    });
+  }
 
   // 背景：极淡奶白
   ctx.fillStyle = '#FFFEF8';
