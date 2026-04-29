@@ -990,51 +990,51 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 0;
-    margin-bottom: 26px;
-    padding: 22px 20px;
+    margin-bottom: 22px;
+    padding: 12px 14px;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 10px;
   }
   .flow-step {
-    padding: 4px 18px;
+    padding: 4px 12px;
     text-align: center;
     position: relative;
     transition: all 0.2s ease;
   }
-  /* 各 step 之间用细竖线分隔，不再用 → 箭头 */
+  /* 各 step 之间用细竖线分隔 */
   .flow-step:not(:last-child)::after {
     content: '';
     position: absolute;
     right: 0;
-    top: 14px;
-    bottom: 14px;
+    top: 8px;
+    bottom: 8px;
     width: 1px;
     background: var(--line);
   }
   .flow-stage {
-    font-size: 9.5px;
+    font-size: 8.5px;
     text-transform: uppercase;
-    letter-spacing: 1.6px;
+    letter-spacing: 1.4px;
     color: var(--ink-3);
     font-weight: 500;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
   }
   .flow-name {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 22px;
-    color: var(--ink);
+    font-size: 14px;
+    color: var(--ink-1);
     font-weight: 500;
-    margin-bottom: 6px;
-    line-height: 1.15;
-    letter-spacing: 0.2px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+    letter-spacing: 0.1px;
   }
   .flow-desc {
-    font-size: 10.5px;
+    font-size: 9.5px;
     color: var(--ink-3);
     letter-spacing: 0.2px;
-    line-height: 1.5;
+    line-height: 1.4;
     font-variant-numeric: tabular-nums;
   }
   /* Active：薰衣草色调激活（呼应"星图 / 唤醒"的紫调） */
@@ -1155,31 +1155,128 @@
   .auth-card button:hover { background: var(--ink-1); }
 
   /* ============================================
-     Mobile
+     Mobile · 手机适配（重点优化）
      ============================================ */
   @media (max-width: 900px) {
-    .header { padding: 18px 20px; flex-wrap: wrap; gap: 12px; }
-    .header h1 { font-size: 18px; }
-    .search-bar { margin-left: 0; width: 100%; }
-    .search-bar input { width: 100%; }
-    .tabs { padding: 0 14px; overflow-x: auto; }
-    .content { padding: 30px 18px 60px; }
-    .view-title { font-size: 40px; }
+    /* Header 紧凑两行布局 */
+    .header {
+      padding: 14px 16px 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .header h1 { font-size: 17px; }
+    .header h1 .glyph { font-size: 14px; }
+    .greeting { font-size: 14px; gap: 5px; padding: 0; margin-left: auto; }
+    .greeting-mark { font-size: 9px; }
+    .header-action-btn { padding: 5px 11px; font-size: 10.5px; }
+    .search-bar { margin-left: 0; width: 100%; order: 10; }
+    .search-bar input { width: 100%; padding: 7px 14px; font-size: 12.5px; }
+
+    /* Tabs：横向滚动而不是换行，更省空间 */
+    .tabs {
+      padding: 12px 14px 14px;
+      gap: 6px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      padding: 6px 13px;
+      font-size: 11.5px;
+      flex-shrink: 0;
+    }
+    .tab .v-tag { font-size: 8.5px; }
+
+    /* Content 区域 */
+    .content { padding: 26px 16px 60px; }
+    .view-head { margin-bottom: 24px; }
+    .page-mark { font-size: 13px; margin-bottom: 8px; letter-spacing: 3px; }
+    .view-title {
+      font-size: 32px;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+    .view-subtitle { font-size: 11px; padding: 0 8px; line-height: 1.6; }
+    .view-eyebrow { font-size: 9px; margin-bottom: 6px; letter-spacing: 1.4px; }
+
+    /* Toolbar */
+    .list-toolbar {
+      gap: 8px;
+      padding-bottom: 22px;
+      margin-bottom: 24px;
+    }
+    .list-toolbar::before { left: 6%; right: 6%; }
+    .list-toolbar::after { font-size: 12px; padding: 0 10px; }
+    .filter-btn { padding: 5px 11px; font-size: 11.5px; gap: 5px; }
+    .filter-btn .count { font-size: 10px; }
+    .vt-btn { padding: 4px 11px; font-size: 11px; }
+    .view-toggle { margin-left: 0; }
+
+    /* List 模式：精简列 */
+    .bucket-list { border-radius: 8px; }
     .bucket-row {
-      grid-template-columns: 4px 18px 1fr 50px 32px;
+      grid-template-columns: 4px 16px 1fr 44px 32px;
       gap: 10px;
       padding: 12px 14px 12px 0;
     }
     .bucket-row .domain,
     .bucket-row .emotion,
     .bucket-row .preview { display: none; }
-    .bucket-grid { grid-template-columns: 1fr; }
-    .detail-panel { width: 100%; padding: 30px 24px; }
-    .config-row { flex-wrap: wrap; }
+    .bucket-row .name { font-size: 13px; }
+    .bucket-row .imp-badge { font-size: 18px; }
+
+    /* Card 模式 */
+    .bucket-grid { grid-template-columns: 1fr; gap: 10px; }
+    .bucket-card { padding: 16px 18px 14px 22px; min-height: 0; }
+    .card-title { font-size: 14px; }
+    .card-imp { font-size: 20px; }
+
+    /* Detail panel：满屏弹出 */
+    .detail-panel { width: 100%; padding: 28px 22px 60px; }
+    .detail-panel h2 { font-size: 24px; }
+    .detail-meta { grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+
+    /* Config / Settings */
+    .config-section { padding: 20px 18px; }
+    .config-row { flex-wrap: wrap; gap: 6px 10px; }
     .config-row label { width: 100%; }
+
+    /* Breath：手机直接隐藏流程图（说明性，不是核心） */
     .breath-flow { display: none; }
-    .list-toolbar { gap: 10px; }
-    .view-toggle { margin-left: 0; }
+    .breath-controls { gap: 8px; }
+    .breath-controls input { padding: 7px 12px; font-size: 12.5px; }
+    .breath-controls button { padding: 8px 18px; font-size: 12px; }
+    .breath-controls label { font-size: 10px; }
+
+    /* Score row 紧凑 */
+    .score-row {
+      grid-template-columns: 24px 1fr 56px;
+      gap: 10px;
+      padding: 10px 12px;
+    }
+    .score-row .score-bars { display: none; }
+
+    /* Network canvas 可滚动，高度限制 */
+    #network-canvas { height: 60vh; }
+
+    /* Auth 卡片：手机居中且紧凑 */
+    .auth-card { padding: 40px 28px; }
+    .auth-card .auth-glyph { font-size: 28px; }
+  }
+
+  /* 小屏手机进一步精简 */
+  @media (max-width: 480px) {
+    .view-title { font-size: 28px; }
+    .header h1 em { display: inline; }
+    .header h1 { font-size: 15px; }
+    .greeting { font-size: 13px; }
+    .tab { padding: 5px 11px; font-size: 11px; }
+    .filter-btn { padding: 4px 10px; font-size: 11px; }
+    .content { padding: 22px 14px 50px; }
   }
 </style>
 </head>
@@ -1197,7 +1294,7 @@
 
 <div class="tabs">
   <div class="tab active" data-tab="list">记忆格<span class="v-tag">v2</span></div>
-  <div class="tab" data-tab="breath">Breath 模拟</div>
+  <div class="tab" data-tab="breath">Breath</div>
   <div class="tab" data-tab="network">记忆星图</div>
   <div class="tab" data-tab="config">配置</div>
   <div class="tab" data-tab="import">导入</div>
