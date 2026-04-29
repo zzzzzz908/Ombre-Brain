@@ -160,6 +160,28 @@
     background: var(--paper);
   }
   .search-bar input::placeholder { color: var(--ink-3); }
+  .greeting {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: 0.3px;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  .greeting em {
+    font-style: italic;
+    font-weight: 500;
+  }
+  .greeting-mark {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: #C9A98A;
+    opacity: 0.85;
+    transform: translateY(-2px);
+  }
   .header-action-btn {
     background: transparent;
     border: 1px solid var(--line);
@@ -965,36 +987,61 @@
   .score-final small { font-size: 10px; color: var(--ink-3); margin-left: 2px; }
 
   .breath-flow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
     margin-bottom: 26px;
-    padding: 16px 20px;
+    padding: 22px 20px;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 12px;
-    font-size: 11.5px;
-    overflow-x: auto;
+    border-radius: 14px;
   }
   .flow-step {
-    padding: 9px 14px;
-    border-radius: 8px;
-    background: var(--bg-warm);
-    border: 1px solid var(--line);
-    white-space: nowrap;
+    padding: 4px 18px;
     text-align: center;
-    min-width: 100px;
-    transition: all 0.18s ease;
-    letter-spacing: 0.2px;
-    color: var(--ink-1);
+    position: relative;
+    transition: all 0.2s ease;
   }
-  .flow-step.active {
-    border-color: var(--ink-3);
+  /* 各 step 之间用细竖线分隔，不再用 → 箭头 */
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 1px;
+    background: var(--line);
+  }
+  .flow-stage {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .flow-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
     color: var(--ink);
-    background: var(--paper);
+    font-weight: 500;
+    margin-bottom: 6px;
+    line-height: 1.15;
+    letter-spacing: 0.2px;
   }
-  .flow-step small { font-size: 9.5px; color: var(--ink-3); display: block; margin-top: 3px; letter-spacing: 0.2px; text-transform: lowercase; }
-  .flow-arrow { color: var(--ink-3); font-size: 13px; }
+  .flow-desc {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.2px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Active：薰衣草色调激活（呼应"星图 / 唤醒"的紫调） */
+  .flow-step.active .flow-stage { color: #9F8BC0; }
+  .flow-step.active .flow-name { color: #523E6E; }
+  .flow-step.active .flow-desc { color: var(--ink-2); }
+  .flow-arrow { display: none; }
 
   /* ============================================
      Import view
@@ -1140,10 +1187,11 @@
 
 <div class="header">
   <h1><span class="glyph">◐</span><em>Ombre Brain</em></h1>
-  <span class="stats" id="stats">loading…</span>
+  <span class="stats" id="stats" style="display:none;">loading…</span>
   <div class="search-bar">
-    <input type="text" id="search-input" placeholder="搜索记忆…" />
+    <input type="search" id="search-input" name="memory_query" placeholder="搜索记忆…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" />
   </div>
+  <span class="greeting"><em>榆榆</em><span class="greeting-mark">❀</span></span>
   <button class="header-action-btn" onclick="doLogout()" title="退出登录">退出</button>
 </div>
 
@@ -1186,15 +1234,31 @@
   </div>
 
   <div class="breath-flow" id="breath-flow">
-    <div class="flow-step" id="fs-input">① 输入<small>query / valence / arousal</small></div>
-    <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-candidates">② 候选池<small id="fs-cand-n">— 桶</small></div>
-    <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-scoring">③ 四维评分<small>topic + emotion + time + imp</small></div>
-    <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-threshold">④ 阈值过滤<small id="fs-thresh-n">≥50 → — 通过</small></div>
-    <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-sort">⑤ 降序排列<small>返回 top N</small></div>
+    <div class="flow-step" id="fs-input">
+      <div class="flow-stage">Stage I</div>
+      <div class="flow-name">输入</div>
+      <div class="flow-desc">query / valence / arousal</div>
+    </div>
+    <div class="flow-step" id="fs-candidates">
+      <div class="flow-stage">Stage II</div>
+      <div class="flow-name">候选池</div>
+      <div class="flow-desc"><span id="fs-cand-n">— 桶</span></div>
+    </div>
+    <div class="flow-step" id="fs-scoring">
+      <div class="flow-stage">Stage III</div>
+      <div class="flow-name">四维评分</div>
+      <div class="flow-desc">topic + emotion<br>time + importance</div>
+    </div>
+    <div class="flow-step" id="fs-threshold">
+      <div class="flow-stage">Stage IV</div>
+      <div class="flow-name">阈值过滤</div>
+      <div class="flow-desc"><span id="fs-thresh-n">≥50 → — 通过</span></div>
+    </div>
+    <div class="flow-step" id="fs-sort">
+      <div class="flow-stage">Stage V</div>
+      <div class="flow-name">降序排列</div>
+      <div class="flow-desc">返回 top N</div>
+    </div>
   </div>
 
   <div class="breath-controls">
