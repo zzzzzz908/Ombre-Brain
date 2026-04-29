@@ -233,6 +233,7 @@
 
   /* 每个 tab 配一种柔和色（统一暖度 + 同等明度） */
   .tab[data-tab="list"]     { background: #F8E3D0; color: #8C5733; }
+  .tab[data-tab="timeline"] { background: #D6E2D8; color: #3D6249; }
   .tab[data-tab="breath"]   { background: #DBE7E9; color: #486B72; }
   .tab[data-tab="network"]  { background: #E4DEEA; color: #6E5A8C; }
   .tab[data-tab="config"]   { background: #E4EAD3; color: #586B3F; }
@@ -241,6 +242,7 @@
 
   /* Hover：略饱和一档 */
   .tab[data-tab="list"]:hover     { background: #F0D2B5; }
+  .tab[data-tab="timeline"]:hover { background: #BED2C5; }
   .tab[data-tab="breath"]:hover   { background: #C8D9DC; }
   .tab[data-tab="network"]:hover  { background: #D6CCE2; }
   .tab[data-tab="config"]:hover   { background: #D4DCBE; }
@@ -250,6 +252,7 @@
   /* Active：饱和+柔光阴影（统一用同一种暖色阴影） */
   .tab.active { box-shadow: 0 4px 14px rgba(160, 130, 90, 0.16); }
   .tab[data-tab="list"].active     { background: #ECC9A8; color: #7C4924; }
+  .tab[data-tab="timeline"].active { background: #A0C0A8; color: #29543A; }
   .tab[data-tab="breath"].active   { background: #B6CCD0; color: #34555E; }
   .tab[data-tab="network"].active  { background: #CEC0DA; color: #523E6E; }
   .tab[data-tab="config"].active   { background: #C5D1AC; color: #455A30; }
@@ -1049,6 +1052,197 @@
   /* ============================================
      Network canvas
      ============================================ */
+  /* ============================================
+     时间线 v2 · Timeline
+     ============================================ */
+  .timeline-stats {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 28px;
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .timeline-stats b { color: var(--ink); font-weight: 500; }
+  .timeline-stats .dot { color: var(--ink-4); margin: 0 6px; }
+  .timeline-list { display: flex; flex-direction: column; }
+
+  .tl-month { margin-bottom: 22px; }
+  .tl-month-header {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 18px;
+    padding: 14px 0 12px;
+    border-bottom: 1px dashed var(--line);
+    margin-bottom: 4px;
+    align-items: center;
+  }
+  .tl-month-mark {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 30px;
+    color: var(--ink-3);
+    text-align: center;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .tl-month-info { display: flex; flex-direction: column; gap: 4px; }
+  .tl-month-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    line-height: 1;
+  }
+  .tl-month-name em {
+    font-style: italic;
+    font-weight: 500;
+  }
+  .tl-month-stats {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tl-month-stats .dot { color: var(--ink-4); margin: 0 5px; }
+
+  .tl-day {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 18px;
+    padding: 12px 0;
+    position: relative;
+  }
+  /* 时间线竖线 */
+  .tl-day::before {
+    content: '';
+    position: absolute;
+    left: 32px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--line);
+  }
+  .tl-day:last-child::before { bottom: 50%; }
+  /* 节点圆点 */
+  .tl-day-mark::after {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 22px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--c-coral-deep);
+    z-index: 1;
+  }
+  .tl-day-mark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-top: 6px;
+  }
+  .tl-day-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 28px;
+    color: var(--ink-1);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .tl-day-month {
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+  }
+  .tl-day-dow {
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-top: 2px;
+    letter-spacing: 0.4px;
+  }
+  .tl-day-content {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 18px;
+    transition: all 0.18s ease;
+  }
+  .tl-day-content:hover {
+    border-color: var(--ink-4);
+  }
+  .tl-day-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ink-2);
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+    flex-wrap: wrap;
+  }
+  .tl-day-summary .tl-count {
+    font-weight: 500;
+    color: var(--ink-1);
+  }
+  .tl-tag {
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 9.5px;
+    letter-spacing: 0.4px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .tl-tag.today { background: var(--c-peach); color: var(--c-peach-text); }
+  .tl-tag.imp   { background: var(--c-lavender); color: var(--c-lavender-text); }
+  .tl-tag.feel  { background: var(--c-rose); color: var(--c-rose-text); }
+  .tl-day-list { display: flex; flex-direction: column; gap: 2px; }
+  .tl-mem {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 12px;
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    align-items: baseline;
+  }
+  .tl-mem:hover { background: var(--bg-warm); }
+  .tl-mem-time {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', Consolas, monospace;
+    letter-spacing: 0.2px;
+    line-height: 1.5;
+  }
+  .tl-mem-body { display: flex; flex-direction: column; gap: 3px; }
+  .tl-mem-title {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .tl-mem-icon {
+    font-size: 11px;
+    margin-right: 4px;
+    color: var(--ink-3);
+  }
+  .tl-mem-icon.pinned { color: var(--c-lavender-deep); }
+  .tl-mem-icon.feel { color: var(--c-rose-deep); }
+  .tl-mem-preview {
+    font-size: 11.5px;
+    color: var(--ink-2);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   /* === 记忆星图：左栏 + 中央 + 底部控件 === */
   .network-layout {
     display: grid;
@@ -1798,6 +1992,38 @@
     }
     .score-row .score-bars { display: none; }
 
+    /* 时间线：手机端紧凑 */
+    .timeline-stats { font-size: 11px; margin-bottom: 22px; }
+    .tl-month-header {
+      grid-template-columns: 44px 1fr;
+      gap: 12px;
+      padding: 10px 0 10px;
+    }
+    .tl-month-mark { font-size: 22px; }
+    .tl-month-name { font-size: 18px; }
+    .tl-month-name em { font-size: 18px; }
+    .tl-month-stats { font-size: 10.5px; }
+    .tl-day {
+      grid-template-columns: 44px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+    }
+    .tl-day::before { left: 22px; }
+    .tl-day-mark::after { left: 18px; top: 18px; width: 8px; height: 8px; border-width: 1.5px; }
+    .tl-day-num { font-size: 22px; }
+    .tl-day-month, .tl-day-dow { font-size: 9.5px; }
+    .tl-day-content { padding: 12px 14px; }
+    .tl-day-summary { font-size: 10.5px; gap: 6px; margin-bottom: 8px; }
+    .tl-tag { font-size: 9px; padding: 1px 7px; }
+    .tl-mem {
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      padding: 7px 5px;
+    }
+    .tl-mem-time { font-size: 10.5px; }
+    .tl-mem-title { font-size: 12.5px; }
+    .tl-mem-preview { font-size: 11px; }
+
     /* 记忆星图：手机端侧栏改为左侧滑入抽屉 */
     .network-layout {
       grid-template-columns: 1fr;
@@ -1879,6 +2105,7 @@
 
 <div class="tabs">
   <div class="tab active" data-tab="list">记忆格<span class="v-tag">v2</span></div>
+  <div class="tab" data-tab="timeline">时间线<span class="v-tag">v2</span></div>
   <div class="tab" data-tab="breath">Breath</div>
   <div class="tab" data-tab="network">记忆星图</div>
   <div class="tab" data-tab="config">配置</div>
@@ -1903,6 +2130,21 @@
   </div>
 
   <div class="bucket-list" id="bucket-list">
+    <div class="loading">加载中…</div>
+  </div>
+</div>
+
+<div class="content" id="timeline-view" style="display:none">
+  <div class="view-head">
+    <div class="page-mark">❀</div>
+    <div class="eyebrow view-eyebrow">Timeline <span class="sep">·</span> 时间线</div>
+    <div class="view-title"><em>我的时间线</em></div>
+    <div class="view-subtitle">按事件时间倒序展开 <span class="dot">·</span> 最新在最上方 <span class="dot">·</span> 点击单条查看完整详情</div>
+  </div>
+
+  <div class="timeline-stats" id="timeline-stats">— 条记忆 <span class="dot">·</span> — 个时间节点</div>
+
+  <div class="timeline-list" id="timeline-list">
     <div class="loading">加载中…</div>
   </div>
 </div>
@@ -2409,11 +2651,13 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     const target = tab.dataset.tab;
     document.getElementById('list-view').style.display = target === 'list' ? '' : 'none';
+    document.getElementById('timeline-view').style.display = target === 'timeline' ? '' : 'none';
     document.getElementById('breath-view').style.display = target === 'breath' ? '' : 'none';
     document.getElementById('network-view').style.display = target === 'network' ? '' : 'none';
     document.getElementById('config-view').style.display = target === 'config' ? '' : 'none';
     document.getElementById('import-view').style.display = target === 'import' ? '' : 'none';
     document.getElementById('settings-view').style.display = target === 'settings' ? '' : 'none';
+    if (target === 'timeline') loadTimeline();
     if (target === 'network') loadNetwork();
     if (target === 'config') loadConfig();
     if (target === 'import') { pollImportStatus(); loadImportResults(); }
@@ -2886,6 +3130,130 @@ function memEdit(id) {
   alert('编辑功能 Phase 2B · 敬请期待 ❀');
 }
 
+// === 时间线 v2 ===
+async function loadTimeline() {
+  if (!allBuckets || !allBuckets.length) {
+    await loadBuckets();
+  }
+  renderTimeline();
+}
+
+function renderTimeline() {
+  var list = document.getElementById('timeline-list');
+  var statsEl = document.getElementById('timeline-stats');
+  if (!list) return;
+  if (!allBuckets || !allBuckets.length) {
+    list.innerHTML = '<div class="loading">还没有记忆</div>';
+    if (statsEl) statsEl.textContent = '0 条记忆';
+    return;
+  }
+
+  // 按 年-月 / 日 分组
+  var grouped = {};
+  var withDate = 0;
+  allBuckets.forEach(function(b) {
+    if (!b.created) return;
+    var d = new Date(b.created);
+    if (isNaN(d.getTime())) return;
+    withDate++;
+    var ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    if (!grouped[ym]) grouped[ym] = {};
+    if (!grouped[ym][day]) grouped[ym][day] = [];
+    grouped[ym][day].push(b);
+  });
+
+  var months = Object.keys(grouped).sort().reverse();
+  var totalDays = months.reduce(function(s, m) { return s + Object.keys(grouped[m]).length; }, 0);
+
+  if (statsEl) {
+    statsEl.innerHTML = '<b>' + withDate + '</b> 条记忆 <span class="dot">·</span> <b>' + totalDays + '</b> 个时间节点';
+  }
+
+  var monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var monthCN = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
+  var dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  var todayKey = new Date().toISOString().slice(0, 10);
+
+  var html = '';
+  months.forEach(function(ym) {
+    var parts = ym.split('-');
+    var year = parseInt(parts[0], 10);
+    var month = parseInt(parts[1], 10);
+    var monthMems = 0, pinned = 0, feels = 0;
+    Object.values(grouped[ym]).forEach(function(arr) {
+      monthMems += arr.length;
+      arr.forEach(function(b) {
+        if (b.pinned) pinned++;
+        if (b.type === 'feel') feels++;
+      });
+    });
+
+    html += '<div class="tl-month">';
+    html += '<div class="tl-month-header">';
+    html += '<div class="tl-month-mark">' + String(month).padStart(2, '0') + '</div>';
+    html += '<div class="tl-month-info">';
+    html += '<div class="tl-month-name"><em>' + monthNames[month] + ' ' + year + '</em> <span style="color:var(--ink-3);font-style:normal;font-size:14px;">· ' + monthCN[month] + '月</span></div>';
+    html += '<div class="tl-month-stats"><b style="color:var(--ink-1);">' + monthMems + '</b> 条';
+    if (pinned > 0) html += '<span class="dot">·</span><b style="color:var(--c-lavender-text);">' + pinned + '</b> 重要';
+    if (feels > 0) html += '<span class="dot">·</span><b style="color:var(--c-rose-text);">' + feels + '</b> feel';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    var days = Object.keys(grouped[ym]).sort().reverse();
+    days.forEach(function(day) {
+      var mems = grouped[ym][day].slice();
+      mems.sort(function(a, b) {
+        return new Date(b.created) - new Date(a.created);
+      });
+
+      var dayKey = year + '-' + String(month).padStart(2, '0') + '-' + day;
+      var isToday = dayKey === todayKey;
+      var dow = dayNames[new Date(dayKey + 'T00:00:00').getDay()];
+      var dayPinned = mems.filter(function(b) { return b.pinned; }).length;
+      var dayFeels = mems.filter(function(b) { return b.type === 'feel'; }).length;
+
+      html += '<div class="tl-day">';
+      html += '<div class="tl-day-mark">';
+      html += '<span class="tl-day-num">' + day + '</span>';
+      html += '<span class="tl-day-month">' + String(month).padStart(2, '0') + '月</span>';
+      html += '<span class="tl-day-dow">' + dow + '</span>';
+      html += '</div>';
+      html += '<div class="tl-day-content">';
+      html += '<div class="tl-day-summary">';
+      html += '<span class="tl-count">' + mems.length + ' 条记忆</span>';
+      if (isToday) html += '<span class="tl-tag today">今天</span>';
+      if (dayPinned > 0) html += '<span class="tl-tag imp">含重要 ' + dayPinned + '</span>';
+      if (dayFeels > 0) html += '<span class="tl-tag feel">feel ' + dayFeels + '</span>';
+      html += '</div>';
+      html += '<div class="tl-day-list">';
+      mems.forEach(function(b) {
+        var t = new Date(b.created);
+        var time = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+        var iconClass = b.pinned ? ' pinned' : (b.type === 'feel' ? ' feel' : '');
+        var icon = b.pinned ? '★' : (b.type === 'feel' ? '◇' : (b.digested ? '◉' : '◐'));
+        html += '<div class="tl-mem" onclick="showDetail(\'' + b.id + '\')">';
+        html += '<span class="tl-mem-time">' + time + '</span>';
+        html += '<div class="tl-mem-body">';
+        html += '<div class="tl-mem-title"><span class="tl-mem-icon' + iconClass + '">' + icon + '</span>' + esc(b.name || b.id) + '</div>';
+        if (b.content_preview) {
+          html += '<div class="tl-mem-preview">' + esc(b.content_preview) + '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+  });
+
+  list.innerHTML = html;
+}
+
 var networkData = null;
 var networkFilters = {
   importance: 1,
@@ -2893,6 +3261,8 @@ var networkFilters = {
   hiddenTypes: new Set(),
   viewMode: 'star',
   zoom: 1.0,
+  panX: 0,
+  panY: 0,
 };
 var networkEventsBound = false;
 
@@ -3052,6 +3422,59 @@ function bindNetworkEvents() {
       redrawNetwork();
     });
   });
+
+  // 画布拖拽 pan + 滚轮 zoom
+  var canvas = document.getElementById('network-canvas');
+  if (canvas) {
+    var isDragging = false;
+    var dragStart = { x: 0, y: 0 };
+    var startPan = { x: 0, y: 0 };
+
+    canvas.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      dragStart.x = e.clientX;
+      dragStart.y = e.clientY;
+      startPan.x = networkFilters.panX || 0;
+      startPan.y = networkFilters.panY || 0;
+      canvas.style.cursor = 'grabbing';
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      networkFilters.panX = startPan.x + (e.clientX - dragStart.x);
+      networkFilters.panY = startPan.y + (e.clientY - dragStart.y);
+      redrawNetwork();
+    });
+    document.addEventListener('mouseup', function() {
+      if (isDragging) {
+        isDragging = false;
+        canvas.style.cursor = 'grab';
+      }
+    });
+    canvas.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var delta = -e.deltaY * 0.0015;
+      networkZoom(delta);
+    }, { passive: false });
+
+    // 触屏：单指拖拽 pan
+    canvas.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        dragStart.x = e.touches[0].clientX;
+        dragStart.y = e.touches[0].clientY;
+        startPan.x = networkFilters.panX || 0;
+        startPan.y = networkFilters.panY || 0;
+      }
+    });
+    canvas.addEventListener('touchmove', function(e) {
+      if (!isDragging || e.touches.length !== 1) return;
+      e.preventDefault();
+      networkFilters.panX = startPan.x + (e.touches[0].clientX - dragStart.x);
+      networkFilters.panY = startPan.y + (e.touches[0].clientY - dragStart.y);
+      redrawNetwork();
+    }, { passive: false });
+    canvas.addEventListener('touchend', function() { isDragging = false; });
+  }
 }
 
 function networkZoom(delta) {
@@ -3068,6 +3491,8 @@ function networkReset() {
     hiddenTypes: new Set(),
     viewMode: 'star',
     zoom: 1.0,
+    panX: 0,
+    panY: 0,
   };
   var s = document.getElementById('imp-threshold'); if (s) s.value = 1;
   var d = document.getElementById('imp-display'); if (d) d.textContent = '1';
@@ -3172,6 +3597,16 @@ function drawNetwork(ctx, W, H, data) {
       var p = positions[n.id];
       p.x = cx + (p.x - cx) * zoom;
       p.y = cy + (p.y - cy) * zoom;
+    });
+  }
+  // 应用 pan（拖拽偏移）
+  var panX = (window.networkFilters && window.networkFilters.panX) || 0;
+  var panY = (window.networkFilters && window.networkFilters.panY) || 0;
+  if (panX || panY) {
+    nodes.forEach(function(n) {
+      var p = positions[n.id];
+      p.x += panX;
+      p.y += panY;
     });
   }
 
