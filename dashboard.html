@@ -4,435 +4,846 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ombre Brain</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* ============================================================
+     Soft Stationery · 轻杂志感
+     设计原则：极白底 / 极浅灰线 / 大量留白 /
+              斜体衬线只用于"日期数字"瞬间 /
+              色彩极度克制，只出现在记忆类型的细色条上
+     ============================================================ */
   :root {
-    --bg: #FDFCF0;
-    --bg-gradient: radial-gradient(ellipse at 30% 20%, #FDFCF0 0%, #EDE4D3 60%, #E2D1B3 100%);
-    --surface: rgba(255, 255, 255, 0.45);
-    --surface-solid: #F7F2E8;
-    --border: rgba(180, 165, 140, 0.3);
-    --border-strong: rgba(160, 140, 110, 0.5);
-    --text: #3A3530;
-    --text-dim: #8A8070;
-    --text-light: #B0A590;
-    --accent: #2F4F4F;
-    --accent-light: #3D6363;
-    --accent-glow: rgba(47, 79, 79, 0.12);
-    --positive: #4A7C59;
-    --negative: #8B4A4A;
-    --warning: #9A7B4F;
-    --shadow-light: rgba(255, 252, 240, 0.7);
-    --shadow-dark: rgba(163, 148, 120, 0.4);
-    --shadow-dark-subtle: rgba(163, 148, 120, 0.2);
+    /* ——— 底色（接近白，只带一点点暖） ——— */
+    --bg: #FAF8F2;
+    --bg-warm: #F6F3EB;
+    --paper: #FFFFFF;
+
+    /* ——— 墨色（暖中性灰） ——— */
+    --ink: #2A2825;
+    --ink-1: #56504A;
+    --ink-2: #8B857B;
+    --ink-3: #B8B2A6;
+    --ink-4: #D2CCBE;
+
+    /* ——— 线条（极浅，几乎看不见） ——— */
+    --line: #ECE7DC;
+    --line-soft: #F2EDE2;
+    --line-strong: #DCD6C8;
+
+    /* ——— 极克制的强调色 ——— */
+    --accent: #5E7568;          /* 灰绿，极少使用 */
+    --accent-soft: #93A599;
+    --accent-tint: #ECF0EC;
+
+    /* ——— 类型色（仅用于左侧细色条 / 小 dot） ——— */
+    --c-peach: #F1D6BD;
+    --c-peach-deep: #C99672;
+    --c-sage: #CFD9B6;
+    --c-sage-deep: #8AA168;
+    --c-butter: #EFE2A6;
+    --c-butter-deep: #BC9D40;
+    --c-lavender: #D6CCE0;
+    --c-lavender-deep: #9F8BC0;
+    --c-rose: #EAC4C4;
+    --c-rose-deep: #B57878;
+    --c-sky: #B7D1D9;
+    --c-sky-deep: #6B97A2;
+    --c-coral: #ECBFA0;
+    --c-coral-deep: #BD7B4F;
+
+    /* ——— 状态语义 ——— */
+    --positive: #6E8C72;
+    --warning: #B59351;
+    --negative: #A56F6F;
+
+    /* ——— 字体 ——— */
+    --serif: 'Cormorant Garamond', 'Times New Roman', serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans', sans-serif;
+
+    /* ——— 阴影（极少使用，只在 hover 时） ——— */
+    --shadow-hover: 0 4px 16px rgba(80, 70, 50, 0.06);
+    --shadow-panel: -16px 0 32px rgba(80, 70, 50, 0.08);
+    --shadow-modal: 0 20px 60px rgba(80, 70, 50, 0.10);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  *::selection { background: var(--c-peach); color: var(--ink); }
+
+  html, body { background: var(--bg); }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: var(--sans);
     font-weight: 400;
-    background: var(--bg-gradient);
-    background-attachment: fixed;
-    color: var(--text);
+    background: var(--bg);
+    color: var(--ink);
     min-height: 100vh;
-    line-height: 1.6;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11' on, 'ss01' on;
   }
 
+  /* ============================================
+     节标签（大写 · 极小 · 字间距宽 · 灰）
+     ============================================ */
+  .eyebrow {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink-3);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow .sep { color: var(--ink-4); }
+
+  /* ============================================
+     Header
+     ============================================ */
   .header {
-    padding: 28px 40px 20px;
+    padding: 22px 56px 18px;
     display: flex;
     align-items: center;
     gap: 20px;
-    backdrop-filter: blur(12px);
-    background: rgba(253, 252, 240, 0.7);
-    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    border-bottom: none;
     position: sticky;
     top: 0;
     z-index: 50;
   }
   .header h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.5px;
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink);
+    letter-spacing: 0.2px;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+  .header h1 .glyph {
+    font-style: normal;
+    font-weight: 300;
+    font-size: 17px;
+    color: var(--ink-2);
   }
   .header .stats {
-    font-size: 12px;
-    color: var(--text-dim);
-    font-weight: 300;
-    letter-spacing: 0.3px;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    font-variant-numeric: tabular-nums;
   }
   .search-bar {
     margin-left: auto;
     display: flex;
-    gap: 8px;
+    gap: 10px;
+    align-items: center;
   }
   .search-bar input {
-    background: var(--surface);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 18px;
-    border-radius: 20px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 8px 16px;
+    border-radius: 10px;
     font-family: inherit;
     font-size: 13px;
-    width: 260px;
-    transition: all 0.3s ease;
-    box-shadow: inset 2px 2px 4px var(--shadow-dark-subtle), inset -2px -2px 4px var(--shadow-light);
+    width: 280px;
+    transition: all 0.18s ease;
   }
   .search-bar input:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow), inset 2px 2px 4px var(--shadow-dark-subtle), inset -2px -2px 4px var(--shadow-light);
+    border-color: var(--ink-3);
+    background: var(--paper);
   }
-  .search-bar input::placeholder { color: var(--text-light); }
+  .search-bar input::placeholder { color: var(--ink-3); }
+  .header-action-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-family: inherit;
+    font-size: 11.5px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.4px;
+  }
+  .header-action-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink-3);
+    background: var(--paper);
+  }
 
+  /* ============================================
+     Tabs · 彩色胶囊
+     ============================================ */
   .tabs {
     display: flex;
-    padding: 0 40px;
-    gap: 4px;
-    background: rgba(253, 252, 240, 0.5);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
-  }
-  .tab {
-    padding: 14px 22px;
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--text-dim);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.25s ease;
-    letter-spacing: 0.3px;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    font-weight: 500;
-  }
-
-  .content { padding: 32px 40px; }
-
-  .filters {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
+    justify-content: center;
+    padding: 18px 56px 20px;
+    gap: 8px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line-soft);
     flex-wrap: wrap;
   }
-  .filter-btn {
+  .tab {
     padding: 8px 18px;
-    font-size: 12px;
-    font-weight: 400;
-    border: none;
-    border-radius: 24px;
-    background: linear-gradient(145deg, #FAF6ED, #EDE4D3);
-    color: var(--text-dim);
+    font-size: 12.5px;
+    font-weight: 500;
     cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 4px 8px var(--shadow-dark-subtle), -4px -4px 8px var(--shadow-light);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+    letter-spacing: 0.3px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.4;
   }
-  .filter-btn:hover {
-    color: var(--accent);
-    box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-    transform: translateY(-1px);
-  }
-  .filter-btn:active {
-    transform: translateY(0);
-    box-shadow: inset 2px 2px 5px var(--shadow-dark-subtle), inset -2px -2px 5px var(--shadow-light);
-  }
-  .filter-btn.active {
-    color: #F0EDE4;
-    background: linear-gradient(145deg, var(--accent-light), var(--accent));
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(255,255,255,0.05);
+  .tab:hover { transform: translateY(-1px); }
+  .tab:active { transform: translateY(0); }
+
+  /* 每个 tab 配一种柔和色（统一暖度 + 同等明度） */
+  .tab[data-tab="list"]     { background: #F8E3D0; color: #8C5733; }
+  .tab[data-tab="breath"]   { background: #DBE7E9; color: #486B72; }
+  .tab[data-tab="network"]  { background: #E4DEEA; color: #6E5A8C; }
+  .tab[data-tab="config"]   { background: #E4EAD3; color: #586B3F; }
+  .tab[data-tab="import"]   { background: #F5EBC2; color: #7E601F; }
+  .tab[data-tab="settings"] { background: #F2D8D8; color: #8B5050; }
+
+  /* Hover：略饱和一档 */
+  .tab[data-tab="list"]:hover     { background: #F0D2B5; }
+  .tab[data-tab="breath"]:hover   { background: #C8D9DC; }
+  .tab[data-tab="network"]:hover  { background: #D6CCE2; }
+  .tab[data-tab="config"]:hover   { background: #D4DCBE; }
+  .tab[data-tab="import"]:hover   { background: #EBDDA2; }
+  .tab[data-tab="settings"]:hover { background: #EAC5C5; }
+
+  /* Active：饱和+柔光阴影（统一用同一种暖色阴影） */
+  .tab.active { box-shadow: 0 4px 14px rgba(160, 130, 90, 0.16); }
+  .tab[data-tab="list"].active     { background: #ECC9A8; color: #7C4924; }
+  .tab[data-tab="breath"].active   { background: #B6CCD0; color: #34555E; }
+  .tab[data-tab="network"].active  { background: #CEC0DA; color: #523E6E; }
+  .tab[data-tab="config"].active   { background: #C5D1AC; color: #455A30; }
+  .tab[data-tab="import"].active   { background: #E4D38C; color: #6E5118; }
+  .tab[data-tab="settings"].active { background: #E0B6B6; color: #6E3A3A; }
+
+  .tab .v-tag {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 10px;
+    margin-left: 3px;
+    vertical-align: super;
+    letter-spacing: 0;
+    font-weight: 500;
+    opacity: 0.6;
   }
 
-  .bucket-list { display: flex; flex-direction: column; gap: 8px; }
+  /* ============================================
+     Content / 页面标题区
+     ============================================ */
+  .content { padding: 44px 56px 80px; max-width: 1640px; margin: 0 auto; }
+
+  .view-head {
+    margin-bottom: 32px;
+    text-align: center;
+    padding-top: 8px;
+  }
+  .page-mark {
+    font-size: 16px;
+    color: #C9A98A;
+    text-align: center;
+    margin-bottom: 14px;
+    line-height: 1;
+    letter-spacing: 4px;
+    opacity: 0.85;
+  }
+  .view-eyebrow {
+    margin-bottom: 8px;
+    justify-content: center;
+  }
+  .view-title {
+    font-family: var(--serif);
+    font-size: 46px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.05;
+    letter-spacing: -0.6px;
+    margin-bottom: 8px;
+  }
+  .view-title .normal {
+    font-style: normal;
+    font-weight: 400;
+  }
+  .view-title .flourish {
+    display: inline-block;
+    margin: 0 14px;
+    font-size: 22px;
+    color: #C9A98A;
+    font-style: normal;
+    vertical-align: middle;
+    transform: translateY(-4px);
+    font-weight: 400;
+  }
+  .view-subtitle {
+    font-size: 12px;
+    color: var(--ink-2);
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .view-subtitle .dot { color: var(--ink-4); margin: 0 7px; }
+  .view-subtitle b { color: var(--ink-1); font-weight: 500; }
+
+  /* ============================================
+     Filters & view toolbar
+     ============================================ */
+  .list-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    padding-bottom: 26px;
+    border-bottom: none;
+    position: relative;
+  }
+  .list-toolbar::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12%; right: 12%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--line-strong) 25%, var(--line-strong) 75%, transparent);
+  }
+  .list-toolbar::after {
+    content: '❀';
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    padding: 0 14px;
+    color: #C9A98A;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+  .filter-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 400;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-1);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.16s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+    line-height: 1.4;
+  }
+  .filter-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink-3);
+  }
+  .filter-btn.active {
+    color: var(--paper);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .filter-btn .count {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .filter-btn.active .count { color: rgba(255,255,255,0.55); }
+
+  /* 类型筛选前的小色点 */
+  .filter-btn .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    display: inline-block;
+    background: var(--ink-3);
+  }
+  .filter-btn[data-filter="pinned"] .dot { background: var(--c-lavender-deep); }
+  .filter-btn[data-filter="feel"] .dot { background: var(--c-rose-deep); }
+  .filter-btn[data-filter="unresolved"] .dot { background: var(--c-coral-deep); }
+  .filter-btn[data-filter="digested"] .dot { background: var(--c-sage-deep); }
+  .filter-btn[data-filter="archived"] .dot { background: var(--ink-3); }
+
+  /* View toggle (列表/卡片) */
+  .view-toggle {
+    display: inline-flex;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px;
+    margin-left: 8px;
+  }
+  .vt-btn {
+    padding: 5px 12px;
+    font-size: 11.5px;
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.3px;
+  }
+  .vt-btn:hover { color: var(--ink); }
+  .vt-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* ============================================
+     Bucket list (列表模式)
+     ============================================ */
+  .bucket-list { display: flex; flex-direction: column; gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); border-radius: 10px; overflow: hidden; }
   .bucket-row {
     display: grid;
-    grid-template-columns: 32px 200px 100px 80px 60px 100px 1fr;
-    gap: 12px;
-    padding: 14px 20px;
-    border-radius: 16px;
+    grid-template-columns: 4px 18px 220px 1fr 90px 56px 64px 36px;
+    gap: 14px;
+    padding: 16px 22px 16px 0;
     font-size: 13px;
     align-items: center;
     cursor: pointer;
-    transition: all 0.25s ease;
-    background: var(--surface);
-    border: 1px solid transparent;
-    box-shadow: 4px 4px 10px var(--shadow-dark-subtle), -4px -4px 10px var(--shadow-light);
+    transition: all 0.15s ease;
+    background: var(--paper);
   }
   .bucket-row:hover {
-    border-color: var(--border);
-    box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
-    transform: translateY(-1px);
+    background: var(--bg-warm);
   }
-  .bucket-row .icon { font-size: 16px; text-align: center; }
+  .bucket-row .ribbon {
+    width: 4px;
+    height: 22px;
+    background: var(--ink-4);
+    border-radius: 0 2px 2px 0;
+  }
+  .bucket-row[data-type="dynamic"] .ribbon { background: var(--c-peach-deep); }
+  .bucket-row[data-type="permanent"] .ribbon { background: var(--c-butter-deep); }
+  .bucket-row[data-type="feel"] .ribbon { background: var(--c-rose-deep); }
+  .bucket-row[data-type="archived"] .ribbon { background: var(--ink-3); }
+  .bucket-row.is-pinned .ribbon { background: var(--c-lavender-deep); }
+  .bucket-row.is-digested .ribbon { background: var(--c-sage-deep); }
+
+  .bucket-row .icon {
+    font-size: 13px;
+    text-align: center;
+    color: var(--ink-2);
+    line-height: 1;
+  }
   .bucket-row .name {
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--text);
-  }
-  .bucket-row .domain {
-    color: var(--text-dim);
-    font-size: 11px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .bucket-row .emotion { font-size: 11px; }
-  .bucket-row .score {
-    font-size: 12px;
-    text-align: right;
-    font-weight: 500;
-    color: var(--accent);
-  }
-  .bucket-row .time {
-    font-size: 11px;
-    color: var(--text-light);
-    text-align: right;
+    color: var(--ink);
+    letter-spacing: 0.05px;
+    font-size: 13.5px;
   }
   .bucket-row .preview {
     font-size: 12px;
-    color: var(--text-dim);
+    color: var(--ink-2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.5;
+  }
+  .bucket-row .domain {
+    color: var(--ink-2);
+    font-size: 10.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: lowercase;
+    letter-spacing: 0.2px;
+  }
+  .bucket-row .emotion { font-size: 11px; }
+  .bucket-row .time {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+  }
+  .bucket-row .imp-badge {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink-1);
+    text-align: right;
+    line-height: 1;
+    letter-spacing: -0.3px;
+  }
+  .bucket-row .imp-badge.dim { color: var(--ink-3); }
+  .bucket-row .imp-badge.high { color: var(--ink); }
+
+  /* ============================================
+     Bucket grid (卡片模式)
+     ============================================ */
+  .bucket-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .bucket-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px 16px 24px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 148px;
+  }
+  .bucket-card:hover {
+    border-color: var(--ink-4);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-1px);
+  }
+  /* 左侧细色条 */
+  .bucket-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 18px; bottom: 18px;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+    background: var(--ink-4);
+  }
+  .bucket-card[data-type="dynamic"]::before { background: var(--c-peach-deep); }
+  .bucket-card[data-type="permanent"]::before { background: var(--c-butter-deep); }
+  .bucket-card[data-type="feel"]::before { background: var(--c-rose-deep); }
+  .bucket-card[data-type="archived"]::before { background: var(--ink-3); }
+  .bucket-card.is-pinned::before { background: var(--c-lavender-deep); width: 4px; }
+  .bucket-card.is-digested::before { background: var(--c-sage-deep); }
+
+  .card-eyebrow {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--ink-3);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card-eyebrow .sep { color: var(--ink-4); }
+  .card-eyebrow .icon { font-size: 11px; color: var(--ink-2); }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.4;
+    letter-spacing: 0.05px;
+    margin-top: -2px;
+  }
+  .card-preview {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--ink-1);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-foot {
+    margin-top: auto;
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10.5px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+  }
+  .card-imp {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--ink-1);
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .card-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg-warm);
+    color: var(--ink-2);
+    letter-spacing: 0.2px;
   }
 
+  /* Valence bar */
   .v-bar {
-    width: 44px;
-    height: 6px;
-    border-radius: 3px;
-    background: linear-gradient(to right, var(--negative), var(--warning), var(--positive));
+    width: 52px;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--c-rose-deep), var(--c-butter-deep), var(--c-sage-deep));
     position: relative;
     display: inline-block;
+    opacity: 0.5;
   }
   .v-dot {
     position: absolute;
     top: -3px;
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: var(--surface-solid);
-    border: 2px solid var(--accent);
+    background: var(--paper);
+    border: 1.5px solid var(--ink-1);
     transform: translateX(-50%);
-    box-shadow: 0 1px 3px var(--shadow-dark-subtle);
   }
 
+  /* ============================================
+     Detail panel
+     ============================================ */
   .detail-panel {
     position: fixed;
     right: 0;
     top: 0;
-    width: 440px;
+    width: 480px;
     height: 100vh;
-    background: var(--surface-solid);
-    border-left: 1px solid var(--border);
-    padding: 32px 28px;
+    background: var(--paper);
+    border-left: 1px solid var(--line);
+    padding: 44px 36px;
     overflow-y: auto;
     transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
-    box-shadow: -8px 0 24px var(--shadow-dark-subtle);
+    box-shadow: var(--shadow-panel);
   }
   .detail-panel.open { transform: translateX(0); }
   .detail-panel .close-btn {
     position: absolute;
-    top: 16px;
-    right: 16px;
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 20px;
+    top: 18px;
+    right: 18px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    font-size: 14px;
     cursor: pointer;
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    transition: all 0.18s;
   }
   .detail-panel .close-btn:hover {
-    background: var(--accent-glow);
-    color: var(--accent);
+    color: var(--ink);
+    border-color: var(--ink-3);
   }
   .detail-panel h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: var(--accent);
-    padding-right: 40px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 30px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--ink);
+    padding-right: 44px;
+    line-height: 1.2;
+    letter-spacing: -0.2px;
+  }
+  .detail-panel .h2-eyebrow {
+    margin-bottom: 24px;
+    margin-top: 4px;
   }
   .detail-meta {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 16px 24px;
+    margin-bottom: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
   }
-  .detail-meta .field { font-size: 12px; }
+  .detail-meta .field { font-size: 12.5px; color: var(--ink-1); }
   .detail-meta .field label {
-    color: var(--text-light);
+    color: var(--ink-3);
     display: block;
-    margin-bottom: 3px;
-    font-size: 11px;
+    margin-bottom: 4px;
+    font-size: 9.5px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1.4px;
+    font-weight: 500;
   }
   .detail-content {
-    font-size: 13px;
-    line-height: 1.8;
+    font-size: 13.5px;
+    line-height: 1.85;
     white-space: pre-wrap;
-    background: var(--surface);
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    max-height: 50vh;
+    background: var(--bg-warm);
+    padding: 22px 24px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    max-height: 52vh;
     overflow-y: auto;
-    box-shadow: inset 3px 3px 6px var(--shadow-dark-subtle), inset -3px -3px 6px var(--shadow-light);
+    color: var(--ink);
   }
 
+  /* ============================================
+     Config / Settings sections
+     ============================================ */
   .config-section {
-    margin-bottom: 28px;
-    padding: 24px;
-    background: var(--surface);
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    box-shadow: 6px 6px 14px var(--shadow-dark-subtle), -6px -6px 14px var(--shadow-light);
+    margin-bottom: 24px;
+    padding: 26px 28px;
+    background: var(--paper);
+    border-radius: 12px;
+    border: 1px solid var(--line);
   }
   .config-section h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 16px;
-    letter-spacing: 0.3px;
+    font-family: var(--sans);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-2);
+    margin-bottom: 18px;
+    font-weight: 500;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line-soft);
   }
   .config-row {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .config-row label {
     width: 110px;
     font-size: 12px;
-    color: var(--text-dim);
+    color: var(--ink-1);
     flex-shrink: 0;
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: 0.2px;
   }
   .config-row input, .config-row select {
     flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 14px;
-    border-radius: 12px;
+    background: var(--bg-warm);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 9px 14px;
+    border-radius: 8px;
     font-family: inherit;
     font-size: 13px;
-    transition: all 0.25s ease;
-    box-shadow: inset 2px 2px 4px var(--shadow-dark-subtle), inset -2px -2px 4px var(--shadow-light);
+    transition: all 0.18s ease;
   }
   .config-row input:focus, .config-row select:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow), inset 2px 2px 4px var(--shadow-dark-subtle);
+    border-color: var(--ink-3);
+    background: var(--paper);
   }
 
+  /* ============================================
+     Buttons
+     ============================================ */
   .btn-primary {
-    padding: 12px 28px;
-    background: linear-gradient(145deg, var(--accent-light), var(--accent));
-    color: #F0EDE4;
-    border: none;
-    border-radius: 24px;
+    padding: 9px 22px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 999px;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 6px 6px 12px rgba(40, 65, 65, 0.25), -4px -4px 10px var(--shadow-light), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: all 0.18s ease;
     letter-spacing: 0.4px;
-    position: relative;
-    overflow: hidden;
-  }
-  .btn-primary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 24px;
-    background: linear-gradient(145deg, rgba(255,255,255,0.08), transparent);
-    pointer-events: none;
   }
   .btn-primary:hover {
-    box-shadow: 8px 8px 16px rgba(40, 65, 65, 0.3), -5px -5px 12px var(--shadow-light), inset 0 1px 0 rgba(255,255,255,0.15);
-    transform: translateY(-2px);
-  }
-  .btn-primary:active {
-    transform: translateY(0);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(255,255,255,0.05);
+    background: var(--ink-1);
+    border-color: var(--ink-1);
   }
   .btn-secondary {
-    padding: 12px 28px;
-    background: linear-gradient(145deg, #FAF6ED, #EDE4D3);
-    color: var(--accent);
-    border: none;
-    border-radius: 24px;
+    padding: 9px 22px;
+    background: var(--paper);
+    color: var(--ink-1);
+    border: 1px solid var(--line);
+    border-radius: 999px;
     font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 400;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 5px 5px 10px var(--shadow-dark-subtle), -5px -5px 10px var(--shadow-light);
+    transition: all 0.18s ease;
+    letter-spacing: 0.3px;
   }
   .btn-secondary:hover {
-    box-shadow: 7px 7px 14px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
-    transform: translateY(-2px);
+    color: var(--ink);
+    border-color: var(--ink-3);
   }
-  .btn-secondary:active {
-    transform: translateY(0);
-    box-shadow: inset 3px 3px 6px var(--shadow-dark-subtle), inset -2px -2px 4px var(--shadow-light);
+  button {
+    font-family: var(--sans);
+    cursor: pointer;
   }
 
+  /* ============================================
+     Network canvas
+     ============================================ */
   #network-canvas {
     width: 100%;
-    height: calc(100vh - 180px);
-    background: var(--bg);
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    box-shadow: inset 4px 4px 10px var(--shadow-dark-subtle), inset -4px -4px 10px var(--shadow-light);
+    height: calc(100vh - 240px);
+    background: var(--paper);
+    border-radius: 12px;
+    border: 1px solid var(--line);
   }
   .network-legend {
     display: flex;
-    gap: 20px;
-    margin-bottom: 16px;
-    font-size: 12px;
-    color: var(--text-dim);
+    gap: 22px;
+    margin-bottom: 18px;
+    font-size: 11px;
+    color: var(--ink-2);
+    letter-spacing: 0.3px;
   }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; text-transform: lowercase; }
   .legend-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     display: inline-block;
-    box-shadow: 0 1px 3px var(--shadow-dark-subtle);
   }
 
+  /* ============================================
+     Loading state
+     ============================================ */
   .loading {
     text-align: center;
-    color: var(--text-dim);
-    padding: 60px;
-    font-size: 14px;
+    color: var(--ink-3);
+    padding: 80px 20px;
+    font-size: 13px;
     font-weight: 300;
+    font-style: italic;
+    font-family: var(--serif);
+    letter-spacing: 0.4px;
   }
 
+  /* ============================================
+     Breath simulator
+     ============================================ */
   .breath-controls {
     display: flex;
     gap: 12px;
@@ -441,90 +852,84 @@
     flex-wrap: wrap;
   }
   .breath-controls input {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 14px;
-    border-radius: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 8px;
     font-family: inherit;
     font-size: 13px;
-    box-shadow: inset 2px 2px 4px var(--shadow-dark-subtle), inset -2px -2px 4px var(--shadow-light);
   }
   .breath-controls input:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow), inset 2px 2px 4px var(--shadow-dark-subtle);
+    border-color: var(--ink-3);
   }
   .breath-controls button {
-    background: linear-gradient(145deg, var(--accent-light), var(--accent));
-    color: #F0EDE4;
-    border: none;
-    padding: 12px 26px;
-    border-radius: 24px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    padding: 9px 22px;
+    border-radius: 999px;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 6px 6px 12px rgba(40, 65, 65, 0.25), -4px -4px 10px var(--shadow-light), inset 0 1px 0 rgba(255,255,255,0.1);
-    position: relative;
-    overflow: hidden;
+    transition: all 0.18s ease;
+    letter-spacing: 0.4px;
   }
-  .breath-controls button::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 24px;
-    background: linear-gradient(145deg, rgba(255,255,255,0.08), transparent);
-    pointer-events: none;
-  }
-  .breath-controls button:hover {
-    box-shadow: 8px 8px 16px rgba(40, 65, 65, 0.3), -5px -5px 12px var(--shadow-light);
-    transform: translateY(-2px);
-  }
-  .breath-controls button:active {
-    transform: translateY(0);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(255,255,255,0.05);
-  }
+  .breath-controls button:hover { background: var(--ink-1); }
   .breath-controls label {
-    font-size: 12px;
-    color: var(--text-dim);
-    font-weight: 500;
+    font-size: 11.5px;
+    color: var(--ink-2);
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
   }
   .breath-info {
     font-size: 12px;
-    color: var(--text-dim);
-    margin-bottom: 20px;
-    line-height: 1.8;
-    padding: 16px 20px;
-    background: var(--surface);
-    border-radius: 16px;
-    border: 1px solid var(--border);
+    color: var(--ink-1);
+    margin-bottom: 22px;
+    line-height: 1.85;
+    padding: 14px 20px;
+    background: var(--bg-warm);
+    border-radius: 10px;
+    border: 1px solid var(--line);
   }
   .breath-info code {
-    background: var(--accent-glow);
-    padding: 2px 8px;
-    border-radius: 6px;
-    color: var(--accent);
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 1px 7px;
+    border-radius: 4px;
+    color: var(--ink);
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
     font-size: 11px;
   }
   .score-row {
     display: grid;
-    grid-template-columns: 32px 180px 1fr 60px;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 12px;
+    grid-template-columns: 30px 200px 1fr 64px;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
     font-size: 13px;
     align-items: center;
-    transition: all 0.2s ease;
-    margin-bottom: 4px;
+    transition: all 0.15s ease;
+    margin-bottom: 2px;
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
   }
   .score-row:hover {
-    background: var(--surface);
-    box-shadow: 3px 3px 8px var(--shadow-dark-subtle), -3px -3px 8px var(--shadow-light);
+    border-color: var(--line);
+    background: var(--bg-warm);
   }
-  .score-row .rank { color: var(--text-light); font-size: 12px; text-align: center; font-weight: 500; }
+  .score-row .rank {
+    color: var(--ink-3);
+    font-size: 10.5px;
+    text-align: center;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
   .score-row .name {
     font-weight: 500;
     white-space: nowrap;
@@ -532,111 +937,264 @@
     text-overflow: ellipsis;
   }
   .score-bars { display: flex; gap: 4px; align-items: center; }
-  .score-bar-group { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+  .score-bar-group { display: flex; flex-direction: column; gap: 2px; flex: 1; }
   .score-bar-track {
-    height: 5px;
-    background: var(--border);
-    border-radius: 3px;
+    height: 3px;
+    background: var(--bg-warm);
+    border-radius: 2px;
     overflow: hidden;
   }
-  .score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+  .score-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
   .score-bar-label {
     font-size: 9px;
-    color: var(--text-light);
+    color: var(--ink-3);
     display: flex;
     justify-content: space-between;
+    font-variant-numeric: tabular-nums;
+    text-transform: lowercase;
   }
-  .score-final { font-size: 14px; font-weight: 600; text-align: right; }
+  .score-final {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: right;
+  }
   .score-pass { color: var(--positive); }
-  .score-fail { color: var(--text-light); }
+  .score-fail { color: var(--ink-3); }
+  .score-final small { font-size: 10px; color: var(--ink-3); margin-left: 2px; }
 
   .breath-flow {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 24px;
+    margin-bottom: 26px;
     padding: 16px 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    font-size: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 11.5px;
     overflow-x: auto;
-    box-shadow: 4px 4px 10px var(--shadow-dark-subtle), -4px -4px 10px var(--shadow-light);
   }
   .flow-step {
-    padding: 10px 14px;
-    border-radius: 12px;
-    background: var(--bg);
-    border: 1px solid var(--border);
+    padding: 9px 14px;
+    border-radius: 8px;
+    background: var(--bg-warm);
+    border: 1px solid var(--line);
     white-space: nowrap;
     text-align: center;
-    min-width: 90px;
-    box-shadow: inset 2px 2px 4px var(--shadow-dark-subtle), inset -2px -2px 4px var(--shadow-light);
+    min-width: 100px;
+    transition: all 0.18s ease;
+    letter-spacing: 0.2px;
+    color: var(--ink-1);
   }
-  .flow-step.active { border-color: var(--accent); color: var(--accent); }
-  .flow-arrow { color: var(--text-light); font-size: 16px; }
+  .flow-step.active {
+    border-color: var(--ink-3);
+    color: var(--ink);
+    background: var(--paper);
+  }
+  .flow-step small { font-size: 9.5px; color: var(--ink-3); display: block; margin-top: 3px; letter-spacing: 0.2px; text-transform: lowercase; }
+  .flow-arrow { color: var(--ink-3); font-size: 13px; }
 
-  @media (max-width: 768px) {
-    .header { padding: 20px; flex-wrap: wrap; }
-    .header h1 { font-size: 22px; }
+  /* ============================================
+     Import view
+     ============================================ */
+  #import-upload-zone {
+    border: 1.5px dashed var(--line-strong);
+    border-radius: 12px;
+    padding: 50px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--paper);
+  }
+  #import-upload-zone:hover {
+    border-color: var(--ink-3);
+    background: var(--bg-warm);
+  }
+  .import-h3 {
+    font-family: var(--sans);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-2);
+    margin-bottom: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* ============================================
+     Auth overlay
+     ============================================ */
+  #auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 56px 44px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-modal);
+  }
+  .auth-card .auth-glyph {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 36px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+  }
+  .auth-card .auth-glyph small {
+    font-size: 14px;
+    color: var(--ink-3);
+    margin-right: 6px;
+    font-style: normal;
+    font-weight: 300;
+  }
+  .auth-card p {
+    color: var(--ink-3);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    margin-bottom: 32px;
+    font-weight: 500;
+  }
+  .auth-card input {
+    display: block;
+    width: 100%;
+    padding: 11px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-warm);
+    color: var(--ink);
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 12px;
+    transition: all 0.18s ease;
+  }
+  .auth-card input::placeholder { color: var(--ink-3); }
+  .auth-card input:focus {
+    outline: none;
+    border-color: var(--ink-3);
+    background: var(--paper);
+  }
+  .auth-card button {
+    width: 100%;
+    padding: 12px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 8px;
+    letter-spacing: 0.4px;
+    transition: all 0.18s ease;
+  }
+  .auth-card button:hover { background: var(--ink-1); }
+
+  /* ============================================
+     Mobile
+     ============================================ */
+  @media (max-width: 900px) {
+    .header { padding: 18px 20px; flex-wrap: wrap; gap: 12px; }
+    .header h1 { font-size: 18px; }
     .search-bar { margin-left: 0; width: 100%; }
     .search-bar input { width: 100%; }
-    .tabs { padding: 0 16px; overflow-x: auto; }
-    .content { padding: 20px 16px; }
+    .tabs { padding: 0 14px; overflow-x: auto; }
+    .content { padding: 30px 18px 60px; }
+    .view-title { font-size: 40px; }
     .bucket-row {
-      grid-template-columns: 28px 1fr 60px;
-      gap: 8px;
-      padding: 12px 16px;
+      grid-template-columns: 4px 18px 1fr 50px 32px;
+      gap: 10px;
+      padding: 12px 14px 12px 0;
     }
     .bucket-row .domain,
     .bucket-row .emotion,
-    .bucket-row .time,
     .bucket-row .preview { display: none; }
-    .detail-panel { width: 100%; }
+    .bucket-grid { grid-template-columns: 1fr; }
+    .detail-panel { width: 100%; padding: 30px 24px; }
     .config-row { flex-wrap: wrap; }
     .config-row label { width: 100%; }
     .breath-flow { display: none; }
+    .list-toolbar { gap: 10px; }
+    .view-toggle { margin-left: 0; }
   }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>◐ Ombre Brain</h1>
-  <span class="stats" id="stats">loading...</span>
+  <h1><span class="glyph">◐</span><em>Ombre Brain</em></h1>
+  <span class="stats" id="stats">loading…</span>
   <div class="search-bar">
     <input type="text" id="search-input" placeholder="搜索记忆…" />
   </div>
-  <button onclick="doLogout()" title="退出登录" style="margin-left:12px;background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;">退出</button>
+  <button class="header-action-btn" onclick="doLogout()" title="退出登录">退出</button>
 </div>
 
 <div class="tabs">
-  <div class="tab active" data-tab="list">记忆桶</div>
+  <div class="tab active" data-tab="list">记忆格<span class="v-tag">v2</span></div>
   <div class="tab" data-tab="breath">Breath 模拟</div>
-  <div class="tab" data-tab="network">记忆网络</div>
+  <div class="tab" data-tab="network">记忆星图</div>
   <div class="tab" data-tab="config">配置</div>
   <div class="tab" data-tab="import">导入</div>
   <div class="tab" data-tab="settings">设置</div>
 </div>
 
 <div class="content" id="list-view">
-  <div class="filters" id="filters"></div>
+  <div class="view-head">
+    <div class="page-mark">❀</div>
+    <div class="eyebrow view-eyebrow">Memories <span class="sep">·</span> 记忆格</div>
+    <div class="view-title"><em>记忆格</em></div>
+    <div class="view-subtitle" id="view-stats">每一格都是一个被命名的瞬间</div>
+  </div>
+
+  <div class="list-toolbar">
+    <div class="filters" id="filters"></div>
+    <div class="view-toggle">
+      <button class="vt-btn active" data-view="list">列表</button>
+      <button class="vt-btn" data-view="card">卡片</button>
+    </div>
+  </div>
+
   <div class="bucket-list" id="bucket-list">
     <div class="loading">加载中…</div>
   </div>
 </div>
 
 <div class="content" id="breath-view" style="display:none">
+  <div class="view-head">
+    <div class="page-mark">❀</div>
+    <div class="eyebrow view-eyebrow">Retrieval <span class="sep">·</span> 唤醒模拟</div>
+    <div class="view-title"><em>Breath</em></div>
+    <div class="view-subtitle">观察一段记忆如何被唤醒</div>
+  </div>
+
   <div class="breath-flow" id="breath-flow">
-    <div class="flow-step" id="fs-input">① 输入<br><small>query / valence / arousal</small></div>
+    <div class="flow-step" id="fs-input">① 输入<small>query / valence / arousal</small></div>
     <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-candidates">② 候选池<br><small id="fs-cand-n">— 桶</small></div>
+    <div class="flow-step" id="fs-candidates">② 候选池<small id="fs-cand-n">— 桶</small></div>
     <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-scoring">③ 四维评分<br><small>topic×4 + emotion×2 + time×2.5 + imp×1</small></div>
+    <div class="flow-step" id="fs-scoring">③ 四维评分<small>topic + emotion + time + imp</small></div>
     <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-threshold">④ 阈值过滤<br><small id="fs-thresh-n">≥50 → — 通过</small></div>
+    <div class="flow-step" id="fs-threshold">④ 阈值过滤<small id="fs-thresh-n">≥50 → — 通过</small></div>
     <span class="flow-arrow">→</span>
-    <div class="flow-step" id="fs-sort">⑤ 降序排列<br><small>返回 top N</small></div>
+    <div class="flow-step" id="fs-sort">⑤ 降序排列<small>返回 top N</small></div>
   </div>
 
   <div class="breath-controls">
@@ -656,66 +1214,84 @@
 </div>
 
 <div class="content" id="network-view" style="display:none">
+  <div class="view-head">
+    <div class="page-mark">❀</div>
+    <div class="eyebrow view-eyebrow">Constellation <span class="sep">·</span> 记忆引力</div>
+    <div class="view-title"><em>记忆星图</em></div>
+    <div class="view-subtitle">每一颗都是一段被记住的瞬间</div>
+  </div>
+
   <div class="network-legend">
-    <div class="legend-item"><span class="legend-dot" style="background:#2F4F4F"></span> dynamic</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#9A7B4F"></span> permanent</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#8B6A6A"></span> feel</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#B0A590"></span> archived</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#C99672"></span> dynamic</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#BC9D40"></span> permanent</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#B57878"></span> feel</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#B8B2A6"></span> archived</div>
   </div>
   <canvas id="network-canvas"></canvas>
 </div>
 
 <div class="content" id="import-view" style="display:none">
-  <div style="max-width:720px;margin:0 auto;">
-    <h3>历史对话导入</h3>
-    <p style="color:var(--text-dim);font-size:13px;">支持 Claude JSON、ChatGPT 导出、DeepSeek、Markdown、纯文本格式</p>
+  <div class="view-head">
+    <div class="page-mark">❀</div>
+    <div class="eyebrow view-eyebrow">Import <span class="sep">·</span> 历史导入</div>
+    <div class="view-title"><em>导入</em></div>
+    <div class="view-subtitle">支持 Claude JSON · ChatGPT 导出 · DeepSeek · Markdown · 纯文本</div>
+  </div>
 
-    <div id="import-upload-zone" style="border:2px dashed var(--border);border-radius:16px;padding:40px;text-align:center;cursor:pointer;margin:20px 0;transition:border-color .2s;">
-      <div style="font-size:32px;margin-bottom:8px;">📁</div>
-      <div>拖拽文件到此处，或 <span style="color:var(--accent);text-decoration:underline;">点击选择</span></div>
+  <div style="max-width:760px;margin:0 auto;">
+    <div id="import-upload-zone">
+      <div style="font-size:24px;margin-bottom:12px;color:var(--ink-3);">＋</div>
+      <div style="color:var(--ink-1);font-size:13px;letter-spacing:0.2px;">拖拽文件到此处，或 <span style="color:var(--ink);text-decoration:underline;text-underline-offset:3px;">点击选择</span></div>
       <input type="file" id="import-file-input" accept=".json,.txt,.md,.jsonl" style="display:none" />
     </div>
 
-    <div style="margin:12px 0;">
-      <label><input type="checkbox" id="import-preserve-raw" /> 保留原文模式（特殊情境/暗号/仪式性内容不摘要）</label>
+    <div style="margin:14px 0;font-size:12.5px;color:var(--ink-1);">
+      <label style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;"><input type="checkbox" id="import-preserve-raw" /> 保留原文模式（特殊情境/暗号/仪式性内容不摘要）</label>
     </div>
 
-    <div id="import-progress" style="display:none;margin:20px 0;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+    <div id="import-progress" style="display:none;margin:24px 0;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:12px;color:var(--ink-1);">
         <span id="import-status-text">准备中…</span>
-        <span id="import-progress-text">0/0</span>
+        <span id="import-progress-text" style="font-variant-numeric:tabular-nums;color:var(--ink-2);">0/0</span>
       </div>
-      <div style="background:var(--surface);border-radius:8px;height:12px;overflow:hidden;">
-        <div id="import-progress-bar" style="height:100%;background:var(--accent);border-radius:8px;transition:width .3s;width:0%;"></div>
+      <div style="background:var(--bg-warm);border-radius:4px;height:6px;overflow:hidden;border:1px solid var(--line);">
+        <div id="import-progress-bar" style="height:100%;background:var(--ink);border-radius:4px;transition:width .3s;width:0%;"></div>
       </div>
-      <div style="display:flex;gap:16px;margin-top:8px;font-size:13px;color:var(--text-dim);">
-        <span>API调用: <b id="import-api-calls">0</b></span>
-        <span>新建: <b id="import-created">0</b></span>
-        <span>合并: <b id="import-merged">0</b></span>
-        <span>原文: <b id="import-raw">0</b></span>
+      <div style="display:flex;gap:18px;margin-top:12px;font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:0.8px;">
+        <span>API <b style="color:var(--ink);font-weight:500;" id="import-api-calls">0</b></span>
+        <span>新建 <b style="color:var(--ink);font-weight:500;" id="import-created">0</b></span>
+        <span>合并 <b style="color:var(--ink);font-weight:500;" id="import-merged">0</b></span>
+        <span>原文 <b style="color:var(--ink);font-weight:500;" id="import-raw">0</b></span>
       </div>
       <div style="margin-top:12px;">
-        <button id="import-pause-btn" onclick="pauseImport()" style="display:none;">⏸ 暂停</button>
+        <button id="import-pause-btn" onclick="pauseImport()" class="btn-secondary" style="display:none;font-size:11px;padding:6px 14px;">暂停</button>
       </div>
     </div>
 
-    <div id="import-errors" style="display:none;margin:12px 0;padding:12px;background:var(--surface);border-radius:8px;font-size:12px;color:var(--negative);max-height:120px;overflow-y:auto;"></div>
+    <div id="import-errors" style="display:none;margin:14px 0;padding:14px;background:#FAF1F1;border-radius:10px;font-size:12px;color:var(--negative);max-height:120px;overflow-y:auto;border:1px solid var(--c-rose);"></div>
 
-    <div id="import-results-section" style="margin:20px 0;">
-      <h3>已导入记忆 <button onclick="loadImportResults()" style="font-size:12px;padding:2px 10px;">刷新</button></h3>
-      <div id="import-results-list" style="max-height:500px;overflow-y:auto;"></div>
+    <div id="import-results-section" style="margin:36px 0 24px;">
+      <div class="import-h3">已导入记忆 <button onclick="loadImportResults()" class="btn-secondary" style="font-size:10px;padding:4px 12px;">刷新</button></div>
+      <div id="import-results-list" style="max-height:520px;overflow-y:auto;"></div>
     </div>
 
-    <hr style="border-color:var(--border);margin:24px 0;" />
+    <hr style="border:none;border-top:1px solid var(--line);margin:32px 0;" />
 
-    <h3>高频模式检测</h3>
-    <button onclick="detectPatterns()">🔍 检测高频模式</button>
-    <div id="import-patterns" style="margin-top:16px;"></div>
+    <div class="import-h3">高频模式检测</div>
+    <button class="btn-secondary" onclick="detectPatterns()">检测高频模式</button>
+    <div id="import-patterns" style="margin-top:18px;"></div>
   </div>
 </div>
 
 <div class="content" id="config-view" style="display:none">
-  <div style="max-width:640px;margin:0 auto;">
+  <div class="view-head">
+    <div class="page-mark">❀</div>
+    <div class="eyebrow view-eyebrow">Configuration <span class="sep">·</span> 配置</div>
+    <div class="view-title"><em>配置</em></div>
+    <div class="view-subtitle">脱水 · 向量化 · 合并阈值</div>
+  </div>
+
+  <div style="max-width:680px;margin:0 auto;">
     <div class="config-section">
       <h3>脱水 / 打标 API</h3>
       <div class="config-row">
@@ -730,7 +1306,7 @@
         <label>API Key</label>
         <input type="password" id="cfg-dehy-key" placeholder="当前: 加载中…" />
       </div>
-      <div style="margin-top:-4px;margin-bottom:12px;padding-left:122px;font-size:11px;color:var(--text-light);">留空不改。不会持久化到 yaml（请用环境变量）</div>
+      <div style="margin-top:-2px;margin-bottom:14px;padding-left:122px;font-size:11px;color:var(--ink-3);">留空不改 · 不会持久化到 yaml（请用环境变量）</div>
       <div class="config-row">
         <label>Max Tokens</label>
         <input type="number" id="cfg-dehy-maxtokens" min="128" max="8192" />
@@ -759,18 +1335,18 @@
         <label>合并阈值</label>
         <input type="number" id="cfg-merge" min="0" max="100" />
       </div>
-      <div style="margin-top:-4px;padding-left:122px;font-size:11px;color:var(--text-light);">0-100，越高越难合并相似桶</div>
+      <div style="margin-top:-2px;padding-left:122px;font-size:11px;color:var(--ink-3);">0–100 · 越高越难合并相似桶</div>
     </div>
 
-    <div style="display:flex;gap:12px;margin-top:8px;">
+    <div style="display:flex;gap:10px;margin-top:8px;">
       <button class="btn-primary" onclick="saveConfig(false)">应用（仅运行时）</button>
       <button class="btn-secondary" onclick="saveConfig(true)">应用并写入 config.yaml</button>
     </div>
-    <div id="config-status" style="margin-top:16px;font-size:13px;"></div>
+    <div id="config-status" style="margin-top:18px;font-size:13px;"></div>
 
-    <div class="config-section" style="margin-top:28px;">
+    <div class="config-section" style="margin-top:24px;">
       <h3>系统信息</h3>
-      <div id="config-readonly" style="font-size:13px;color:var(--text-dim);line-height:1.8;">加载中…</div>
+      <div id="config-readonly" style="font-size:12.5px;color:var(--ink-1);line-height:2;">加载中…</div>
     </div>
   </div>
 </div>
@@ -780,19 +1356,24 @@
   <div id="detail-content"></div>
 </div>
 
-<!-- Settings Tab View -->
 <div class="content" id="settings-view" style="display:none">
-  <div style="max-width:580px;margin:0 auto;">
+  <div class="view-head">
+    <div class="page-mark">❀</div>
+    <div class="eyebrow view-eyebrow">Settings <span class="sep">·</span> 设置</div>
+    <div class="view-title"><em>设置</em></div>
+    <div class="view-subtitle">服务状态 · 密码 · 宿主机目录</div>
+  </div>
 
+  <div style="max-width:620px;margin:0 auto;">
     <div class="config-section">
       <h3>服务状态</h3>
-      <div id="settings-status" style="font-size:13px;color:var(--text-dim);line-height:2;">加载中…</div>
-      <button onclick="loadSettingsStatus()" style="margin-top:8px;font-size:12px;padding:4px 12px;">刷新状态</button>
+      <div id="settings-status" style="font-size:12.5px;color:var(--ink-1);line-height:2;">加载中…</div>
+      <button class="btn-secondary" onclick="loadSettingsStatus()" style="margin-top:12px;font-size:11px;padding:6px 14px;">刷新状态</button>
     </div>
 
     <div class="config-section">
       <h3>修改密码</h3>
-      <div id="settings-env-notice" style="display:none;font-size:12px;color:var(--warning);margin-bottom:10px;">
+      <div id="settings-env-notice" style="display:none;font-size:11.5px;color:var(--warning);margin-bottom:12px;padding:10px 14px;background:#FAF6E8;border-radius:8px;border:1px solid #E8DCB6;">
         ⚠ 当前使用环境变量 OMBRE_DASHBOARD_PASSWORD，请直接修改环境变量。
       </div>
       <div id="settings-pwd-form">
@@ -808,76 +1389,72 @@
           <label>确认新密码</label>
           <input type="password" id="settings-new-pwd2" placeholder="再次输入新密码" />
         </div>
-        <button class="btn-primary" onclick="changePassword()" style="margin-top:4px;">修改密码</button>
-        <div id="settings-pwd-msg" style="margin-top:10px;font-size:13px;"></div>
+        <button class="btn-primary" onclick="changePassword()" style="margin-top:8px;">修改密码</button>
+        <div id="settings-pwd-msg" style="margin-top:14px;font-size:12.5px;"></div>
       </div>
     </div>
 
     <div class="config-section">
       <h3>宿主机记忆桶目录 (Docker)</h3>
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;line-height:1.6;">
-        设置 docker-compose 中 <code>${OMBRE_HOST_VAULT_DIR:-./buckets}:/data</code> 的宿主机路径。
-        留空则使用项目内 <code>./buckets</code>。
-        <span style="color:var(--warning);">⚠ 修改后需在宿主机执行 <code>docker compose down && docker compose up -d</code> 才会生效。</span>
+      <div style="font-size:11.5px;color:var(--ink-1);margin-bottom:14px;line-height:1.8;">
+        设置 docker-compose 中 <code style="background:var(--bg-warm);padding:1px 6px;border-radius:4px;color:var(--ink);font-family:'SF Mono',Consolas,monospace;font-size:10.5px;border:1px solid var(--line);">${OMBRE_HOST_VAULT_DIR:-./buckets}:/data</code> 的宿主机路径。留空则使用项目内 <code style="background:var(--bg-warm);padding:1px 6px;border-radius:4px;color:var(--ink);font-family:'SF Mono',Consolas,monospace;font-size:10.5px;border:1px solid var(--line);">./buckets</code>。
+        <span style="color:var(--warning);">⚠ 修改后需在宿主机执行 <code style="background:var(--bg-warm);padding:1px 6px;border-radius:4px;color:var(--ink);font-family:'SF Mono',Consolas,monospace;font-size:10.5px;border:1px solid var(--line);">docker compose down && docker compose up -d</code> 才会生效。</span>
       </div>
       <div class="config-row">
         <label>路径</label>
         <input type="text" id="settings-host-vault" placeholder="例如 /Users/you/Obsidian/Ombre Brain" style="flex:1;" />
       </div>
-      <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+      <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
         <button class="btn-primary" onclick="saveHostVault()">保存到 .env</button>
-        <button onclick="loadHostVault()" style="font-size:12px;padding:4px 12px;">重新加载</button>
-        <span id="settings-host-vault-msg" style="font-size:12px;"></span>
+        <button class="btn-secondary" onclick="loadHostVault()" style="font-size:11px;padding:6px 14px;">重新加载</button>
+        <span id="settings-host-vault-msg" style="font-size:11.5px;"></span>
       </div>
     </div>
 
     <div class="config-section">
       <h3>账号操作</h3>
-      <button onclick="doLogout()" style="color:var(--negative);border-color:var(--negative);">退出登录</button>
+      <button class="btn-secondary" onclick="doLogout()" style="color:var(--negative);border-color:var(--c-rose);">退出登录</button>
     </div>
-
   </div>
 </div>
 
 <!-- Auth Overlay -->
-<div id="auth-overlay" style="position:fixed;inset:0;z-index:9999;background:var(--bg-gradient);background-attachment:fixed;display:flex;align-items:center;justify-content:center;">
-  <div style="background:var(--surface);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:400px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.12);">
-    <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--accent);margin-bottom:8px;">◐ Ombre Brain</h2>
-    <p style="color:var(--text-dim);font-size:13px;margin-bottom:28px;" id="auth-subtitle">验证身份</p>
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-glyph"><small>◐</small><em>Ombre Brain</em></div>
+    <p id="auth-subtitle">SIGN IN</p>
 
-    <!-- Setup form -->
     <div id="auth-setup-form" style="display:none;">
-      <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">首次使用，请设置访问密码</p>
-      <input type="password" id="auth-setup-pwd" placeholder="设置密码（至少6位）" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:10px;" />
-      <input type="password" id="auth-setup-pwd2" placeholder="确认密码" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:16px;" onkeydown="if(event.key==='Enter')doSetup()" />
-      <button onclick="doSetup()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;">设置密码并进入</button>
+      <p style="font-size:12px;color:var(--ink-2);margin-bottom:16px;text-transform:none;letter-spacing:0;">首次使用，请设置访问密码</p>
+      <input type="password" id="auth-setup-pwd" placeholder="设置密码（至少6位）" />
+      <input type="password" id="auth-setup-pwd2" placeholder="确认密码" onkeydown="if(event.key==='Enter')doSetup()" />
+      <button onclick="doSetup()">设置密码并进入</button>
     </div>
 
-    <!-- Login form -->
     <div id="auth-login-form" style="display:none;">
-      <input type="password" id="auth-login-pwd" placeholder="输入访问密码" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:16px;" onkeydown="if(event.key==='Enter')doLogin()" />
-      <button onclick="doLogin()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;">登录</button>
+      <input type="password" id="auth-login-pwd" placeholder="输入访问密码" onkeydown="if(event.key==='Enter')doLogin()" />
+      <button onclick="doLogin()">登录</button>
     </div>
 
-    <div id="auth-error" style="color:var(--negative);font-size:13px;margin-top:12px;display:none;"></div>
+    <div id="auth-error" style="color:var(--negative);font-size:12px;margin-top:14px;display:none;letter-spacing:0;text-transform:none;"></div>
   </div>
 </div>
 
 <script>
 // ========================================
-// Auth system / 认证系统
+// Auth system
 // ========================================
 async function checkAuth() {
   try {
     const resp = await fetch('/auth/status');
     const data = await resp.json();
     if (data.setup_needed) {
-      document.getElementById('auth-subtitle').textContent = '首次设置';
+      document.getElementById('auth-subtitle').textContent = 'SETUP';
       document.getElementById('auth-setup-form').style.display = 'block';
     } else if (data.authenticated) {
       document.getElementById('auth-overlay').style.display = 'none';
     } else {
-      document.getElementById('auth-subtitle').textContent = '请输入访问密码';
+      document.getElementById('auth-subtitle').textContent = 'SIGN IN';
       document.getElementById('auth-login-form').style.display = 'block';
     }
   } catch {
@@ -919,9 +1496,8 @@ async function doLogin() {
 async function doLogout() {
   await fetch('/auth/logout', { method: 'POST' });
   document.getElementById('auth-setup-form').style.display = 'none';
-  document.getElementById('auth-login-form').style.display = 'none';
   document.getElementById('auth-login-form').style.display = 'block';
-  document.getElementById('auth-subtitle').textContent = '请输入访问密码';
+  document.getElementById('auth-subtitle').textContent = 'SIGN IN';
   document.getElementById('auth-error').style.display = 'none';
   document.getElementById('auth-overlay').style.display = 'flex';
 }
@@ -936,7 +1512,7 @@ async function changePassword() {
   const resp = await authFetch('/auth/change-password', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({current: currentPwd, new: newPwd}) });
   if (!resp) return;
   if (resp.ok) {
-    msgEl.style.color = 'var(--accent)'; msgEl.textContent = '密码修改成功';
+    msgEl.style.color = 'var(--positive)'; msgEl.textContent = '密码修改成功';
     document.getElementById('settings-current-pwd').value = '';
     document.getElementById('settings-new-pwd').value = '';
     document.getElementById('settings-new-pwd2').value = '';
@@ -956,15 +1532,14 @@ async function loadSettingsStatus() {
     if (d.using_env_password) noticeEl.style.display = 'block';
     else noticeEl.style.display = 'none';
     el.innerHTML = `
-      <b>版本</b>：${d.version}<br>
-      <b>Bucket 总数</b>：${(d.buckets?.total ?? 0)} （永久:${d.buckets?.permanent ?? 0} / 动态:${d.buckets?.dynamic ?? 0} / 归档:${d.buckets?.archive ?? 0}）<br>
-      <b>衰减引擎</b>：${d.decay_engine}<br>
-      <b>向量搜索</b>：${d.embedding_enabled ? '已启用' : '未启用'}<br>
+      <b style="color:var(--ink);font-weight:500;">版本</b> ${d.version}<br>
+      <b style="color:var(--ink);font-weight:500;">Bucket 总数</b> ${(d.buckets?.total ?? 0)} <span style="color:var(--ink-3);">（永久 ${d.buckets?.permanent ?? 0} · 动态 ${d.buckets?.dynamic ?? 0} · 归档 ${d.buckets?.archive ?? 0}）</span><br>
+      <b style="color:var(--ink);font-weight:500;">衰减引擎</b> ${d.decay_engine}<br>
+      <b style="color:var(--ink);font-weight:500;">向量搜索</b> ${d.embedding_enabled ? '已启用' : '未启用'}<br>
     `;
   } catch(e) {
     el.textContent = '加载失败: ' + e;
   }
-  // Also refresh the host-vault input whenever the settings tab is loaded.
   loadHostVault();
 }
 
@@ -973,7 +1548,7 @@ async function loadHostVault() {
   const msg = document.getElementById('settings-host-vault-msg');
   if (!input) return;
   msg.textContent = '';
-  msg.style.color = 'var(--text-dim)';
+  msg.style.color = 'var(--ink-2)';
   try {
     const resp = await authFetch('/api/host-vault');
     if (!resp) return;
@@ -999,7 +1574,7 @@ async function saveHostVault() {
   if (!input) return;
   const value = input.value.trim();
   msg.textContent = '保存中…';
-  msg.style.color = 'var(--text-dim)';
+  msg.style.color = 'var(--ink-2)';
   try {
     const resp = await authFetch('/api/host-vault', {
       method: 'POST',
@@ -1009,7 +1584,7 @@ async function saveHostVault() {
     if (!resp) return;
     const d = await resp.json();
     if (resp.ok) {
-      msg.style.color = 'var(--accent)';
+      msg.style.color = 'var(--positive)';
       msg.textContent = '已保存 → ' + (d.env_file || '.env') + '（需重启容器生效）';
     } else {
       msg.style.color = 'var(--negative)';
@@ -1021,21 +1596,19 @@ async function saveHostVault() {
   }
 }
 
-// authFetch: wraps fetch, shows auth overlay on 401
 async function authFetch(url, options) {
   const resp = await fetch(url, options);
-  if (resp.status === 401) {
-    doLogout();
-    return null;
-  }
+  if (resp.status === 401) { doLogout(); return null; }
   return resp;
 }
 
 // ========================================
-
+// Main
+// ========================================
 const BASE = location.origin;
 let allBuckets = [];
 let currentFilter = 'all';
+let viewMode = 'list';
 
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -1052,6 +1625,15 @@ document.querySelectorAll('.tab').forEach(tab => {
     if (target === 'config') loadConfig();
     if (target === 'import') { pollImportStatus(); loadImportResults(); }
     if (target === 'settings') loadSettingsStatus();
+  });
+});
+
+document.querySelectorAll('.vt-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    viewMode = btn.dataset.view;
+    renderBuckets(filterBuckets(allBuckets));
   });
 });
 
@@ -1087,8 +1669,23 @@ function updateStats() {
   const feels = allBuckets.filter(b => b.type === 'feel').length;
   const resolved = allBuckets.filter(b => b.resolved).length;
   const digested = allBuckets.filter(b => b.digested).length;
-  document.getElementById('stats').textContent =
-    total + ' 桶 · ' + pinned + ' 钉选 · ' + feels + ' feel · ' + resolved + ' 已解决 · ' + digested + ' 已消化';
+  document.getElementById('stats').textContent = total + ' 桶 · ' + pinned + ' 钉 · ' + feels + ' feel';
+  const sub = document.getElementById('view-stats');
+  if (sub) sub.innerHTML = '每一格都是一个被命名的瞬间 <span class="dot">·</span> <b>' + total + '</b> 格 <span class="dot">·</span> <b>' + pinned + '</b> 钉决 <span class="dot">·</span> <b>' + feels + '</b> feel';
+}
+
+function countFor(key) {
+  if (key === 'all') return allBuckets.length;
+  if (key === 'pinned') return allBuckets.filter(b => b.pinned).length;
+  if (key === 'feel') return allBuckets.filter(b => b.type === 'feel').length;
+  if (key === 'unresolved') return allBuckets.filter(b => !b.resolved && b.type !== 'permanent' && !b.pinned).length;
+  if (key === 'digested') return allBuckets.filter(b => b.digested).length;
+  if (key === 'archived') return allBuckets.filter(b => b.type === 'archived' || b.score < 0.3).length;
+  if (key.startsWith('domain:')) {
+    const d = key.slice(7);
+    return allBuckets.filter(b => (b.domain || []).includes(d)).length;
+  }
+  return 0;
 }
 
 function buildFilters() {
@@ -1096,17 +1693,20 @@ function buildFilters() {
   allBuckets.forEach(b => (b.domain || []).forEach(d => domains.add(d)));
   const filters = document.getElementById('filters');
   const types = [
-    { key: 'all', label: '全部' },
-    { key: 'pinned', label: '📌 钉选' },
-    { key: 'feel', label: '🫧 Feel' },
-    { key: 'unresolved', label: '⚡ 未解决' },
-    { key: 'digested', label: '🌿 已消化' },
-    { key: 'archived', label: '📦 归档' },
+    { key: 'all', label: '全部', dot: false },
+    { key: 'pinned', label: '钉决', dot: true },
+    { key: 'feel', label: 'Feel', dot: true },
+    { key: 'unresolved', label: '未解决', dot: true },
+    { key: 'digested', label: '已消化', dot: true },
+    { key: 'archived', label: '已归档', dot: true },
   ];
   filters.innerHTML = types.map(function(t) {
-    return '<button class="filter-btn ' + (t.key === 'all' ? 'active' : '') + '" data-filter="' + t.key + '">' + t.label + '</button>';
-  }).join('') + Array.from(domains).slice(0, 10).map(function(d) {
-    return '<button class="filter-btn" data-filter="domain:' + d + '">' + d + '</button>';
+    const n = countFor(t.key);
+    const dot = t.dot ? '<span class="dot"></span>' : '';
+    return '<button class="filter-btn ' + (t.key === 'all' ? 'active' : '') + '" data-filter="' + t.key + '">' + dot + t.label + '<span class="count">' + n + '</span></button>';
+  }).join('') + Array.from(domains).slice(0, 12).map(function(d) {
+    const n = countFor('domain:' + d);
+    return '<button class="filter-btn" data-filter="domain:' + d + '">' + d + '<span class="count">' + n + '</span></button>';
   }).join('');
 
   filters.addEventListener('click', function(e) {
@@ -1133,25 +1733,75 @@ function filterBuckets(buckets) {
   return buckets;
 }
 
+function iconFor(b) {
+  if (b.pinned) return '★';
+  if (b.type === 'feel') return '◇';
+  if (b.digested) return '◉';
+  if (b.resolved) return '◌';
+  return '◐';
+}
+
+function impClass(imp) {
+  if (imp == null) return '';
+  if (imp >= 8) return ' high';
+  if (imp < 5) return ' dim';
+  return '';
+}
+
 function renderBuckets(buckets) {
   var list = document.getElementById('bucket-list');
   if (!buckets.length) {
-    list.innerHTML = '<div class="loading">没有记忆桶</div>';
+    list.innerHTML = '<div class="loading">没有记忆格</div>';
+    list.className = 'bucket-list';
     return;
   }
+
+  if (viewMode === 'card') {
+    list.className = 'bucket-grid';
+    list.innerHTML = buckets.map(function(b) {
+      var icon = iconFor(b);
+      var timeAgo = formatTimeAgo(b.last_active || b.created);
+      var imp = b.importance != null ? b.importance.toFixed(1) : (b.score ? (b.score * 10).toFixed(1) : '5.0');
+      var typeAttr = b.type || 'dynamic';
+      var classes = ['bucket-card'];
+      if (b.pinned) classes.push('is-pinned');
+      if (b.digested) classes.push('is-digested');
+      var domainTags = (b.domain || []).slice(0, 3).map(function(d){ return '<span class="card-tag">'+esc(d)+'</span>'; }).join('');
+      var typeLabel = b.pinned ? 'pinned' : (typeAttr || 'dynamic');
+      return '<div class="' + classes.join(' ') + '" data-type="' + typeAttr + '" onclick="showDetail(\'' + b.id + '\')">' +
+        '<div class="card-eyebrow"><span class="icon">' + icon + '</span><span>' + esc(typeLabel) + '</span><span class="sep">·</span><span>' + timeAgo + '</span></div>' +
+        '<div class="card-title">' + esc(b.name) + '</div>' +
+        '<div class="card-preview">' + esc(b.content_preview || '') + '</div>' +
+        '<div class="card-foot">' +
+          '<div class="card-tags">' + domainTags + '</div>' +
+          '<span class="card-imp">' + imp + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    return;
+  }
+
+  // list mode
+  list.className = 'bucket-list';
   list.innerHTML = buckets.map(function(b) {
-    var icon = b.pinned ? '📌' : b.type === 'feel' ? '🫧' : b.digested ? '🌿' : b.resolved ? '💤' : '💭';
+    var icon = iconFor(b);
     var vPos = Math.round(b.valence * 100);
-    var modelV = b.model_valence != null ? ' → V' + b.model_valence.toFixed(1) : '';
+    var modelV = b.model_valence != null ? ' V' + b.model_valence.toFixed(1) : '';
     var timeAgo = formatTimeAgo(b.last_active || b.created);
-    return '<div class="bucket-row" onclick="showDetail(\'' + b.id + '\')">' +
+    var imp = b.importance != null ? b.importance.toFixed(1) : (b.score ? (b.score * 10).toFixed(1) : '5.0');
+    var typeAttr = b.type || 'dynamic';
+    var classes = ['bucket-row'];
+    if (b.pinned) classes.push('is-pinned');
+    if (b.digested) classes.push('is-digested');
+    return '<div class="' + classes.join(' ') + '" data-type="' + typeAttr + '" onclick="showDetail(\'' + b.id + '\')">' +
+      '<span class="ribbon"></span>' +
       '<span class="icon">' + icon + '</span>' +
       '<span class="name" title="' + esc(b.name) + '">' + esc(b.name) + '</span>' +
-      '<span class="domain">' + (b.domain || []).join(', ') + '</span>' +
+      '<span class="preview">' + esc(b.content_preview || '') + '</span>' +
+      '<span class="domain">' + (b.domain || []).slice(0,2).join(' · ') + '</span>' +
       '<span class="emotion"><span class="v-bar"><span class="v-dot" style="left:' + vPos + '%"></span></span>' + modelV + '</span>' +
-      '<span class="score">' + b.score.toFixed(2) + '</span>' +
       '<span class="time">' + timeAgo + '</span>' +
-      '<span class="preview">' + esc(b.content_preview) + '</span>' +
+      '<span class="imp-badge' + impClass(b.importance) + '">' + imp + '</span>' +
     '</div>';
   }).join('');
 }
@@ -1176,7 +1826,9 @@ async function showDetail(id) {
     var res = await fetch(BASE + '/api/bucket/' + id);
     var b = await res.json();
     var meta = b.metadata || {};
+    var typeLabel = meta.type || 'dynamic';
     content.innerHTML =
+      '<div class="eyebrow h2-eyebrow">' + esc(typeLabel) + (meta.pinned ? ' <span class="sep">·</span> pinned' : '') + '</div>' +
       '<h2>' + esc(meta.name || id) + '</h2>' +
       '<div class="detail-meta">' +
         '<div class="field"><label>ID</label>' + id + '</div>' +
@@ -1214,12 +1866,12 @@ async function loadNetwork() {
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   var W = canvas.offsetWidth, H = canvas.offsetHeight;
 
-  ctx.fillStyle = '#FDFCF0';
+  ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#8A8070';
-  ctx.font = '14px Inter, sans-serif';
+  ctx.fillStyle = '#B8B2A6';
+  ctx.font = 'italic 14px Cormorant Garamond, serif';
   ctx.textAlign = 'center';
-  ctx.fillText('加载记忆网络…', W/2, H/2);
+  ctx.fillText('加载记忆星图…', W/2, H/2);
 
   try {
     var res = await fetch(BASE + '/api/network');
@@ -1233,8 +1885,8 @@ async function loadNetwork() {
 function drawNetwork(ctx, W, H, data) {
   var nodes = data.nodes, edges = data.edges;
   if (!nodes.length) {
-    ctx.fillStyle = '#8A8070';
-    ctx.fillText('没有记忆桶', W/2, H/2);
+    ctx.fillStyle = '#B8B2A6';
+    ctx.fillText('没有记忆格', W/2, H/2);
     return;
   }
 
@@ -1247,14 +1899,6 @@ function drawNetwork(ctx, W, H, data) {
       x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 50,
       y: cy + Math.sin(angle) * r + (Math.random() - 0.5) * 50,
     };
-  });
-
-  var edgeMap = {};
-  edges.forEach(function(e) {
-    if (!edgeMap[e.source]) edgeMap[e.source] = [];
-    if (!edgeMap[e.target]) edgeMap[e.target] = [];
-    edgeMap[e.source].push(e.target);
-    edgeMap[e.target].push(e.source);
   });
 
   for (var iter = 0; iter < 80; iter++) {
@@ -1288,7 +1932,7 @@ function drawNetwork(ctx, W, H, data) {
     });
   }
 
-  ctx.fillStyle = '#FDFCF0';
+  ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, W, H);
 
   edges.forEach(function(e) {
@@ -1297,20 +1941,20 @@ function drawNetwork(ctx, W, H, data) {
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
-    ctx.strokeStyle = 'rgba(47, 79, 79, ' + (e.similarity * 0.35) + ')';
-    ctx.lineWidth = Math.max(0.5, e.similarity * 2);
+    ctx.strokeStyle = 'rgba(150, 140, 120, ' + (e.similarity * 0.32) + ')';
+    ctx.lineWidth = Math.max(0.5, e.similarity * 1.6);
     ctx.stroke();
   });
 
-  var colors = { dynamic: '#2F4F4F', permanent: '#9A7B4F', feel: '#8B6A6A', archived: '#B0A590' };
+  var colors = { dynamic: '#C99672', permanent: '#BC9D40', feel: '#B57878', archived: '#B8B2A6' };
   nodes.forEach(function(n) {
     var p = positions[n.id];
     var r = Math.max(4, Math.min(14, n.score * 0.8));
-    var color = colors[n.type] || '#2F4F4F';
+    var color = colors[n.type] || '#C99672';
 
     ctx.beginPath();
     ctx.arc(p.x, p.y, r + 4, 0, Math.PI * 2);
-    ctx.fillStyle = color + '15';
+    ctx.fillStyle = color + '20';
     ctx.fill();
 
     ctx.beginPath();
@@ -1319,13 +1963,13 @@ function drawNetwork(ctx, W, H, data) {
     ctx.fill();
 
     if (n.pinned) {
-      ctx.strokeStyle = '#9A7B4F';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#9F8BC0';
+      ctx.lineWidth = 1.5;
       ctx.stroke();
     }
 
     var name = n.name.length > 10 ? n.name.slice(0, 10) + '…' : n.name;
-    ctx.fillStyle = '#3A3530';
+    ctx.fillStyle = '#56504A';
     ctx.font = '11px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(name, p.x, p.y + r + 14);
@@ -1344,11 +1988,11 @@ function formatTimeAgo(iso) {
   var d = new Date(iso);
   var now = new Date();
   var hours = Math.floor((now - d) / 3600000);
-  if (hours < 1) return '刚刚';
-  if (hours < 24) return hours + 'h前';
+  if (hours < 1) return 'now';
+  if (hours < 24) return hours + 'h';
   var days = Math.floor(hours / 24);
-  if (days < 30) return days + 'd前';
-  return Math.floor(days/30) + 'mo前';
+  if (days < 30) return days + 'd';
+  return Math.floor(days/30) + 'mo';
 }
 
 document.addEventListener('keydown', function(e) {
@@ -1387,12 +2031,12 @@ async function runBreathDebug() {
     var w = data.weights;
     info.style.display = '';
     info.innerHTML =
-      '<strong>权重配置</strong>&nbsp;' +
-      'topic=<code>' + w.topic + '</code> emotion=<code>' + w.emotion + '</code> ' +
-      'time=<code>' + w.time + '</code> importance=<code>' + w.importance + '</code>' +
-      ' &nbsp;|&nbsp; 阈值=<code>' + data.threshold + '</code>' +
-      ' &nbsp;|&nbsp; 候选=<code>' + data.total_candidates + '</code> 桶' +
-      ' → 通过=<code>' + data.passed_count + '</code> 桶' +
+      '<strong>权重</strong>&nbsp;' +
+      'topic <code>' + w.topic + '</code> emotion <code>' + w.emotion + '</code> ' +
+      'time <code>' + w.time + '</code> imp <code>' + w.importance + '</code>' +
+      ' &nbsp;|&nbsp; 阈值 <code>' + data.threshold + '</code>' +
+      ' &nbsp;|&nbsp; 候选 <code>' + data.total_candidates + '</code>' +
+      ' → 通过 <code>' + data.passed_count + '</code>' +
       (query ? '' : ' &nbsp;|&nbsp; <em>未输入 query，topic 分数全为 0</em>');
 
     if (!data.results.length) {
@@ -1401,16 +2045,16 @@ async function runBreathDebug() {
     }
 
     var barColors = {
-      topic: '#2F4F4F',
-      emotion: '#8B6A6A',
-      time: '#9A7B4F',
-      importance: '#4A7C59',
+      topic: '#6B97A2',
+      emotion: '#B57878',
+      time: '#BC9D40',
+      importance: '#8AA168',
     };
 
     results.innerHTML = data.results.map(function(r, i) {
       var s = r.scores;
       var passed = r.passed_threshold;
-      var icon = r.pinned ? '📌' : r.resolved ? '💤' : r.type === 'feel' ? '🫧' : '💭';
+      var icon = r.pinned ? '★' : r.resolved ? '◌' : r.type === 'feel' ? '◇' : '◐';
       var bars = Object.entries(s).map(function(entry) {
         var key = entry[0], val = entry[1];
         var pct = Math.round(val * 100);
@@ -1453,7 +2097,7 @@ async function loadConfig() {
     document.getElementById('cfg-emb-model').value = cfg.embedding.model || '';
     document.getElementById('cfg-merge').value = cfg.merge_threshold || 75;
     document.getElementById('config-readonly').innerHTML =
-      'Transport: <strong>' + cfg.transport + '</strong><br>Buckets dir: <strong>' + cfg.buckets_dir + '</strong>';
+      '<b style="color:var(--ink);font-weight:500;">Transport</b> ' + cfg.transport + '<br><b style="color:var(--ink);font-weight:500;">Buckets dir</b> ' + cfg.buckets_dir;
   } catch (e) {
     document.getElementById('config-status').innerHTML =
       '<span style="color:var(--negative)">加载失败: ' + e.message + '</span>';
@@ -1504,11 +2148,11 @@ const uploadZone = document.getElementById('import-upload-zone');
 const fileInput = document.getElementById('import-file-input');
 
 uploadZone.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
-uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = 'var(--border)'; });
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--ink-2)'; });
+uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = 'var(--line-strong)'; });
 uploadZone.addEventListener('drop', e => {
   e.preventDefault();
-  uploadZone.style.borderColor = 'var(--border)';
+  uploadZone.style.borderColor = 'var(--line-strong)';
   if (e.dataTransfer.files.length) startImport(e.dataTransfer.files[0]);
 });
 fileInput.addEventListener('change', () => { if (fileInput.files.length) startImport(fileInput.files[0]); });
@@ -1556,7 +2200,7 @@ function updateImportUI(s) {
   document.getElementById('import-created').textContent = s.memories_created;
   document.getElementById('import-merged').textContent = s.memories_merged;
   document.getElementById('import-raw').textContent = s.memories_raw;
-  const statusMap = { running: '⏳ 导入中…', paused: '⏸ 已暂停', completed: '✅ 完成', error: '❌ 出错' };
+  const statusMap = { running: '导入中…', paused: '已暂停', completed: '✓ 完成', error: '✗ 出错' };
   document.getElementById('import-status-text').textContent = statusMap[s.status] || s.status;
   document.getElementById('import-pause-btn').style.display = s.status === 'running' ? '' : 'none';
   if (s.status !== 'running') clearInterval(importPollTimer);
@@ -1579,22 +2223,22 @@ async function loadImportResults() {
     const res = await fetch(BASE + '/api/import/results?limit=30');
     const data = await res.json();
     if (!data.buckets || !data.buckets.length) {
-      container.innerHTML = '<p style="color:var(--text-dim)">暂无记忆桶</p>';
+      container.innerHTML = '<p style="color:var(--ink-3);font-style:italic;font-family:var(--serif);font-size:13px;">暂无记忆桶</p>';
       return;
     }
     container.innerHTML = data.buckets.map(b => `
-      <div id="ir-${b.id}" style="background:var(--surface);border-radius:12px;padding:14px;margin:8px 0;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <b>${b.name || b.id}</b>
-          <span style="font-size:11px;color:var(--text-dim);">${b.type} | ${(b.domain||[]).join(',')} | imp:${b.importance}</span>
+      <div id="ir-${b.id}" style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:8px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <b style="font-size:13.5px;color:var(--ink);font-weight:500;">${b.name || b.id}</b>
+          <span style="font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.8px;">${b.type} · ${(b.domain||[]).join(',')} · imp ${b.importance}</span>
         </div>
-        <p style="font-size:13px;margin:6px 0;white-space:pre-wrap;">${b.content}</p>
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">${(b.tags||[]).map(t=>'#'+t).join(' ')}</div>
-        <div style="display:flex;gap:8px;">
-          <button onclick="reviewAction('${b.id}','pin')" title="固定为永久记忆">📌 固定</button>
-          <button onclick="reviewAction('${b.id}','important')" title="标为重要">⭐ 重要</button>
-          <button onclick="reviewAction('${b.id}','noise')" title="标为噪声并resolve">🗑 噪声</button>
-          <button onclick="if(confirm('确定删除？'))reviewAction('${b.id}','delete')" title="彻底删除" style="color:var(--negative);">✕ 删除</button>
+        <p style="font-size:12.5px;margin:6px 0 8px;white-space:pre-wrap;color:var(--ink-1);line-height:1.7;">${b.content}</p>
+        <div style="font-size:10.5px;color:var(--ink-3);margin-bottom:10px;">${(b.tags||[]).map(t=>'#'+t).join(' ')}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="reviewAction('${b.id}','pin')">★ 固定</button>
+          <button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="reviewAction('${b.id}','important')">⭐ 重要</button>
+          <button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="reviewAction('${b.id}','noise')">噪声</button>
+          <button class="btn-secondary" style="font-size:11px;padding:5px 12px;color:var(--negative);border-color:var(--c-rose);" onclick="if(confirm('确定删除？'))reviewAction('${b.id}','delete')">删除</button>
         </div>
       </div>
     `).join('');
@@ -1607,18 +2251,18 @@ async function detectPatterns() {
   try {
     const res = await fetch(BASE + '/api/import/patterns');
     const data = await res.json();
-    if (!data.patterns || !data.patterns.length) { container.innerHTML = '<p style="color:var(--text-dim)">未检测到高频模式</p>'; return; }
+    if (!data.patterns || !data.patterns.length) { container.innerHTML = '<p style="color:var(--ink-3);font-style:italic;font-family:var(--serif);font-size:13px;">未检测到高频模式</p>'; return; }
     container.innerHTML = data.patterns.map(p => `
-      <div style="background:var(--surface);border-radius:12px;padding:14px;margin:8px 0;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <b>${p.pattern_name}</b>
-          <span style="font-size:12px;color:var(--text-dim);">出现 ${p.count} 次</span>
+      <div style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:8px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <b style="font-size:13.5px;color:var(--ink);font-weight:500;">${p.pattern_name}</b>
+          <span style="font-size:11px;color:var(--ink-3);">出现 ${p.count} 次</span>
         </div>
-        <p style="font-size:13px;margin:6px 0;">${p.pattern_content}</p>
-        <div style="display:flex;gap:8px;">
-          <button onclick="reviewAction('${p.bucket_ids[0]}','pin')">📌 固定</button>
-          <button onclick="reviewAction('${p.bucket_ids[0]}','important')">⭐ 重要</button>
-          <button onclick="batchReview('${JSON.stringify(p.bucket_ids).replace(/'/g, "\\'").replace(/"/g, '&quot;')}','noise')">🗑 噪声</button>
+        <p style="font-size:12.5px;margin:6px 0 10px;color:var(--ink-1);line-height:1.7;">${p.pattern_content}</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="reviewAction('${p.bucket_ids[0]}','pin')">★ 固定</button>
+          <button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="reviewAction('${p.bucket_ids[0]}','important')">⭐ 重要</button>
+          <button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="batchReview('${JSON.stringify(p.bucket_ids).replace(/'/g, "\\'").replace(/"/g, '&quot;')}','noise')">噪声</button>
         </div>
       </div>
     `).join('');
@@ -1631,7 +2275,6 @@ async function reviewAction(bid, action) {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ decisions: [{ bucket_id: bid, action }] })
     });
-    // Remove card from UI
     const card = document.getElementById('ir-' + bid);
     if (card) card.style.display = 'none';
   } catch(e) {}
