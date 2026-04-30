@@ -284,13 +284,7 @@
     padding-top: 8px;
   }
   .page-mark {
-    font-size: 16px;
-    color: #C9A98A;
-    text-align: center;
-    margin-bottom: 14px;
-    line-height: 1;
-    letter-spacing: 4px;
-    opacity: 0.85;
+    display: none;     /* A 路软化：标题上方装饰花隐藏，避免 ❀ 重复堆叠 */
   }
   .view-eyebrow {
     margin-bottom: 8px;
@@ -347,21 +341,22 @@
     content: '';
     position: absolute;
     bottom: 0;
-    left: 12%; right: 12%;
+    left: 22%; right: 22%;
     height: 1px;
-    background: linear-gradient(to right, transparent, var(--line-strong) 25%, var(--line-strong) 75%, transparent);
+    background: linear-gradient(to right, transparent, rgba(180, 140, 100, 0.18) 30%, rgba(180, 140, 100, 0.18) 70%, transparent);
   }
   .list-toolbar::after {
     content: '❀';
     position: absolute;
-    bottom: -9px;
+    bottom: -7px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--bg);
-    padding: 0 14px;
-    color: #C9A98A;
-    font-size: 14px;
+    padding: 0 12px;
+    color: #D4BFA0;
+    font-size: 11px;
     line-height: 1;
+    opacity: 0.65;
   }
   .filters {
     display: flex;
@@ -498,26 +493,31 @@
   /* ============================================
      Bucket list (列表模式)
      ============================================ */
-  .bucket-list { display: flex; flex-direction: column; gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); border-radius: 10px; overflow: hidden; }
+  .bucket-list { display: flex; flex-direction: column; gap: 10px; background: transparent; border: none; border-radius: 0; overflow: visible; }
   .bucket-row {
     display: grid;
-    grid-template-columns: 4px 18px 220px 1fr 90px 56px 64px 36px;
+    grid-template-columns: 5px 28px 220px 1fr 90px 56px 64px 36px;
     gap: 14px;
-    padding: 16px 22px 16px 0;
+    padding: 16px 22px 16px 18px;
     font-size: 13px;
     align-items: center;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.18s ease;
     background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 4px 14px rgba(120, 95, 60, 0.03);
   }
   .bucket-row:hover {
-    background: var(--bg-warm);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(120, 95, 60, 0.06), 0 10px 24px rgba(120, 95, 60, 0.05);
+    border-color: rgba(180, 140, 100, 0.28);
   }
   .bucket-row .ribbon {
-    width: 4px;
-    height: 22px;
+    width: 5px;
+    height: 28px;
     background: var(--ink-4);
-    border-radius: 0 2px 2px 0;
+    border-radius: 3px;
   }
   .bucket-row[data-type="dynamic"] .ribbon { background: var(--c-peach-deep); }
   .bucket-row[data-type="permanent"] .ribbon { background: var(--c-butter-deep); }
@@ -527,7 +527,7 @@
   .bucket-row.is-digested .ribbon { background: var(--c-sage-deep); }
 
   .bucket-row .icon {
-    font-size: 13px;
+    font-size: 17px;
     text-align: center;
     color: var(--ink-2);
     line-height: 1;
@@ -592,21 +592,23 @@
   .bucket-card {
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 18px 20px 16px 24px;
+    border-radius: 18px;
+    padding: 20px 22px 18px 26px;
     cursor: pointer;
-    transition: all 0.18s ease;
+    transition: all 0.2s ease;
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 8px;
     min-height: 148px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 4px 14px rgba(120, 95, 60, 0.03);
   }
   .bucket-card:hover {
-    border-color: var(--ink-4);
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-1px);
+    border-color: rgba(180, 140, 100, 0.28);
+    box-shadow: 0 2px 6px rgba(120, 95, 60, 0.06), 0 12px 28px rgba(120, 95, 60, 0.06);
+    transform: translateY(-2px);
   }
+  .card-eyebrow .icon { font-size: 14px !important; }   /* emoji 在卡片 eyebrow 也大一点 */
   /* 左侧细色条 */
   .bucket-card::before {
     content: '';
@@ -3363,12 +3365,22 @@ function filterBuckets(buckets) {
   return buckets;
 }
 
+function domainEmoji(domains) {
+  var d = (domains || [])[0];
+  if (!d) return '✨';
+  var map = {
+    '日常': '☕', '学习': '📖', '工作': '💻', '社交': '💬',
+    '内心': '💗', '身心': '🌿', '数字': '📱', '成长': '🌱',
+    '回忆': '🌸', '心理': '🦋', '人际': '🤝', '灵感': '💡',
+    '兴趣': '✨', '反思': '🪞', '梦境': '🌙'
+  };
+  return map[d] || '✨';
+}
 function iconFor(b) {
-  if (b.pinned) return '★';
-  if (b.type === 'feel') return '◇';
-  if (b.digested) return '◉';
-  if (b.resolved) return '◌';
-  return '◐';
+  if (b.pinned) return '♡';
+  if (b.type === 'feel') return '✿';
+  if (b.digested) return '✓';
+  return domainEmoji(b.domain);
 }
 
 function impClass(imp) {
