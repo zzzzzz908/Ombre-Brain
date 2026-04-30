@@ -748,25 +748,33 @@
   }
 
   .detail-modal .close-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
+    position: sticky;
+    top: 14px;
+    float: right;
+    margin-right: 14px;
+    margin-top: 14px;
+    margin-bottom: -44px;     /* 让后续内容上移填它的空间 */
     background: var(--paper);
     border: 1px solid var(--line);
     color: var(--ink-2);
-    font-size: 13px;
+    font-size: 14px;
     cursor: pointer;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.18s;
-    z-index: 2;
+    z-index: 5;
     font-family: inherit;
+    box-shadow: 0 2px 6px rgba(120, 95, 60, 0.10), 0 6px 16px rgba(120, 95, 60, 0.08);
   }
-  .detail-modal .close-btn:hover { color: var(--ink); border-color: var(--ink-3); }
+  .detail-modal .close-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink-3);
+    background: var(--paper);
+  }
 
   .dm-header { padding: 36px 40px 22px; }
   .dm-eyebrow {
@@ -2645,7 +2653,7 @@
     display: none;
     position: fixed;
     left: 16px; right: 16px;
-    bottom: calc(12px + env(safe-area-inset-bottom));
+    bottom: calc(20px + env(safe-area-inset-bottom));
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -3289,6 +3297,18 @@
     font-weight: 500;
     color: var(--ink);
     line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    padding-left: 4px;
+    margin-bottom: 6px;
+  }
+  .today-snap-card .tsc-preview {
+    font-size: 11px;
+    color: var(--ink-2);
+    line-height: 1.45;
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -3296,15 +3316,160 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     padding-left: 4px;
+    opacity: 0.78;
+  }
+  .today-snap-card .tsc-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-left: 4px;
   }
   .today-snap-card .tsc-time {
     font-family: var(--serif);
     font-style: italic;
     font-size: 11.5px;
     color: var(--ink-3);
-    margin-top: 8px;
     letter-spacing: 0.3px;
-    padding-left: 4px;
+  }
+  .today-snap-card .tsc-heart {
+    font-size: 14px;
+    color: var(--ink-3);
+    line-height: 1;
+    opacity: 0.55;
+  }
+  .today-snap-card.is-pinned .tsc-heart {
+    color: var(--c-lavender-deep);
+    opacity: 1;
+  }
+
+  /* === 手账装饰创意 === */
+
+  /* 回形针：贴在 has-clip section 左上角（纯 CSS，模拟金属夹）*/
+  .today-section.has-clip {
+    overflow: visible;
+    position: relative;
+  }
+  .today-section.has-clip::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 22px;
+    width: 28px;
+    height: 14px;
+    background:
+      linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.06) 50%),
+      linear-gradient(90deg, #C9B89A 0%, #D8C9AD 50%, #C9B89A 100%);
+    border-radius: 8px 8px 4px 4px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.18);
+    z-index: 2;
+  }
+  .today-section.has-clip::after {
+    /* 回形针内圈缝隙 */
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 30px;
+    width: 12px;
+    height: 5px;
+    border: 1px solid rgba(120, 95, 60, 0.18);
+    border-radius: 4px 4px 1px 1px;
+    background: transparent;
+    z-index: 3;
+  }
+
+  /* 最新日记标题前的大斜体引号 */
+  .today-section .ts-title em::before {
+    content: none;
+  }
+  .today-journal-card::before {
+    content: '\201C';
+    position: absolute;
+    top: -4px;
+    left: 14px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 56px;
+    color: rgba(168, 130, 106, 0.32);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .today-journal-card { padding-top: 30px; }
+
+  /* 最新日记右下角"日"字邮票（衬线大字 + 虚线齿轮边） */
+  .today-journal-card::after {
+    content: 'NOTE';
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 10px;
+    color: #B89274;
+    letter-spacing: 2px;
+    padding: 4px 8px;
+    border: 1px dashed rgba(168, 130, 106, 0.40);
+    border-radius: 3px;
+    background: rgba(255, 254, 250, 0.40);
+    line-height: 1;
+  }
+
+  /* 常用领域：标题前后加小花叶装饰 */
+  .today-section[data-accent="lavender"] .ts-title em::before {
+    content: '✿ ';
+    color: #B59FCC;
+    font-style: normal;
+    font-size: 16px;
+    margin-right: 4px;
+    opacity: 0.7;
+  }
+
+  /* Today 页脚 — 手账签名 */
+  .today-footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 36px;
+    margin-bottom: 16px;
+    padding: 0 8px;
+    justify-content: center;
+  }
+  .today-footer .tf-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(168, 130, 106, 0.22), transparent);
+    max-width: 90px;
+  }
+  .today-footer .tf-text {
+    font-family: var(--serif);
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .today-footer .tf-text em {
+    font-style: italic;
+    color: var(--ink-2);
+  }
+
+  /* 横向滑动卡片增加邮票齿轮底（视觉提示是手账票） */
+  .today-snap-card.is-pinned::after {
+    content: '★';
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 11px;
+    color: var(--c-lavender-deep);
+    opacity: 0.7;
+  }
+
+  /* 问候卡左下角小手写曲线（纯 SVG-in-CSS） */
+  .today-greet-card .today-quote::after {
+    content: ' ❀';
+    color: rgba(184, 146, 116, 0.55);
+    font-size: 11px;
+    margin-left: 4px;
+    letter-spacing: 1px;
   }
 
   /* 常用领域居中布局 */
@@ -3536,8 +3701,8 @@
     </div>
   </div>
 
-  <!-- 3. 本周时间线（浅薄荷色块承载） -->
-  <div class="today-section has-bg" data-accent="sky">
+  <!-- 3. 本周时间线（薄荷绿色块承载，区别于 Breath 浅蓝） -->
+  <div class="today-section has-bg has-clip" data-accent="sage">
     <div class="today-section-head ts-head-l">
       <span class="ts-title"><em>本周</em></span>
       <button class="ts-link" data-jump="timeline">时间线 ›</button>
@@ -3568,16 +3733,11 @@
     </div>
   </div>
 
-  <!-- 6. 快速入口（左大右小 + 各自彩色） -->
-  <div class="today-quick-row">
-    <button class="today-quick-card tqc-primary" data-jump="breath" data-accent="sky">
-      <span class="tqc-label"><em>Breath</em><small>呼吸一下 · 让一段记忆浮起来</small></span>
-      <span class="tqc-arrow">›</span>
-    </button>
-    <button class="today-quick-card" data-jump="network" data-accent="lavender">
-      <span class="tqc-label"><em>Network</em><small>记忆之间的连结</small></span>
-      <span class="tqc-arrow">›</span>
-    </button>
+  <!-- 页脚：手账签名 -->
+  <div class="today-footer">
+    <span class="tf-line"></span>
+    <span class="tf-text"><em>Ombre Brain</em> · 慢慢长出来的记忆树</span>
+    <span class="tf-line"></span>
   </div>
 </div>
 
@@ -4335,13 +4495,15 @@ function renderTodayMemories() {
     var time = String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
     var typeAttr = b.type || 'dynamic';
     var typeLabel = b.pinned ? 'pinned' : (typeAttr || 'dynamic');
+    var preview = (b.content_preview || '').slice(0, 40);
     var classes = ['today-snap-card'];
     if (b.pinned) classes.push('is-pinned');
     return '<div class="' + classes.join(' ') + '" data-type="' + typeAttr + '" onclick="showDetail(\'' + b.id + '\')">' +
       '<span class="tsc-ribbon"></span>' +
       '<div class="tsc-eyebrow"><span class="tsc-icon">' + icon + '</span><span>' + typeLabel + '</span></div>' +
       '<div class="tsc-name">' + esc(b.name || '无题') + '</div>' +
-      '<div class="tsc-time">' + time + '</div>' +
+      (preview ? '<div class="tsc-preview">' + esc(preview) + '</div>' : '') +
+      '<div class="tsc-foot"><span class="tsc-time">' + time + '</span><span class="tsc-heart">♡</span></div>' +
       '</div>';
   }).join('');
 }
