@@ -147,17 +147,19 @@
     background: var(--paper);
     border: 1px solid var(--line);
     color: var(--ink);
-    padding: 8px 16px;
-    border-radius: 10px;
+    padding: 9px 18px;
+    border-radius: 999px;     /* 全圆角，更软日记本感 */
     font-family: inherit;
     font-size: 13px;
     width: 280px;
-    transition: all 0.18s ease;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04);
   }
   .search-bar input:focus {
     outline: none;
-    border-color: var(--ink-3);
+    border-color: rgba(180, 140, 100, 0.35);
     background: var(--paper);
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 0 0 4px rgba(180, 140, 100, 0.08);
   }
   .search-bar input::placeholder { color: var(--ink-3); }
   .greeting {
@@ -186,18 +188,19 @@
     background: transparent;
     border: 1px solid var(--line);
     color: var(--ink-2);
-    border-radius: 10px;
-    padding: 7px 14px;
+    border-radius: 999px;
+    padding: 7px 16px;
     font-family: inherit;
     font-size: 11.5px;
     cursor: pointer;
-    transition: all 0.18s ease;
+    transition: all 0.2s ease;
     letter-spacing: 0.4px;
   }
   .header-action-btn:hover {
     color: var(--ink);
-    border-color: var(--ink-3);
+    border-color: rgba(180, 140, 100, 0.35);
     background: var(--paper);
+    box-shadow: 0 1px 4px rgba(120, 95, 60, 0.05);
   }
 
   /* ============================================
@@ -730,13 +733,13 @@
     max-height: 88vh;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: 24px;
     z-index: 101;
     overflow-y: auto;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 24px 80px rgba(80, 70, 50, 0.18);
+    box-shadow: 0 8px 24px rgba(80, 70, 50, 0.08), 0 24px 80px rgba(80, 70, 50, 0.14);
   }
   .detail-modal.open {
     opacity: 1;
