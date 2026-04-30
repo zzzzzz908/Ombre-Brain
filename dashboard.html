@@ -1279,180 +1279,376 @@
     color: var(--ink-1);
   }
 
-  .tl-month { margin-bottom: 22px; }
-  .tl-month-header {
-    display: grid;
-    grid-template-columns: 64px 1fr;
-    gap: 18px;
-    padding: 14px 0 12px;
-    border-bottom: 1px dashed var(--line);
-    margin-bottom: 4px;
+  /* === Mode bar：Daily / Weekly / Monthly + 日期翻页 === */
+  .tl-mode-bar {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
   }
-  .tl-month-mark {
+  .tl-mode-tabs {
+    display: inline-flex;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .tl-mode-tab {
+    padding: 6px 18px;
+    font-size: 12px;
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.3px;
+  }
+  .tl-mode-tab:hover { color: var(--ink); }
+  .tl-mode-tab.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .tl-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--sans);
+  }
+  .tl-nav-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-2);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.18s ease;
+  }
+  .tl-nav-btn:hover { color: var(--ink); border-color: var(--ink-3); }
+  .tl-nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink-2);
+    font-weight: 500;
+    min-width: 110px;
+    text-align: center;
+  }
+
+  /* === 通用：单页（手账纸 · 极淡奶白） === */
+  .tl-page {
+    background: #FCFAF3;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 38px 40px 30px;
+    box-shadow: 0 2px 10px rgba(120, 95, 60, 0.04);
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .tl-page.paper-white { background: #FCFAF3; border-color: var(--line); }
+  .tl-page-eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2.4px;
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .tl-page-title {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 30px;
-    color: var(--ink-3);
-    text-align: center;
+    font-size: 52px;
     font-weight: 500;
+    color: var(--ink);
+    line-height: 1.05;
+    letter-spacing: -0.6px;
+    margin-bottom: 4px;
+  }
+  .tl-page-title sup {
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink-2);
+    vertical-align: super;
+    letter-spacing: 0;
+  }
+  .tl-page-title .accent {
+    font-style: italic;
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+
+  /* === Daily View === */
+  .tl-daily-grid {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 0;
+    position: relative;
+  }
+  .tl-time-axis {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(180, 140, 100, 0.18);
+  }
+  .tl-time-label {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--ink-3);
+    font-weight: 500;
+    height: 120px;       /* 4 hours per label, 30px/h */
+    padding-top: 4px;
+    text-align: right;
+    padding-right: 10px;
     line-height: 1;
   }
-  .tl-month-info { display: flex; flex-direction: column; gap: 4px; }
-  .tl-month-name {
+  .tl-time-events {
+    position: relative;
+    height: 720px;        /* 24h * 30px/h */
+    padding-left: 14px;
+  }
+  .tl-time-events::before {
+    /* 浅虚线辅助每 4h */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 119px,
+      rgba(180, 140, 100, 0.12) 119px,
+      rgba(180, 140, 100, 0.12) 120px
+    );
+    pointer-events: none;
+  }
+  .tl-event {
+    position: absolute;
+    left: 14px;
+    right: 6px;
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 1.35;
+    transition: all 0.16s ease;
+    border: 1px solid transparent;
+    overflow: hidden;
+  }
+  .tl-event:hover {
+    transform: translateX(2px);
+    border-color: rgba(0, 0, 0, 0.08);
+    z-index: 5;
+  }
+  .tl-event-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tl-event-time {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-top: 1px;
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', Consolas, monospace;
+    letter-spacing: 0.3px;
+  }
+  .tl-empty-day {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--ink-3);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  /* === Weekly View === */
+  .tl-week-rows {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .tl-week-row {
+    display: grid;
+    grid-template-columns: 36px 44px 1fr 36px;
+    gap: 12px;
+    align-items: center;
+    padding: 11px 4px;
+    border-bottom: 1px dashed rgba(180, 140, 100, 0.18);
+  }
+  .tl-week-row:last-child { border-bottom: none; }
+  .tl-week-row.today {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .tl-week-row .wk-num {
     font-family: var(--serif);
     font-style: italic;
     font-size: 24px;
     color: var(--ink);
     font-weight: 500;
-    letter-spacing: 0.3px;
     line-height: 1;
   }
-  .tl-month-name em {
-    font-style: italic;
+  .tl-week-row .wk-dow {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--ink-3);
     font-weight: 500;
   }
-  .tl-month-stats {
-    font-size: 11px;
-    color: var(--ink-3);
-    letter-spacing: 0.3px;
-    font-variant-numeric: tabular-nums;
-  }
-  .tl-month-stats .dot { color: var(--ink-4); margin: 0 5px; }
-
-  .tl-day {
-    display: grid;
-    grid-template-columns: 64px 1fr;
-    gap: 18px;
-    padding: 12px 0;
-    position: relative;
-  }
-  /* 时间线竖线 */
-  .tl-day::before {
-    content: '';
-    position: absolute;
-    left: 32px;
-    top: 0; bottom: 0;
-    width: 1px;
-    background: var(--line);
-  }
-  .tl-day:last-child::before { bottom: 50%; }
-  /* 节点圆点 */
-  .tl-day-mark::after {
-    content: '';
-    position: absolute;
-    left: 28px;
-    top: 22px;
-    width: 9px; height: 9px;
-    border-radius: 50%;
-    background: var(--paper);
-    border: 2px solid var(--c-coral-deep);
-    z-index: 1;
-  }
-  .tl-day-mark {
+  .tl-week-row .wk-events {
     display: flex;
-    flex-direction: column;
+    gap: 5px;
+    flex-wrap: wrap;
     align-items: center;
-    position: relative;
-    padding-top: 6px;
   }
-  .tl-day-num {
+  .tl-week-row .wk-count {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+  }
+  .tl-pill {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+    line-height: 1.4;
+    transition: opacity 0.15s ease;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tl-pill:hover { opacity: 0.78; }
+
+  /* === Monthly View === */
+  .tl-month-head {
+    margin-bottom: 22px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .tl-month-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 80px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .tl-month-year {
+    text-align: right;
+  }
+  .tl-month-year-label {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .tl-month-year-num {
     font-family: var(--serif);
     font-style: italic;
     font-size: 28px;
-    color: var(--ink-1);
     font-weight: 500;
-    line-height: 1;
-  }
-  .tl-day-month {
-    font-size: 10px;
-    color: var(--ink-3);
-    margin-top: 4px;
-    letter-spacing: 0.3px;
-  }
-  .tl-day-dow {
-    font-size: 10px;
-    color: var(--ink-3);
+    color: var(--ink);
     margin-top: 2px;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.2px;
   }
-  .tl-day-content {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 14px 18px;
-    transition: all 0.18s ease;
-  }
-  .tl-day-content:hover {
-    border-color: var(--ink-4);
-  }
-  .tl-day-summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    color: var(--ink-2);
-    margin-bottom: 10px;
-    letter-spacing: 0.3px;
-    flex-wrap: wrap;
-  }
-  .tl-day-summary .tl-count {
-    font-weight: 500;
-    color: var(--ink-1);
-  }
-  .tl-tag {
-    padding: 1px 8px;
-    border-radius: 999px;
-    font-size: 9.5px;
-    letter-spacing: 0.4px;
-    font-weight: 500;
-    text-transform: uppercase;
-  }
-  .tl-tag.today { background: var(--c-peach); color: var(--c-peach-text); }
-  .tl-tag.imp   { background: var(--c-lavender); color: var(--c-lavender-text); }
-  .tl-tag.feel  { background: var(--c-rose); color: var(--c-rose-text); }
-  .tl-day-list { display: flex; flex-direction: column; gap: 2px; }
-  .tl-mem {
+  .tl-cal-head {
     display: grid;
-    grid-template-columns: 50px 1fr;
-    gap: 12px;
-    padding: 8px 6px;
-    border-radius: 6px;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    margin-bottom: 6px;
+  }
+  .tl-cal-head-cell {
+    padding: 8px 6px 6px;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .tl-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: rgba(180, 140, 100, 0.10);
+    border: 1px solid rgba(180, 140, 100, 0.10);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tl-cal-cell {
+    background: #FCFAF3;
+    padding: 10px 9px 8px;
+    min-height: 92px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     cursor: pointer;
     transition: background 0.15s ease;
-    align-items: baseline;
   }
-  .tl-mem:hover { background: var(--bg-warm); }
-  .tl-mem-time {
+  .tl-cal-cell:hover { background: #FFFEF8; }
+  .tl-cal-cell.other-month { opacity: 0.36; }
+  .tl-cal-cell.today { background: #FFFEF8; }
+
+  .tl-cal-day {
     font-size: 11px;
-    color: var(--ink-3);
-    font-variant-numeric: tabular-nums;
-    font-family: 'SF Mono', Consolas, monospace;
-    letter-spacing: 0.2px;
-    line-height: 1.5;
-  }
-  .tl-mem-body { display: flex; flex-direction: column; gap: 3px; }
-  .tl-mem-title {
-    font-size: 13px;
-    color: var(--ink);
+    color: var(--ink-1);
     font-weight: 500;
-    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
   }
-  .tl-mem-icon {
-    font-size: 11px;
-    margin-right: 4px;
-    color: var(--ink-3);
+  /* 今天：日号包一层薄薄的桃色圈，精致 */
+  .tl-cal-cell.today .tl-cal-day {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--c-peach-deep);
+    border-radius: 50%;
+    color: var(--c-peach-text);
+    font-weight: 600;
+    font-size: 10.5px;
+    margin: -3px 0 -3px -3px;
   }
-  .tl-mem-icon.pinned { color: var(--c-lavender-deep); }
-  .tl-mem-icon.feel { color: var(--c-rose-deep); }
-  .tl-mem-preview {
-    font-size: 11.5px;
-    color: var(--ink-2);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+  .tl-cal-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     overflow: hidden;
+  }
+  .tl-cal-pill {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 9.5px;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+  }
+  .tl-cal-more {
+    font-size: 9px;
+    color: var(--ink-3);
+    letter-spacing: 0.3px;
+    margin-top: 2px;
   }
 
   /* === 记忆星图：左栏 + 中央 + 底部控件 === */
@@ -2204,37 +2400,71 @@
     }
     .score-row .score-bars { display: none; }
 
-    /* 时间线：手机端紧凑 */
-    .timeline-stats { font-size: 11px; margin-bottom: 22px; }
-    .tl-month-header {
-      grid-template-columns: 44px 1fr;
+    /* 时间线三视图手机适配 */
+    .tl-mode-bar {
       gap: 12px;
-      padding: 10px 0 10px;
+      margin-bottom: 22px;
+      flex-direction: column;
+      align-items: center;
     }
-    .tl-month-mark { font-size: 22px; }
-    .tl-month-name { font-size: 18px; }
-    .tl-month-name em { font-size: 18px; }
-    .tl-month-stats { font-size: 10.5px; }
-    .tl-day {
-      grid-template-columns: 44px 1fr;
-      gap: 12px;
-      padding: 10px 0;
+    .tl-mode-tabs { display: inline-flex; }
+    .tl-mode-tab { padding: 5px 14px; font-size: 11.5px; }
+    .tl-nav { justify-content: center; }
+    .tl-nav-label { font-size: 9.5px; min-width: 90px; }
+    .tl-page { padding: 24px 18px 22px; border-radius: 14px; }
+    .tl-page-eyebrow { font-size: 9px; letter-spacing: 1.6px; }
+    .tl-page-title { font-size: 36px; }
+    .tl-page-title sup { font-size: 14px; }
+
+    /* Daily 手机 */
+    .tl-daily-grid { grid-template-columns: 44px 1fr; }
+    .tl-time-label {
+      font-size: 8.5px;
+      letter-spacing: 1.2px;
+      height: 96px;
+      padding-right: 6px;
     }
-    .tl-day::before { left: 22px; }
-    .tl-day-mark::after { left: 18px; top: 18px; width: 8px; height: 8px; border-width: 1.5px; }
-    .tl-day-num { font-size: 22px; }
-    .tl-day-month, .tl-day-dow { font-size: 9.5px; }
-    .tl-day-content { padding: 12px 14px; }
-    .tl-day-summary { font-size: 10.5px; gap: 6px; margin-bottom: 8px; }
-    .tl-tag { font-size: 9px; padding: 1px 7px; }
-    .tl-mem {
-      grid-template-columns: 42px 1fr;
-      gap: 10px;
-      padding: 7px 5px;
+    .tl-time-events {
+      height: 576px;
+      padding-left: 10px;
     }
-    .tl-mem-time { font-size: 10.5px; }
-    .tl-mem-title { font-size: 12.5px; }
-    .tl-mem-preview { font-size: 11px; }
+    .tl-time-events::before {
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 95px,
+        rgba(180, 140, 100, 0.12) 95px,
+        rgba(180, 140, 100, 0.12) 96px
+      );
+    }
+    .tl-event {
+      left: 10px;
+      right: 4px;
+      padding: 6px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+    .tl-event-time { font-size: 9.5px; }
+
+    /* Weekly 手机 */
+    .tl-week-row {
+      grid-template-columns: 28px 32px 1fr 26px;
+      gap: 8px;
+      padding: 9px 2px;
+    }
+    .tl-week-row .wk-num { font-size: 19px; }
+    .tl-week-row .wk-dow { font-size: 8.5px; letter-spacing: 1.2px; }
+    .tl-pill { font-size: 9.5px; padding: 2px 8px; max-width: 110px; }
+    .tl-week-row .wk-count { font-size: 9.5px; }
+
+    /* Monthly 手机 */
+    .tl-month-title { font-size: 48px; }
+    .tl-month-year-num { font-size: 20px; }
+    .tl-cal-head-cell { font-size: 8.5px; padding: 6px 2px; letter-spacing: 1px; }
+    .tl-cal-cell { padding: 5px 4px 4px; min-height: 60px; }
+    .tl-cal-day { font-size: 10px; }
+    .tl-cal-pill { font-size: 8.5px; padding: 1px 4px; }
+    .tl-cal-more { font-size: 8.5px; }
 
     /* 记忆星图：手机端侧栏改为左侧滑入抽屉 */
     .network-layout {
@@ -2352,10 +2582,21 @@
     <div class="page-mark">❀</div>
     <div class="eyebrow view-eyebrow">Timeline <span class="sep">·</span> 时间线</div>
     <div class="view-title"><em>我的时间线</em></div>
-    <div class="view-subtitle">按事件时间倒序展开 <span class="dot">·</span> 最新在最上方 <span class="dot">·</span> 点击单条查看完整详情</div>
+    <div class="view-subtitle">用手账的方式回看每一天 <span class="dot">·</span> 点彩色块查看记忆详情</div>
   </div>
 
-  <div class="timeline-stats" id="timeline-stats">— 条记忆 <span class="dot">·</span> — 个时间节点</div>
+  <div class="tl-mode-bar">
+    <div class="tl-mode-tabs">
+      <button class="tl-mode-tab active" data-mode="daily" onclick="setTlMode('daily')">Daily</button>
+      <button class="tl-mode-tab" data-mode="weekly" onclick="setTlMode('weekly')">Weekly</button>
+      <button class="tl-mode-tab" data-mode="monthly" onclick="setTlMode('monthly')">Monthly</button>
+    </div>
+    <div class="tl-nav">
+      <button class="tl-nav-btn" onclick="tlNav(-1)" aria-label="上一个">‹</button>
+      <span class="tl-nav-label" id="tl-nav-label">—</span>
+      <button class="tl-nav-btn" onclick="tlNav(1)" aria-label="下一个">›</button>
+    </div>
+  </div>
 
   <div class="timeline-list" id="timeline-list">
     <div class="loading">加载中…</div>
@@ -3361,126 +3602,317 @@ function memEdit(id) {
 }
 
 // === 时间线 v2 ===
+// === Timeline · Daily / Weekly / Monthly ===
+var tlMode = 'daily';
+var tlDate = new Date();
+
+var TL_MONTH_NAMES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+var TL_MONTH_SHORT = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+var TL_DOW_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var TL_DOW_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+var TL_DOW_CN = ['周日','周一','周二','周三','周四','周五','周六'];
+
+function tlOrdinal(n) {
+  if (n >= 11 && n <= 13) return 'th';
+  var last = n % 10;
+  if (last === 1) return 'st';
+  if (last === 2) return 'nd';
+  if (last === 3) return 'rd';
+  return 'th';
+}
+
+// 颜色：type 优先 → name hash 落到调色板
+function tlColorFor(b) {
+  if (b.pinned)            return { bg: '#D6CCE0', text: '#523E6E' }; // lavender
+  if (b.type === 'feel')   return { bg: '#EAC4C4', text: '#6E3A3A' }; // rose
+  if (b.digested)          return { bg: '#CFD9B6', text: '#455A30' }; // sage
+  if (b.type === 'archived') return { bg: '#E5DFD0', text: '#6E635A' };
+  if (b.type === 'permanent') return { bg: '#EFE2A6', text: '#6E5118' }; // butter
+  // 普通 dynamic：按 name hash 选 4 种暖色之一
+  var palette = [
+    { bg: '#F4D8C3', text: '#7C4924' }, // peach
+    { bg: '#B7D1D9', text: '#34555E' }, // sky
+    { bg: '#ECBFA0', text: '#7C4924' }, // coral
+    { bg: '#EFE2A6', text: '#6E5118' }, // butter
+  ];
+  var s = b.id || b.name || '';
+  var hash = 0;
+  for (var i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) | 0;
+  return palette[Math.abs(hash) % palette.length];
+}
+
+var tlInitialized = false;
 async function loadTimeline() {
   if (!allBuckets || !allBuckets.length) {
     await loadBuckets();
   }
+  if (!tlInitialized && allBuckets && allBuckets.length) {
+    // 第一次打开时，自动定位到"最近一条记忆"那天
+    var latest = null;
+    allBuckets.forEach(function(b) {
+      if (!b.created) return;
+      var d = new Date(b.created);
+      if (isNaN(d.getTime())) return;
+      if (!latest || d > latest) latest = d;
+    });
+    if (latest) tlDate = latest;
+    tlInitialized = true;
+  }
   renderTimeline();
+}
+
+function setTlMode(mode) {
+  tlMode = mode;
+  document.querySelectorAll('.tl-mode-tab').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  renderTimeline();
+}
+
+function tlNav(delta) {
+  var d = new Date(tlDate);
+  if (tlMode === 'daily') d.setDate(d.getDate() + delta);
+  else if (tlMode === 'weekly') d.setDate(d.getDate() + delta * 7);
+  else d.setMonth(d.getMonth() + delta);
+  tlDate = d;
+  renderTimeline();
+}
+
+function tlGetEventsForRange(start, end) {
+  return (allBuckets || []).filter(function(b) {
+    if (!b.created) return false;
+    var d = new Date(b.created);
+    if (isNaN(d.getTime())) return false;
+    return d >= start && d < end;
+  });
 }
 
 function renderTimeline() {
   var list = document.getElementById('timeline-list');
-  var statsEl = document.getElementById('timeline-stats');
   if (!list) return;
-  if (!allBuckets || !allBuckets.length) {
-    list.innerHTML = '<div class="loading">还没有记忆</div>';
-    if (statsEl) statsEl.textContent = '0 条记忆';
+  if (!allBuckets) {
+    list.innerHTML = '<div class="loading">加载中…</div>';
     return;
   }
+  if (tlMode === 'daily') renderTlDaily(list);
+  else if (tlMode === 'weekly') renderTlWeekly(list);
+  else renderTlMonthly(list);
+}
 
-  // 按 年-月 / 日 分组
-  var grouped = {};
-  var withDate = 0;
-  allBuckets.forEach(function(b) {
-    if (!b.created) return;
-    var d = new Date(b.created);
-    if (isNaN(d.getTime())) return;
-    withDate++;
-    var ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-    var day = String(d.getDate()).padStart(2, '0');
-    if (!grouped[ym]) grouped[ym] = {};
-    if (!grouped[ym][day]) grouped[ym][day] = [];
-    grouped[ym][day].push(b);
-  });
+// ===== Daily =====
+function renderTlDaily(list) {
+  var d = new Date(tlDate);
+  var year = d.getFullYear();
+  var month = d.getMonth() + 1;
+  var day = d.getDate();
+  var dow = d.getDay();
+  var dayStart = new Date(year, d.getMonth(), day, 0, 0, 0);
+  var dayEnd = new Date(year, d.getMonth(), day + 1, 0, 0, 0);
 
-  var months = Object.keys(grouped).sort().reverse();
-  var totalDays = months.reduce(function(s, m) { return s + Object.keys(grouped[m]).length; }, 0);
+  var navLabel = TL_DOW_SHORT[dow] + ' · ' + TL_MONTH_SHORT[d.getMonth()] + ' ' + day;
+  document.getElementById('tl-nav-label').textContent = navLabel;
 
-  if (statsEl) {
-    statsEl.innerHTML = '<b>' + withDate + '</b> 条记忆 <span class="dot">·</span> <b>' + totalDays + '</b> 个时间节点';
+  var events = tlGetEventsForRange(dayStart, dayEnd);
+  events.sort(function(a, b) { return new Date(a.created) - new Date(b.created); });
+
+  var html = '<div class="tl-page">';
+  html += '<div class="tl-page-eyebrow">' + TL_DOW_FULL[dow].toUpperCase() + ' · ' + String(day).padStart(2,'0') + ' · ' + String(month).padStart(2,'0') + ' · ' + year + '</div>';
+  html += '<div class="tl-page-title">' + day + '<sup>' + tlOrdinal(day) + '</sup> ' + TL_MONTH_NAMES_EN[d.getMonth()] + ' <span class="accent">· Journal</span></div>';
+
+  if (events.length === 0) {
+    html += '<div class="tl-empty-day">这一天还没有记忆 · 翻页看看其他日子吧 ❀</div>';
+  } else {
+    html += '<div class="tl-daily-grid">';
+    // 时间轴：每 4h 一个标签
+    html += '<div class="tl-time-axis">';
+    var hours = [0, 4, 8, 12, 16, 20];
+    hours.forEach(function(h) {
+      var lbl;
+      if (h === 0) lbl = '12 AM';
+      else if (h < 12) lbl = h + ' AM';
+      else if (h === 12) lbl = 'NOON';
+      else lbl = (h - 12) + ' PM';
+      html += '<div class="tl-time-label">' + lbl + '</div>';
+    });
+    html += '</div>';
+
+    // 事件区
+    html += '<div class="tl-time-events">';
+    events.forEach(function(b) {
+      var t = new Date(b.created);
+      var minutes = t.getHours() * 60 + t.getMinutes();
+      var topPx = (minutes / 1440) * 720;
+      var c = tlColorFor(b);
+      var time = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+      html += '<div class="tl-event" style="top:' + topPx.toFixed(1) + 'px;background:' + c.bg + ';color:' + c.text + ';" onclick="showDetail(\'' + b.id + '\')">';
+      html += '<div class="tl-event-title">' + esc(b.name || '无题') + '</div>';
+      html += '<div class="tl-event-time">' + time + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '</div>';
   }
+  html += '</div>';
+  list.innerHTML = html;
+}
 
-  var monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  var monthCN = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
-  var dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+// ===== Weekly =====
+function tlMonday(d) {
+  var date = new Date(d);
+  var day = date.getDay();
+  var diff = day === 0 ? -6 : 1 - day; // 周一作为一周第一天
+  date.setDate(date.getDate() + diff);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function renderTlWeekly(list) {
+  var monday = tlMonday(tlDate);
+  var sunday = new Date(monday);
+  sunday.setDate(sunday.getDate() + 7);
+
+  // 周序号（ISO 简化版：第 N 周）
+  var year = monday.getFullYear();
+  var firstJan = new Date(year, 0, 1);
+  var dayOfYear = Math.floor((monday - firstJan) / 86400000) + firstJan.getDay();
+  var weekNum = Math.ceil(dayOfYear / 7);
+
+  var navLabel = 'WEEK ' + weekNum + ' · ' + year;
+  document.getElementById('tl-nav-label').textContent = navLabel;
+
+  var html = '<div class="tl-page paper-white">';
+  html += '<div class="tl-page-eyebrow">THE WEEK</div>';
+  var startDay = monday.getDate();
+  var startMon = monday.getMonth();
+  html += '<div class="tl-page-title">' + startDay + '<sup>' + tlOrdinal(startDay) + '</sup> <span class="accent">of ' + TL_MONTH_NAMES_EN[startMon] + '</span></div>';
+  html += '<div style="margin-top:6px;font-size:11px;color:var(--ink-3);letter-spacing:1.2px;text-transform:uppercase;">Week ' + weekNum + ' · ' + year + '</div>';
+
   var todayKey = new Date().toISOString().slice(0, 10);
 
-  var html = '';
-  months.forEach(function(ym) {
-    var parts = ym.split('-');
-    var year = parseInt(parts[0], 10);
-    var month = parseInt(parts[1], 10);
-    var monthMems = 0, pinned = 0, feels = 0;
-    Object.values(grouped[ym]).forEach(function(arr) {
-      monthMems += arr.length;
-      arr.forEach(function(b) {
-        if (b.pinned) pinned++;
-        if (b.type === 'feel') feels++;
-      });
+  html += '<div class="tl-week-rows">';
+  for (var i = 0; i < 7; i++) {
+    var dd = new Date(monday);
+    dd.setDate(monday.getDate() + i);
+    var dayKey = dd.getFullYear() + '-' + String(dd.getMonth() + 1).padStart(2, '0') + '-' + String(dd.getDate()).padStart(2, '0');
+    var dayStart = new Date(dd);
+    var dayEnd = new Date(dd);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+    var dayEvents = tlGetEventsForRange(dayStart, dayEnd);
+    dayEvents.sort(function(a, b) { return new Date(a.created) - new Date(b.created); });
+    var isToday = dayKey === todayKey;
+
+    html += '<div class="tl-week-row' + (isToday ? ' today' : '') + '">';
+    html += '<span class="wk-num">' + dd.getDate() + '</span>';
+    html += '<span class="wk-dow">' + TL_DOW_SHORT[dd.getDay()] + '</span>';
+    html += '<div class="wk-events">';
+    dayEvents.slice(0, 6).forEach(function(b) {
+      var c = tlColorFor(b);
+      html += '<span class="tl-pill" style="background:' + c.bg + ';color:' + c.text + ';" onclick="showDetail(\'' + b.id + '\')">' + esc(b.name || '无题') + '</span>';
     });
-
-    html += '<div class="tl-month">';
-    html += '<div class="tl-month-header">';
-    html += '<div class="tl-month-mark">' + String(month).padStart(2, '0') + '</div>';
-    html += '<div class="tl-month-info">';
-    html += '<div class="tl-month-name"><em>' + monthNames[month] + ' ' + year + '</em> <span style="color:var(--ink-3);font-style:normal;font-size:14px;">· ' + monthCN[month] + '月</span></div>';
-    html += '<div class="tl-month-stats"><b style="color:var(--ink-1);">' + monthMems + '</b> 条';
-    if (pinned > 0) html += '<span class="dot">·</span><b style="color:var(--c-lavender-text);">' + pinned + '</b> 重要';
-    if (feels > 0) html += '<span class="dot">·</span><b style="color:var(--c-rose-text);">' + feels + '</b> feel';
+    if (dayEvents.length > 6) {
+      html += '<span style="font-size:10px;color:var(--ink-3);margin-left:4px;">+' + (dayEvents.length - 6) + '</span>';
+    }
     html += '</div>';
+    html += '<span class="wk-count">' + dayEvents.length + '</span>';
     html += '</div>';
-    html += '</div>';
+  }
+  html += '</div>';
+  html += '</div>';
+  list.innerHTML = html;
+}
 
-    var days = Object.keys(grouped[ym]).sort().reverse();
-    days.forEach(function(day) {
-      var mems = grouped[ym][day].slice();
-      mems.sort(function(a, b) {
-        return new Date(b.created) - new Date(a.created);
-      });
+// ===== Monthly =====
+function renderTlMonthly(list) {
+  var d = new Date(tlDate);
+  var year = d.getFullYear();
+  var monthIdx = d.getMonth();
 
-      var dayKey = year + '-' + String(month).padStart(2, '0') + '-' + day;
-      var isToday = dayKey === todayKey;
-      var dow = dayNames[new Date(dayKey + 'T00:00:00').getDay()];
-      var dayPinned = mems.filter(function(b) { return b.pinned; }).length;
-      var dayFeels = mems.filter(function(b) { return b.type === 'feel'; }).length;
+  var navLabel = TL_MONTH_SHORT[monthIdx] + ' · ' + year;
+  document.getElementById('tl-nav-label').textContent = navLabel;
 
-      html += '<div class="tl-day">';
-      html += '<div class="tl-day-mark">';
-      html += '<span class="tl-day-num">' + day + '</span>';
-      html += '<span class="tl-day-month">' + String(month).padStart(2, '0') + '月</span>';
-      html += '<span class="tl-day-dow">' + dow + '</span>';
-      html += '</div>';
-      html += '<div class="tl-day-content">';
-      html += '<div class="tl-day-summary">';
-      html += '<span class="tl-count">' + mems.length + ' 条记忆</span>';
-      if (isToday) html += '<span class="tl-tag today">今天</span>';
-      if (dayPinned > 0) html += '<span class="tl-tag imp">含重要 ' + dayPinned + '</span>';
-      if (dayFeels > 0) html += '<span class="tl-tag feel">feel ' + dayFeels + '</span>';
-      html += '</div>';
-      html += '<div class="tl-day-list">';
-      mems.forEach(function(b) {
-        var t = new Date(b.created);
-        var time = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
-        var iconClass = b.pinned ? ' pinned' : (b.type === 'feel' ? ' feel' : '');
-        var icon = b.pinned ? '★' : (b.type === 'feel' ? '◇' : (b.digested ? '◉' : '◐'));
-        html += '<div class="tl-mem" onclick="showDetail(\'' + b.id + '\')">';
-        html += '<span class="tl-mem-time">' + time + '</span>';
-        html += '<div class="tl-mem-body">';
-        html += '<div class="tl-mem-title"><span class="tl-mem-icon' + iconClass + '">' + icon + '</span>' + esc(b.name || b.id) + '</div>';
-        if (b.content_preview) {
-          html += '<div class="tl-mem-preview">' + esc(b.content_preview) + '</div>';
-        }
-        html += '</div>';
-        html += '</div>';
-      });
-      html += '</div>';
-      html += '</div>';
-      html += '</div>';
-    });
+  // 第一天和最后一天
+  var first = new Date(year, monthIdx, 1);
+  var last = new Date(year, monthIdx + 1, 0);
+  var lastDay = last.getDate();
 
-    html += '</div>';
+  // 找出网格起始（周一）
+  var gridStart = tlMonday(first);
+  // 周数量
+  var endOfMonth = new Date(year, monthIdx + 1, 0, 23, 59, 59);
+  var diffWeeks = Math.ceil((endOfMonth - gridStart) / (7 * 86400000));
+  var weekCount = Math.max(5, diffWeeks);
+
+  // 找到本月最新一条记忆
+  var monthStart = new Date(year, monthIdx, 1);
+  var monthEnd = new Date(year, monthIdx + 1, 1);
+  var monthEvents = tlGetEventsForRange(monthStart, monthEnd);
+  monthEvents.sort(function(a, b) { return new Date(b.created) - new Date(a.created); });
+  var latestText = '';
+  if (monthEvents.length) {
+    var latest = monthEvents[0];
+    var lt = new Date(latest.created);
+    latestText = 'latest — ' + TL_DOW_FULL[lt.getDay()] + ' at ' + String(lt.getHours()).padStart(2,'0') + ':' + String(lt.getMinutes()).padStart(2,'0');
+  } else {
+    latestText = 'no entries this month';
+  }
+
+  var todayKey = new Date().toISOString().slice(0, 10);
+
+  var html = '<div class="tl-page paper-white">';
+  html += '<div class="tl-page-eyebrow">MONTH · ' + String(monthIdx + 1).padStart(2,'0') + ' OF 12</div>';
+  html += '<div class="tl-month-head">';
+  html += '<div>';
+  html += '<div class="tl-month-title">' + TL_MONTH_NAMES_EN[monthIdx] + '</div>';
+  html += '<div style="margin-top:8px;font-size:12px;color:var(--ink-3);font-style:italic;font-family:var(--serif);">' + latestText + '</div>';
+  html += '</div>';
+  html += '<div class="tl-month-year">';
+  html += '<div class="tl-month-year-label">YEAR</div>';
+  html += '<div class="tl-month-year-num">' + year + '</div>';
+  html += '</div>';
+  html += '</div>';
+
+  // 周标题
+  html += '<div class="tl-cal-head">';
+  ['MON','TUE','WED','THU','FRI','SAT','SUN'].forEach(function(s) {
+    html += '<div class="tl-cal-head-cell">' + s + '</div>';
   });
+  html += '</div>';
 
+  html += '<div class="tl-cal-grid">';
+  for (var w = 0; w < weekCount; w++) {
+    for (var i = 0; i < 7; i++) {
+      var cell = new Date(gridStart);
+      cell.setDate(gridStart.getDate() + w * 7 + i);
+      var isOther = cell.getMonth() !== monthIdx;
+      var cellKey = cell.getFullYear() + '-' + String(cell.getMonth() + 1).padStart(2, '0') + '-' + String(cell.getDate()).padStart(2, '0');
+      var isToday = cellKey === todayKey;
+
+      var cellStart = new Date(cell);
+      var cellEnd = new Date(cell);
+      cellEnd.setDate(cellEnd.getDate() + 1);
+      var cellEvents = tlGetEventsForRange(cellStart, cellEnd);
+      cellEvents.sort(function(a, b) { return new Date(a.created) - new Date(b.created); });
+
+      var classes = ['tl-cal-cell'];
+      if (isOther) classes.push('other-month');
+      if (isToday) classes.push('today');
+
+      html += '<div class="' + classes.join(' ') + '" onclick="setTlMode(\'daily\');tlDate=new Date(\'' + cellKey + 'T00:00:00\');renderTimeline();">';
+      html += '<div class="tl-cal-day">' + cell.getDate() + '</div>';
+      html += '<div class="tl-cal-events">';
+      cellEvents.slice(0, 2).forEach(function(b) {
+        var c = tlColorFor(b);
+        html += '<div class="tl-cal-pill" style="background:' + c.bg + ';color:' + c.text + ';">' + esc(b.name || '无题') + '</div>';
+      });
+      if (cellEvents.length > 2) {
+        html += '<div class="tl-cal-more">+' + (cellEvents.length - 2) + ' more</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+    }
+  }
+  html += '</div>';
+  html += '</div>';
   list.innerHTML = html;
 }
 
