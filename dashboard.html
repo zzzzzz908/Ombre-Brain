@@ -1030,6 +1030,116 @@
   }
   .dm-action.primary:hover { background: var(--ink-1); border-color: var(--ink-1); }
 
+  /* 编辑模式：元数据编辑面板 */
+  .dm-edit-meta {
+    background: rgba(255, 254, 250, 0.55);
+    border: 1px dashed rgba(168, 130, 106, 0.34);
+    border-radius: 14px;
+    padding: 16px 18px 18px;
+    margin-bottom: 18px;
+  }
+  .dm-edit-meta .dm-section-eyebrow {
+    margin-bottom: 14px;
+  }
+  .dm-edit-meta-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .dm-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .dm-edit-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-3);
+    font-weight: 500;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .dm-edit-label em {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0;
+    min-width: 22px;
+    text-align: center;
+    line-height: 1;
+  }
+  .dm-edit-label small {
+    font-size: 10px;
+    color: var(--ink-3);
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    text-transform: none;
+    margin-left: auto;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+  .dm-edit-field input[type="text"] {
+    font-family: inherit;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+  .dm-edit-field input[type="text"]:focus {
+    border-color: rgba(120, 95, 60, 0.45);
+    box-shadow: 0 0 0 3px rgba(168, 130, 106, 0.12);
+  }
+  .dm-edit-field input[type="range"] {
+    width: 100%;
+    height: 24px;
+    accent-color: #8B6F57;
+    cursor: pointer;
+  }
+  .dm-edit-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(168, 130, 106, 0.22);
+  }
+  .dm-edit-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ink-1);
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+  }
+  .dm-edit-toggle input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: #8B6F57;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .dm-edit-toggle span {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .dm-edit-toggle small {
+    color: var(--ink-3);
+    font-size: 11px;
+    font-style: italic;
+    font-family: var(--serif);
+    margin-left: 4px;
+  }
+
   /* 编辑模式：标题 input */
   .dm-title-edit {
     font-family: var(--serif);
@@ -5126,6 +5236,7 @@ function findSimilarMemories(id) {
 
 // === Detail modal ===
 var currentDetailId = null;
+var currentDetailBucket = null;     // 编辑模式需要拿到 metadata
 
 async function showDetail(id) {
   currentDetailId = id;
@@ -5143,6 +5254,7 @@ async function showDetail(id) {
   try {
     var res = await fetch(BASE + '/api/bucket/' + id);
     var b = await res.json();
+    currentDetailBucket = b;     // 缓存全局，编辑模式用
     var meta = b.metadata || {};
 
     // Position in current filtered list
@@ -5337,17 +5449,52 @@ function memEdit(id) {
   var titleEl = document.querySelector('.detail-modal .dm-title');
   var contentEl = document.querySelector('.detail-modal .detail-content');
   var footerEl = document.querySelector('.detail-modal .dm-footer-actions');
-  if (!titleEl || !contentEl || !footerEl) {
+  var bodyEl = document.querySelector('.detail-modal .dm-body');
+  if (!titleEl || !contentEl || !footerEl || !bodyEl) {
     alert('编辑加载失败，请重新打开记忆。');
     return;
   }
 
-  // 保存原值（HTML 字符 vs 文本）
   var origName = titleEl.textContent || '';
   var origContent = contentEl.textContent || '';
 
+  // 从全局缓存拿 meta（默认值）
+  var meta = (currentDetailBucket && currentDetailBucket.metadata) || {};
+  var importance = meta.importance != null ? meta.importance : 5;
+  var tagsStr = (meta.tags || []).join(', ');
+  var domainStr = (meta.domain || []).join(', ');
+  var pinned   = !!meta.pinned;
+  var digested = !!meta.digested;
+  var resolved = !!meta.resolved;
+
   // 标题变 input
   titleEl.innerHTML = '<input class="dm-title-edit" id="dm-edit-name" value="' + esc(origName) + '" maxlength="120" />';
+
+  // 在 dm-body 顶部插入元数据编辑面板
+  var metaPanel =
+    '<div class="dm-section dm-edit-meta" id="dm-edit-meta-panel">' +
+      '<div class="dm-section-eyebrow">编辑元数据</div>' +
+      '<div class="dm-edit-meta-grid">' +
+        '<div class="dm-edit-field">' +
+          '<span class="dm-edit-label">重要度 <em id="dm-edit-imp-num">' + importance + '</em><small>1 - 10</small></span>' +
+          '<input type="range" min="1" max="10" value="' + importance + '" id="dm-edit-imp" oninput="document.getElementById(\'dm-edit-imp-num\').textContent = this.value">' +
+        '</div>' +
+        '<div class="dm-edit-field">' +
+          '<span class="dm-edit-label">标签<small>逗号分隔</small></span>' +
+          '<input type="text" id="dm-edit-tags" value="' + esc(tagsStr) + '" placeholder="例：信任建立, 情感坦露">' +
+        '</div>' +
+        '<div class="dm-edit-field">' +
+          '<span class="dm-edit-label">领域<small>逗号分隔</small></span>' +
+          '<input type="text" id="dm-edit-domain" value="' + esc(domainStr) + '" placeholder="例：内心, 人际, 成长">' +
+        '</div>' +
+        '<div class="dm-edit-toggles">' +
+          '<label class="dm-edit-toggle"><input type="checkbox" id="dm-edit-pinned" ' + (pinned?'checked':'') + '><span>钉决</span><small>勾选后重要度自动锁 10</small></label>' +
+          '<label class="dm-edit-toggle"><input type="checkbox" id="dm-edit-digested" ' + (digested?'checked':'') + '><span>已消化</span></label>' +
+          '<label class="dm-edit-toggle"><input type="checkbox" id="dm-edit-resolved" ' + (resolved?'checked':'') + '><span>已解决</span></label>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  bodyEl.insertAdjacentHTML('afterbegin', metaPanel);
 
   // 正文变 textarea
   contentEl.outerHTML = '<textarea class="dm-content-edit" id="dm-edit-content">' + esc(origContent) + '</textarea>';
@@ -5362,7 +5509,7 @@ function memEdit(id) {
   if (textarea) {
     var autoResize = function() {
       textarea.style.height = 'auto';
-      textarea.style.height = Math.min(textarea.scrollHeight + 4, window.innerHeight * 0.55) + 'px';
+      textarea.style.height = Math.min(textarea.scrollHeight + 4, window.innerHeight * 0.45) + 'px';
     };
     autoResize();
     textarea.addEventListener('input', autoResize);
@@ -5387,6 +5534,30 @@ async function saveDetail(id) {
   if (!name) { alert('标题不能为空'); nameInput.focus(); return; }
   if (!content.trim()) { alert('正文不能为空'); contentInput.focus(); return; }
 
+  // 收集元数据字段（容错：缺元素就跳过该字段）
+  var body = { name: name, content: content };
+
+  var impEl = document.getElementById('dm-edit-imp');
+  if (impEl) {
+    var impVal = parseInt(impEl.value, 10);
+    if (impVal >= 1 && impVal <= 10) body.importance = impVal;
+  }
+
+  var splitTrim = function(s) {
+    return (s || '').split(/[,，、]/).map(function(x){return x.trim();}).filter(Boolean);
+  };
+  var tagsEl = document.getElementById('dm-edit-tags');
+  if (tagsEl) body.tags = splitTrim(tagsEl.value);
+  var domainEl = document.getElementById('dm-edit-domain');
+  if (domainEl) body.domain = splitTrim(domainEl.value);
+
+  var pinnedEl = document.getElementById('dm-edit-pinned');
+  if (pinnedEl) body.pinned = pinnedEl.checked;
+  var digestedEl = document.getElementById('dm-edit-digested');
+  if (digestedEl) body.digested = digestedEl.checked;
+  var resolvedEl = document.getElementById('dm-edit-resolved');
+  if (resolvedEl) body.resolved = resolvedEl.checked;
+
   var saveBtn = document.getElementById('dm-save-btn');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '保存中…'; }
 
@@ -5394,7 +5565,7 @@ async function saveDetail(id) {
     var resp = await fetch(BASE + '/api/bucket/' + id, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name, content: content })
+      body: JSON.stringify(body)
     });
     var data = await resp.json().catch(function() { return {}; });
     if (!resp.ok) {
