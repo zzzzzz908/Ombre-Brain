@@ -365,10 +365,62 @@
   }
   .filters {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  .filter-row {
+    display: flex;
     gap: 6px;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+  }
+  .domain-toggle-btn {
+    background: transparent;
+    border: none;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: pointer;
+    letter-spacing: 0.4px;
+    padding: 2px 12px;
+    margin-top: 2px;
+    transition: color 0.15s ease;
+  }
+  .domain-toggle-btn:hover { color: var(--ink); }
+  .domain-toggle-btn .caret {
+    font-style: normal;
+    font-size: 10px;
+    margin-left: 2px;
+    color: var(--ink-3);
+    vertical-align: 1px;
+  }
+  .filter-domain-row {
+    border-top: 1px dashed rgba(180, 140, 100, 0.18);
+    padding-top: 12px;
+    margin-top: 2px;
+    max-width: 720px;
+  }
+  .filter-btn.domain-chip {
+    border: 1px dashed rgba(180, 140, 100, 0.32);
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 11.5px;
+    padding: 4px 10px;
+  }
+  .filter-btn.domain-chip:hover {
+    background: var(--paper);
+    color: var(--ink);
+    border-style: solid;
+  }
+  .filter-btn.domain-chip.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+    border-style: solid;
   }
   .filter-btn {
     padding: 6px 12px;
@@ -508,16 +560,18 @@
   }
   .bucket-row .emotion { font-size: 11px; }
   .bucket-row .time {
-    font-size: 10.5px;
+    font-size: 11.5px;
     color: var(--ink-3);
     text-align: right;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
     letter-spacing: 0.3px;
   }
   .bucket-row .imp-badge {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 500;
     color: var(--ink-1);
     text-align: right;
@@ -3254,16 +3308,38 @@ function buildFilters() {
     { key: 'digested', label: '已消化', dot: true },
     { key: 'archived', label: '已归档', dot: true },
   ];
-  filters.innerHTML = types.map(function(t) {
-    const n = countFor(t.key);
+
+  var typeRow = '<div class="filter-row">' + types.map(function(t) {
     const dot = t.dot ? '<span class="dot"></span>' : '';
-    return '<button class="filter-btn ' + (t.key === 'all' ? 'active' : '') + '" data-filter="' + t.key + '">' + dot + t.label + '<span class="count">' + n + '</span></button>';
-  }).join('') + Array.from(domains).slice(0, 12).map(function(d) {
-    const n = countFor('domain:' + d);
-    return '<button class="filter-btn" data-filter="domain:' + d + '">' + d + '<span class="count">' + n + '</span></button>';
-  }).join('');
+    return '<button class="filter-btn ' + (t.key === 'all' ? 'active' : '') + '" data-filter="' + t.key + '">' + dot + t.label + '</button>';
+  }).join('') + '</div>';
+
+  var domainList = Array.from(domains).slice(0, 12);
+  var domainBlock = '';
+  if (domainList.length) {
+    domainBlock =
+      '<button class="domain-toggle-btn" id="domain-toggle-btn" type="button">领域筛选 <span class="caret">▾</span></button>' +
+      '<div class="filter-row filter-domain-row" id="filter-domain-row" style="display:none">' +
+      domainList.map(function(d) {
+        return '<button class="filter-btn domain-chip" data-filter="domain:' + d + '">' + d + '</button>';
+      }).join('') +
+      '</div>';
+  }
+
+  filters.innerHTML = typeRow + domainBlock;
 
   filters.addEventListener('click', function(e) {
+    var toggle = e.target.closest('#domain-toggle-btn');
+    if (toggle) {
+      var row = document.getElementById('filter-domain-row');
+      if (row) {
+        var isHidden = row.style.display === 'none' || !row.style.display;
+        row.style.display = isHidden ? 'flex' : 'none';
+        var caret = toggle.querySelector('.caret');
+        if (caret) caret.textContent = isHidden ? '▴' : '▾';
+      }
+      return;
+    }
     var btn = e.target.closest('.filter-btn');
     if (!btn) return;
     filters.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -3315,7 +3391,7 @@ function renderBuckets(buckets) {
     list.innerHTML = buckets.map(function(b) {
       var icon = iconFor(b);
       var timeAgo = formatTimeAgo(b.last_active || b.created);
-      var imp = b.importance != null ? b.importance.toFixed(1) : (b.score ? (b.score * 10).toFixed(1) : '5.0');
+      var imp = b.importance != null ? Math.round(b.importance) : (b.score ? Math.round(b.score * 10) : 5);
       var typeAttr = b.type || 'dynamic';
       var classes = ['bucket-card'];
       if (b.pinned) classes.push('is-pinned');
@@ -3342,7 +3418,7 @@ function renderBuckets(buckets) {
     var vPos = Math.round(b.valence * 100);
     var modelV = b.model_valence != null ? ' V' + b.model_valence.toFixed(1) : '';
     var timeAgo = formatTimeAgo(b.last_active || b.created);
-    var imp = b.importance != null ? b.importance.toFixed(1) : (b.score ? (b.score * 10).toFixed(1) : '5.0');
+    var imp = b.importance != null ? Math.round(b.importance) : (b.score ? Math.round(b.score * 10) : 5);
     var typeAttr = b.type || 'dynamic';
     var classes = ['bucket-row'];
     if (b.pinned) classes.push('is-pinned');
