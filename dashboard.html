@@ -5602,17 +5602,24 @@ function tlOrdinal(n) {
 
 // 颜色：type 优先 → name hash 落到调色板
 function tlColorFor(b) {
-  if (b.pinned)            return { bg: '#D6CCE0', text: '#523E6E' }; // lavender
-  if (b.type === 'feel')   return { bg: '#EAC4C4', text: '#6E3A3A' }; // rose
-  if (b.digested)          return { bg: '#CFD9B6', text: '#455A30' }; // sage
-  if (b.type === 'archived') return { bg: '#E5DFD0', text: '#6E635A' };
-  if (b.type === 'permanent') return { bg: '#EFE2A6', text: '#6E5118' }; // butter
-  // 普通 dynamic：按 name hash 选 4 种暖色之一
+  // 状态色：用比 dynamic palette 深一档的同系色，作为视觉强调
+  if (b.pinned)              return { bg: '#D6CCE0', text: '#523E6E' }; // 深 lavender
+  if (b.type === 'feel')     return { bg: '#EAC4C4', text: '#6E3A3A' }; // 深 rose
+  if (b.digested)            return { bg: '#CFD9B6', text: '#455A30' }; // 深 sage
+  if (b.type === 'archived') return { bg: '#E5DFD0', text: '#6E635A' }; // 米灰
+  if (b.type === 'permanent')return { bg: '#EFE2A6', text: '#6E5118' }; // 深 butter
+  // 普通 dynamic：10 种柔和浅彩（参考手账风，与 Today 同款配色），按 name hash 循环
   var palette = [
-    { bg: '#F4D8C3', text: '#7C4924' }, // peach
-    { bg: '#B7D1D9', text: '#34555E' }, // sky
-    { bg: '#ECBFA0', text: '#7C4924' }, // coral
-    { bg: '#EFE2A6', text: '#6E5118' }, // butter
+    { bg: '#FBEEE0', text: '#7C4924' }, // 浅暖桃 peach
+    { bg: '#FBF3D8', text: '#6E5118' }, // 浅米黄 butter
+    { bg: '#F5E2E2', text: '#6E3A3A' }, // 浅粉 rose
+    { bg: '#ECE6F2', text: '#523E6E' }, // 浅紫 lavender
+    { bg: '#ECF0DE', text: '#455A30' }, // 浅薄荷 sage
+    { bg: '#EAF0F2', text: '#34555E' }, // 浅雾蓝 sky
+    { bg: '#F8E8DC', text: '#7C5530' }, // 浅杏 apricot
+    { bg: '#EFE5DC', text: '#6E5430' }, // 浅奶咖 latte
+    { bg: '#F2E8F2', text: '#5E3E5E' }, // 浅藕粉 mauve
+    { bg: '#E0EBE3', text: '#3D6E50' }, // 浅薄荷绿 mint
   ];
   var s = b.id || b.name || '';
   var hash = 0;
