@@ -1991,6 +1991,13 @@ if __name__ == "__main__":
         # --- 应用层保活：每 60 秒 ping 一次 /health，防止 Cloudflare Tunnel 空闲断连 ---
         async def _keepalive_loop():
             await asyncio.sleep(10)  # Wait for server to fully start
+            # --- Auto-start decay engine (HTTP-only deployments like Render don't call MCP tools) ---
+            # --- 自动启动衰减引擎（HTTP-only 部署如 Render 不会触发 MCP 工具的 ensure_started） ---
+            try:
+                await decay_engine.ensure_started()
+                logger.info("Decay engine auto-started by keepalive loop / 衰减引擎已由保活循环自动启动")
+            except Exception as e:
+                logger.warning(f"Decay engine auto-start failed / 衰减引擎自动启动失败: {e}")
             async with httpx.AsyncClient() as client:
                 while True:
                     try:
