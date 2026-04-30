@@ -1398,34 +1398,43 @@
     border-right: 1px solid rgba(180, 140, 100, 0.18);
   }
   .tl-time-label {
-    font-size: 9.5px;
+    font-size: 9px;
     text-transform: uppercase;
-    letter-spacing: 1.4px;
+    letter-spacing: 1.3px;
     color: var(--ink-3);
     font-weight: 500;
-    height: 120px;       /* 4 hours per label, 30px/h */
-    padding-top: 4px;
+    height: 40px;        /* 1 hour per label */
+    padding-top: 1px;
     text-align: right;
     padding-right: 10px;
     line-height: 1;
   }
+  .tl-time-label.faint { opacity: 0; }
   .tl-time-events {
     position: relative;
-    height: 720px;        /* 24h * 30px/h */
+    height: 960px;        /* 24h * 40px/h */
     padding-left: 14px;
   }
   .tl-time-events::before {
-    /* 浅虚线辅助每 4h */
+    /* 双层网格：每 1h 极淡线 + 每 6h 稍深线 */
     content: '';
     position: absolute;
     inset: 0;
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 119px,
-      rgba(180, 140, 100, 0.12) 119px,
-      rgba(180, 140, 100, 0.12) 120px
-    );
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 39px,
+        rgba(180, 140, 100, 0.08) 39px,
+        rgba(180, 140, 100, 0.08) 40px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 239px,
+        rgba(180, 140, 100, 0.18) 239px,
+        rgba(180, 140, 100, 0.18) 240px
+      );
     pointer-events: none;
   }
   .tl-event {
@@ -1433,13 +1442,15 @@
     left: 14px;
     right: 6px;
     border-radius: 7px;
-    padding: 8px 12px;
+    padding: 7px 12px 8px;
     font-size: 12px;
     cursor: pointer;
     line-height: 1.35;
     transition: all 0.16s ease;
     border: 1px solid transparent;
     overflow: hidden;
+    min-height: 34px;
+    box-sizing: border-box;
   }
   .tl-event:hover {
     transform: translateX(2px);
@@ -1474,14 +1485,16 @@
     margin-top: 28px;
     display: flex;
     flex-direction: column;
+    gap: 0;
   }
   .tl-week-row {
     display: grid;
     grid-template-columns: 36px 44px 1fr 36px;
     gap: 12px;
     align-items: center;
-    padding: 11px 4px;
+    padding: 18px 6px;
     border-bottom: 1px dashed rgba(180, 140, 100, 0.18);
+    min-height: 64px;
   }
   .tl-week-row:last-child { border-bottom: none; }
   .tl-week-row.today {
@@ -1586,6 +1599,7 @@
   .tl-cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 96px;     /* 强制每行等高，填了内容也不撑大 */
     gap: 1px;
     background: rgba(180, 140, 100, 0.10);
     border: 1px solid rgba(180, 140, 100, 0.10);
@@ -1595,12 +1609,13 @@
   .tl-cal-cell {
     background: #FCFAF3;
     padding: 10px 9px 8px;
-    min-height: 92px;
     display: flex;
     flex-direction: column;
     gap: 5px;
     cursor: pointer;
     transition: background 0.15s ease;
+    overflow: hidden;
+    min-width: 0;
   }
   .tl-cal-cell:hover { background: #FFFEF8; }
   .tl-cal-cell.other-month { opacity: 0.36; }
@@ -1632,6 +1647,8 @@
     flex-direction: column;
     gap: 2px;
     overflow: hidden;
+    flex: 1;        /* 撑满剩余高度，配合 cell overflow 自然裁剪 */
+    min-height: 0;
   }
   .tl-cal-pill {
     padding: 1px 6px;
@@ -2411,57 +2428,83 @@
     .tl-mode-tab { padding: 5px 14px; font-size: 11.5px; }
     .tl-nav { justify-content: center; }
     .tl-nav-label { font-size: 9.5px; min-width: 90px; }
-    .tl-page { padding: 24px 18px 22px; border-radius: 14px; }
+    .tl-page {
+      padding: 24px 18px 22px;
+      border-radius: 14px;
+      min-height: calc(100vh - 240px);  /* 撑满手机视口剩余高度 */
+      display: flex;
+      flex-direction: column;
+    }
     .tl-page-eyebrow { font-size: 9px; letter-spacing: 1.6px; }
     .tl-page-title { font-size: 36px; }
     .tl-page-title sup { font-size: 14px; }
 
-    /* Daily 手机 */
-    .tl-daily-grid { grid-template-columns: 44px 1fr; }
+    /* Daily 手机 —— 1h 间隔，每小时 32px */
+    .tl-daily-grid { grid-template-columns: 40px 1fr; }
     .tl-time-label {
       font-size: 8.5px;
-      letter-spacing: 1.2px;
-      height: 96px;
+      letter-spacing: 1.1px;
+      height: 32px;
       padding-right: 6px;
     }
     .tl-time-events {
-      height: 576px;
+      height: 768px;       /* 24h * 32px */
       padding-left: 10px;
     }
     .tl-time-events::before {
-      background-image: repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent 95px,
-        rgba(180, 140, 100, 0.12) 95px,
-        rgba(180, 140, 100, 0.12) 96px
-      );
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 31px,
+          rgba(180, 140, 100, 0.08) 31px,
+          rgba(180, 140, 100, 0.08) 32px
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 191px,
+          rgba(180, 140, 100, 0.18) 191px,
+          rgba(180, 140, 100, 0.18) 192px
+        );
     }
     .tl-event {
       left: 10px;
       right: 4px;
-      padding: 6px 10px;
+      padding: 5px 10px 6px;
       font-size: 11px;
       border-radius: 6px;
+      min-height: 26px;
     }
     .tl-event-time { font-size: 9.5px; }
 
-    /* Weekly 手机 */
+    /* Weekly 手机 —— 7 行平均铺满剩余高度 */
+    .tl-week-rows {
+      flex: 1;
+      min-height: 0;
+    }
     .tl-week-row {
       grid-template-columns: 28px 32px 1fr 26px;
       gap: 8px;
-      padding: 9px 2px;
+      padding: 12px 2px;
+      flex: 1;
+      min-height: 0;
     }
     .tl-week-row .wk-num { font-size: 19px; }
     .tl-week-row .wk-dow { font-size: 8.5px; letter-spacing: 1.2px; }
     .tl-pill { font-size: 9.5px; padding: 2px 8px; max-width: 110px; }
     .tl-week-row .wk-count { font-size: 9.5px; }
 
-    /* Monthly 手机 */
+    /* Monthly 手机 —— 等高网格 */
     .tl-month-title { font-size: 48px; }
     .tl-month-year-num { font-size: 20px; }
     .tl-cal-head-cell { font-size: 8.5px; padding: 6px 2px; letter-spacing: 1px; }
-    .tl-cal-cell { padding: 5px 4px 4px; min-height: 60px; }
+    .tl-cal-grid {
+      grid-auto-rows: 64px;     /* 手机端紧凑等高 */
+      flex: 1;
+      min-height: 0;
+    }
+    .tl-cal-cell { padding: 5px 4px 4px; }
     .tl-cal-day { font-size: 10px; }
     .tl-cal-pill { font-size: 8.5px; padding: 1px 4px; }
     .tl-cal-more { font-size: 8.5px; }
@@ -3722,18 +3765,21 @@ function renderTlDaily(list) {
   if (events.length === 0) {
     html += '<div class="tl-empty-day">这一天还没有记忆 · 翻页看看其他日子吧 ❀</div>';
   } else {
+    // 手机端 1h=32px，桌面端 1h=40px；和 CSS 保持同步
+    var isMobile = window.innerWidth < 720;
+    var hourH = isMobile ? 32 : 40;
     html += '<div class="tl-daily-grid">';
-    // 时间轴：每 4h 一个标签
+    // 时间轴：24 个 1h 槽位，文字标签每 3h 一个（12AM / 3AM / 6AM / 9AM / NOON / 3PM / 6PM / 9PM）
     html += '<div class="tl-time-axis">';
-    var hours = [0, 4, 8, 12, 16, 20];
-    hours.forEach(function(h) {
+    for (var h = 0; h < 24; h++) {
       var lbl;
       if (h === 0) lbl = '12 AM';
-      else if (h < 12) lbl = h + ' AM';
       else if (h === 12) lbl = 'NOON';
+      else if (h < 12) lbl = h + ' AM';
       else lbl = (h - 12) + ' PM';
-      html += '<div class="tl-time-label">' + lbl + '</div>';
-    });
+      var showText = (h % 3 === 0);
+      html += '<div class="tl-time-label' + (showText ? '' : ' faint') + '">' + (showText ? lbl : '·') + '</div>';
+    }
     html += '</div>';
 
     // 事件区
@@ -3741,7 +3787,7 @@ function renderTlDaily(list) {
     events.forEach(function(b) {
       var t = new Date(b.created);
       var minutes = t.getHours() * 60 + t.getMinutes();
-      var topPx = (minutes / 1440) * 720;
+      var topPx = (minutes / 60) * hourH;
       var c = tlColorFor(b);
       var time = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
       html += '<div class="tl-event" style="top:' + topPx.toFixed(1) + 'px;background:' + c.bg + ';color:' + c.text + ';" onclick="showDetail(\'' + b.id + '\')">';
