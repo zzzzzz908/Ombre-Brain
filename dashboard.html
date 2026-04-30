@@ -3814,18 +3814,18 @@ function switchTab(target) {
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
-document.querySelectorAll('.bnav-btn').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-});
-
 // === More 抽屉 ===
 function openMoreDrawer() {
-  document.getElementById('more-overlay').classList.add('open');
-  document.getElementById('more-drawer').classList.add('open');
+  var ov = document.getElementById('more-overlay');
+  var dr = document.getElementById('more-drawer');
+  if (ov) ov.classList.add('open');
+  if (dr) dr.classList.add('open');
 }
 function closeMoreDrawer() {
-  document.getElementById('more-overlay').classList.remove('open');
-  document.getElementById('more-drawer').classList.remove('open');
+  var ov = document.getElementById('more-overlay');
+  var dr = document.getElementById('more-drawer');
+  if (ov) ov.classList.remove('open');
+  if (dr) dr.classList.remove('open');
   // More 高亮也要清掉（如果当前不是 more）
   var moreBtn = document.querySelector('.bnav-btn[data-tab="more"]');
   if (moreBtn) {
@@ -3833,10 +3833,23 @@ function closeMoreDrawer() {
     if (anyActive) moreBtn.classList.remove('active');
   }
 }
-document.getElementById('more-overlay').addEventListener('click', closeMoreDrawer);
-document.querySelectorAll('.more-drawer-item').forEach(item => {
-  item.addEventListener('click', () => switchTab(item.dataset.tab));
-});
+
+// 这些 DOM 在 script 之后才加载，必须延迟初始化（不然会报 null.addEventListener 让 sign-in 都崩）
+function initBottomNavAndDrawer() {
+  document.querySelectorAll('.bnav-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+  var overlay = document.getElementById('more-overlay');
+  if (overlay) overlay.addEventListener('click', closeMoreDrawer);
+  document.querySelectorAll('.more-drawer-item').forEach(item => {
+    item.addEventListener('click', () => switchTab(item.dataset.tab));
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initBottomNavAndDrawer);
+} else {
+  initBottomNavAndDrawer();
+}
 
 // === Today 内跳转链接 ===
 document.addEventListener('click', function(e) {
