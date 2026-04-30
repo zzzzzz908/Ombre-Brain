@@ -2871,23 +2871,31 @@
     padding: 0 2px;
     position: relative;
   }
-  .today-section-head::before {
-    /* 左侧短色条 —— 不同 section 自定义颜色 */
+  /* 旧的左侧短色条已废弃（用户反馈像 PC 后台），改成标题底部短粗下划线装饰 */
+  .today-section-head::before { display: none; }
+  .today-section .ts-title em {
+    position: relative;
+    padding-bottom: 2px;
+  }
+  .today-section .ts-title em::after {
     content: '';
     position: absolute;
-    left: -10px;
-    top: 14px;
-    width: 4px;
-    height: 16px;
+    left: 0;
+    bottom: -3px;
+    width: 28px;
+    height: 2px;
     border-radius: 2px;
-    background: var(--ink-3);
+    background: rgba(168, 130, 106, 0.32);
   }
-  .today-section[data-accent="peach"]   .today-section-head::before { background: var(--c-peach-deep); }
-  .today-section[data-accent="butter"]  .today-section-head::before { background: var(--c-butter-deep); }
-  .today-section[data-accent="rose"]    .today-section-head::before { background: var(--c-rose-deep); }
-  .today-section[data-accent="sage"]    .today-section-head::before { background: var(--c-sage-deep); }
-  .today-section[data-accent="lavender"].today-section-head::before { background: var(--c-lavender-deep); }
-  .today-section[data-accent="sky"]     .today-section-head::before { background: #5B8898; }
+  /* 不同 section 下划线颜色 */
+  .today-section[data-accent="sage"]     .ts-title em::after { background: rgba(124, 169, 116, 0.50); }
+  .today-section[data-accent="lavender"] .ts-title em::after { background: rgba(120, 95, 150, 0.40); }
+  .today-section[data-accent="butter"]   .ts-title em::after { background: rgba(170, 130, 50, 0.42); }
+  /* 居中标题（ts-head-c）下划线也要居中 */
+  .today-section-head.ts-head-c .ts-title em::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 
   .ts-title {
     font-family: var(--serif);
@@ -2981,15 +2989,92 @@
     letter-spacing: 0.3px;
   }
   .today-empty {
-    padding: 20px;
+    padding: 30px 22px 26px;
     text-align: center;
     color: var(--ink-3);
     font-family: var(--serif);
     font-style: italic;
-    font-size: 13px;
+    font-size: 13.5px;
     background: var(--paper);
-    border: 1px dashed var(--line);
-    border-radius: 14px;
+    border: 1.5px dashed rgba(168, 130, 106, 0.34);
+    border-radius: 16px;
+    position: relative;
+    letter-spacing: 0.3px;
+    line-height: 1.6;
+  }
+  .today-empty::before {
+    content: '✿';
+    display: block;
+    font-size: 30px;
+    color: rgba(168, 130, 106, 0.45);
+    margin-bottom: 10px;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  /* 今日记忆空状态 —— 浅雾蓝便签（避免和问候卡暖桃撞色） */
+  .today-memories-scroll .today-empty {
+    flex: 1;
+    min-width: 0;
+    background: #EAF0F2;
+    border: 1.5px dashed rgba(91, 136, 152, 0.40);
+    margin: 0 4px;
+    color: #5B7280;
+  }
+  .today-memories-scroll .today-empty::before {
+    content: '☁';
+    color: #7AA0B0;
+    font-size: 30px;
+    opacity: 0.85;
+  }
+  /* 撕纸顶 */
+  .today-memories-scroll .today-empty::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 30px;
+    right: 30px;
+    height: 6px;
+    background-image:
+      radial-gradient(circle at 4px 6px, #EAF0F2 4px, transparent 4.5px);
+    background-size: 8px 6px;
+    background-repeat: repeat-x;
+  }
+
+  /* 日记空状态 —— 像一张未书写的日记页 */
+  .today-journal .today-empty {
+    background: #F8F1E2;
+    border-color: rgba(168, 130, 106, 0.40);
+    text-align: left;
+    padding: 22px 24px 20px;
+  }
+  .today-journal .today-empty::before {
+    content: '✎';
+    color: rgba(168, 130, 106, 0.55);
+    font-size: 26px;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+  /* 三道横线模拟未写的稿纸 */
+  .today-journal .today-empty::after {
+    content: '';
+    position: absolute;
+    bottom: 16px;
+    left: 24px;
+    right: 24px;
+    height: 32px;
+    background-image:
+      linear-gradient(to bottom,
+        rgba(168, 130, 106, 0.20) 1px, transparent 1px,
+        transparent 12px,
+        rgba(168, 130, 106, 0.20) 13px, transparent 14px,
+        transparent 24px,
+        rgba(168, 130, 106, 0.16) 25px, transparent 26px);
+    background-size: 100% 100%;
+    pointer-events: none;
+  }
+  .today-journal .today-empty {
+    padding-bottom: 60px;     /* 给底部稿纸线腾空间 */
   }
 
   /* 本周时间线小色点 */
@@ -3609,10 +3694,61 @@
     border-color: #D7CFE0;
   }
 
-  /* 常去的地方 chip —— 散落便签风：衬线斜体 + 微旋转 + 大小不一 */
+  /* 常去的地方 —— 创意承载卡：奶白纸 + 虚线 + 邮票 + 签名 */
+  .today-section.today-section-tags {
+    background: var(--paper);
+    border: 1.5px dashed rgba(168, 130, 106, 0.34);
+    border-radius: 22px;
+    padding: 30px 18px 30px;
+    position: relative;
+    margin-bottom: 22px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 6px 16px rgba(120, 95, 60, 0.04);
+    overflow: visible;
+  }
+  /* 左上 PLACES 邮票印章 */
+  .today-section.today-section-tags::before {
+    content: 'PLACES';
+    position: absolute;
+    top: -11px;
+    left: 26px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 10px;
+    color: #B89274;
+    letter-spacing: 2.5px;
+    padding: 4px 12px;
+    background: var(--bg);
+    border: 1px dashed rgba(168, 130, 106, 0.45);
+    border-radius: 3px;
+    line-height: 1;
+    font-weight: 500;
+  }
+  /* 右下角 ❀ 签名 */
+  .today-section.today-section-tags::after {
+    content: '❀';
+    position: absolute;
+    bottom: 14px;
+    right: 18px;
+    font-size: 14px;
+    color: rgba(184, 146, 116, 0.55);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+  /* 标题居中、衬线大斜体（卡内标题） */
+  .today-section.today-section-tags .today-section-head {
+    margin-bottom: 12px;
+  }
+  .today-section.today-section-tags .ts-title em {
+    font-size: 22px;
+  }
+  .today-section.today-section-tags .today-section-head::before {
+    display: none;
+  }
+
+  /* chip —— 散落便签风：衬线斜体 + 微旋转 + 大小不一 */
   .today-tags {
     gap: 11px 9px !important;
-    padding: 16px 8px 12px !important;
+    padding: 12px 4px 8px !important;
     align-items: center;
   }
   .today-tag-chip {
