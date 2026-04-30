@@ -3048,35 +3048,73 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* 最新日记预览 */
+  /* 最新日记 —— 左右栏：撕纸日期条 / 正文 */
   .today-journal-card {
     background: #F8F1E2;
-    border: 1px solid #E8DAB8;
+    border: 1px dashed rgba(168, 130, 106, 0.40);
     border-radius: 16px;
     padding: 18px 20px;
     cursor: pointer;
     transition: all 0.18s ease;
     box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04);
     position: relative;
+    display: grid;
+    grid-template-columns: 68px 1fr;
+    gap: 18px;
+    align-items: start;
   }
   .today-journal-card:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(120, 95, 60, 0.06), 0 8px 18px rgba(120, 95, 60, 0.04);
   }
-  .tj-eyebrow {
-    font-size: 10px;
+  /* 左侧撕纸日历条 */
+  .tj-stub {
+    border-right: 1.5px dashed rgba(168, 130, 106, 0.45);
+    padding: 4px 14px 4px 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .tj-stub-day {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 40px;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -1.2px;
+    font-weight: 500;
+  }
+  .tj-stub-month {
+    font-size: 9.5px;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #A8826A;
-    margin-bottom: 6px;
+    letter-spacing: 1.8px;
+    color: #B89274;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .tj-stub-dow {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+  /* 右侧正文 */
+  .tj-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
   .tj-name {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 17px;
+    font-size: 18px;
     color: var(--ink);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     line-height: 1.3;
+    font-weight: 500;
   }
   .tj-preview {
     font-size: 12.5px;
@@ -3087,6 +3125,15 @@
     line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  .tj-sign {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 12px;
+    text-align: right;
+    letter-spacing: 0.4px;
   }
 
   /* 常用领域标签 */
@@ -3246,12 +3293,12 @@
   }
   .today-memories-scroll::-webkit-scrollbar { display: none; }
   .today-snap-card {
-    flex: 0 0 220px;
-    min-height: 116px;
+    flex: 0 0 210px;
+    min-height: 148px;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 14px 16px;
+    border-radius: 14px;
+    padding: 22px 16px 14px;
     box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04);
     scroll-snap-align: start;
     cursor: pointer;
@@ -3264,76 +3311,87 @@
     transform: translateY(-2px);
     box-shadow: 0 2px 6px rgba(120, 95, 60, 0.06), 0 10px 22px rgba(120, 95, 60, 0.05);
   }
-  .today-snap-card .tsc-ribbon {
+  /* 顶部虚线撕痕（替代色条） */
+  .today-snap-card::before {
+    content: '';
     position: absolute;
-    left: 0; top: 14px;
-    width: 4px;
-    height: 20px;
-    border-radius: 0 3px 3px 0;
-    background: var(--c-peach-deep);
+    top: 8px;
+    left: 14px;
+    right: 14px;
+    height: 1px;
+    border-top: 1.5px dashed rgba(120, 95, 60, 0.32);
   }
-  .today-snap-card[data-type="permanent"] .tsc-ribbon { background: var(--c-butter-deep); }
-  .today-snap-card[data-type="feel"] .tsc-ribbon { background: var(--c-rose-deep); }
-  .today-snap-card[data-type="archived"] .tsc-ribbon { background: var(--ink-3); }
-  .today-snap-card.is-pinned .tsc-ribbon { background: var(--c-lavender-deep); }
+  /* 不再渲染色条，但保留隐藏防 JS 报错 */
+  .today-snap-card .tsc-ribbon { display: none; }
+  /* type 标签改成右上邮票印章 */
   .today-snap-card .tsc-eyebrow {
-    display: flex;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 9.5px;
+    gap: 4px;
+    font-size: 8.5px;
     text-transform: uppercase;
-    letter-spacing: 1.4px;
-    color: var(--ink-3);
-    margin-bottom: 8px;
-    padding-left: 4px;
+    letter-spacing: 1.5px;
+    color: rgba(120, 95, 60, 0.65);
+    padding: 3px 7px 3px 6px;
+    border: 1px dashed rgba(120, 95, 60, 0.32);
+    border-radius: 3px;
+    background: rgba(255, 254, 250, 0.32);
+    line-height: 1;
+    margin: 0;
   }
   .today-snap-card .tsc-icon {
-    font-size: 13px;
-    color: var(--ink-2);
+    font-size: 11px;
+    color: rgba(120, 95, 60, 0.65);
     line-height: 1;
   }
   .today-snap-card .tsc-name {
-    font-size: 14px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
     font-weight: 500;
     color: var(--ink);
-    line-height: 1.35;
+    line-height: 1.25;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    padding-left: 4px;
-    margin-bottom: 6px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    letter-spacing: 0.2px;
   }
   .today-snap-card .tsc-preview {
     font-size: 11px;
     color: var(--ink-2);
-    line-height: 1.45;
+    line-height: 1.5;
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    padding-left: 4px;
-    opacity: 0.78;
+    opacity: 0.72;
   }
   .today-snap-card .tsc-foot {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 8px;
-    padding-left: 4px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(120, 95, 60, 0.18);
   }
   .today-snap-card .tsc-time {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--ink-3);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
   }
   .today-snap-card .tsc-heart {
-    font-size: 14px;
+    font-size: 15px;
     color: var(--ink-3);
     line-height: 1;
     opacity: 0.55;
@@ -3342,6 +3400,13 @@
     color: var(--c-lavender-deep);
     opacity: 1;
   }
+  /* 微旋转：每张票根角度略不同（手账撕贴感） */
+  .today-snap-card:nth-child(3n+1) { transform: rotate(-1deg); }
+  .today-snap-card:nth-child(3n+2) { transform: rotate(0.5deg); }
+  .today-snap-card:nth-child(3n)   { transform: rotate(1.2deg); }
+  .today-snap-card:nth-child(3n+1):hover { transform: rotate(-1deg) translateY(-2px); }
+  .today-snap-card:nth-child(3n+2):hover { transform: rotate(0.5deg) translateY(-2px); }
+  .today-snap-card:nth-child(3n):hover   { transform: rotate(1.2deg) translateY(-2px); }
 
   /* === 手账装饰创意 === */
 
@@ -3378,41 +3443,8 @@
     z-index: 3;
   }
 
-  /* 最新日记标题前的大斜体引号 */
-  .today-section .ts-title em::before {
-    content: none;
-  }
-  .today-journal-card::before {
-    content: '\201C';
-    position: absolute;
-    top: -4px;
-    left: 14px;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 56px;
-    color: rgba(168, 130, 106, 0.32);
-    line-height: 1;
-    pointer-events: none;
-  }
-  .today-journal-card { padding-top: 30px; }
-
-  /* 最新日记右下角"日"字邮票（衬线大字 + 虚线齿轮边） */
-  .today-journal-card::after {
-    content: 'NOTE';
-    position: absolute;
-    bottom: 14px;
-    right: 14px;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 10px;
-    color: #B89274;
-    letter-spacing: 2px;
-    padding: 4px 8px;
-    border: 1px dashed rgba(168, 130, 106, 0.40);
-    border-radius: 3px;
-    background: rgba(255, 254, 250, 0.40);
-    line-height: 1;
-  }
+  /* 旧的引号/NOTE 装饰已废弃，让位给新的左右栏布局 */
+  .today-section .ts-title em::before { content: none; }
 
   /* 常用领域：标题前后加小花叶装饰 */
   .today-section[data-accent="lavender"] .ts-title em::before {
@@ -3577,10 +3609,21 @@
     border-color: #D7CFE0;
   }
 
-  /* 常用领域 chip 按 nth-child 循环色 */
+  /* 常去的地方 chip —— 散落便签风：衬线斜体 + 微旋转 + 大小不一 */
+  .today-tags {
+    gap: 11px 9px !important;
+    padding: 16px 8px 12px !important;
+    align-items: center;
+  }
   .today-tag-chip {
     border: none !important;
     color: var(--ink-1) !important;
+    font-family: var(--serif) !important;
+    font-style: italic !important;
+    font-weight: 500;
+    padding: 7px 14px !important;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.06), 0 4px 10px rgba(120, 95, 60, 0.04);
+    transition: all 0.2s ease;
   }
   .today-tag-chip:nth-child(6n+1) { background: #F4D8C3; color: #7C4924 !important; }
   .today-tag-chip:nth-child(6n+2) { background: #B7D1D9; color: #34555E !important; }
@@ -3588,9 +3631,21 @@
   .today-tag-chip:nth-child(6n+4) { background: #EFE2A6; color: #6E5118 !important; }
   .today-tag-chip:nth-child(6n+5) { background: #D6CCE0; color: #523E6E !important; }
   .today-tag-chip:nth-child(6n)   { background: #EAC4C4; color: #6E3A3A !important; }
+  /* 微旋转 + 字号变化（散落便签） */
+  .today-tag-chip:nth-child(4n+1) { transform: rotate(-2deg); font-size: 14px; }
+  .today-tag-chip:nth-child(4n+2) { transform: rotate(1.5deg); font-size: 13px; }
+  .today-tag-chip:nth-child(4n+3) { transform: rotate(-1deg); font-size: 15px; }
+  .today-tag-chip:nth-child(4n)   { transform: rotate(2.2deg); font-size: 12.5px; }
+  .today-tag-chip:hover {
+    transform: rotate(0) translateY(-2px);
+    box-shadow: 0 2px 6px rgba(120, 95, 60, 0.10), 0 8px 20px rgba(120, 95, 60, 0.06);
+  }
   .today-tag-chip .ttc-count {
     color: currentColor !important;
     opacity: 0.55;
+    font-style: normal;
+    font-family: var(--sans);
+    font-weight: 400;
   }
 
   /* 快速入口卡按 accent 上色 */
@@ -3608,14 +3663,26 @@
   .today-quick-card[data-accent="lavender"] .tqc-label em { color: #523E6E; }
   .today-quick-card[data-accent="lavender"] .tqc-arrow { color: #7A6594; }
 
-  /* 让 today-week 在 sky 色块里更精致 */
-  .today-section[data-accent="sky"] .today-week {
-    background: rgba(255, 254, 250, 0.55);
+  /* 本周 sage 色块内：去掉白色突兀，让 7 天直接铺在 sage 底上 */
+  .today-section[data-accent="sage"] .today-week {
+    background: transparent;
     border: none;
     box-shadow: none;
+    padding: 4px 0;
   }
-  .today-section[data-accent="sky"] .tw-day.today {
-    background: rgba(91, 136, 152, 0.16);
+  .today-section[data-accent="sage"] .tw-day:hover {
+    background: rgba(124, 169, 116, 0.16);
+  }
+  .today-section[data-accent="sage"] .tw-day.today {
+    background: rgba(124, 169, 116, 0.32);
+  }
+  .today-section[data-accent="sage"] .tw-day.today .tw-day-num {
+    color: #2E4F2E;
+    font-weight: 600;
+  }
+  .today-section[data-accent="sage"] .tw-day-dow,
+  .today-section[data-accent="sage"] .tw-day-count {
+    color: #6A7E62;
   }
 
   /* 最新日记暖黄日记卡边框换成虚线（更日记感） */
@@ -3723,8 +3790,8 @@
     </div>
   </div>
 
-  <!-- 5. 常用领域（浅紫色块承载，chip 散落多色） -->
-  <div class="today-section today-section-tags has-bg" data-accent="lavender">
+  <!-- 5. 常去的地方（去掉浅紫卡，chip 散落微旋转） -->
+  <div class="today-section today-section-tags">
     <div class="today-section-head ts-head-c">
       <span class="ts-title"><em>常去的地方</em></span>
     </div>
@@ -4556,12 +4623,20 @@ function renderTodayJournal() {
   }
   var latest = feels[0];
   var d = new Date(latest.created);
-  var dKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  var dowFull = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  var monShort = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()];
+  var dowCN = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  var time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
   el.innerHTML = '<div class="today-journal-card" onclick="showDetail(\'' + latest.id + '\')">' +
-    '<div class="tj-eyebrow">' + dKey + ' · ' + dowFull + '</div>' +
-    '<div class="tj-name">' + esc(latest.name || '无题') + '</div>' +
-    '<div class="tj-preview">' + esc(latest.content_preview || '（暂无预览）') + '</div>' +
+    '<div class="tj-stub">' +
+      '<div class="tj-stub-day">' + d.getDate() + '</div>' +
+      '<div class="tj-stub-month">' + monShort + '</div>' +
+      '<div class="tj-stub-dow">' + dowCN + '</div>' +
+    '</div>' +
+    '<div class="tj-body">' +
+      '<div class="tj-name">' + esc(latest.name || '无题') + '</div>' +
+      '<div class="tj-preview">' + esc(latest.content_preview || '（暂无预览）') + '</div>' +
+      '<div class="tj-sign">写于 ' + time + ' · 小屿</div>' +
+    '</div>' +
     '</div>';
 }
 
