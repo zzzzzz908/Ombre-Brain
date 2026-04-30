@@ -184,6 +184,14 @@
     opacity: 0.85;
     transform: translateY(-2px);
   }
+  /* emoji 名字：不受 italic serif 影响，等距 */
+  .greeting.greeting-emoji {
+    font-family: -apple-system, "Apple Color Emoji", "Segoe UI Emoji", system-ui, sans-serif;
+    font-style: normal;
+    font-size: 17px;
+    letter-spacing: 2px;
+    padding: 0 2px;
+  }
   .header-action-btn {
     background: transparent;
     border: 1px solid var(--line);
@@ -2883,27 +2891,44 @@
     padding: 0 2px;
     position: relative;
   }
-  /* 旧的左侧短色条已废弃（用户反馈像 PC 后台），改成标题底部短粗下划线装饰 */
+  /* 标题装饰 —— 手绘波浪线（SVG mask + 颜色由 background 决定） */
   .today-section-head::before { display: none; }
   .today-section .ts-title em {
     position: relative;
-    padding-bottom: 2px;
+    padding-bottom: 4px;
   }
   .today-section .ts-title em::after {
     content: '';
     position: absolute;
     left: 0;
-    bottom: -3px;
-    width: 28px;
-    height: 2px;
-    border-radius: 2px;
-    background: rgba(168, 130, 106, 0.32);
+    bottom: -7px;
+    width: 48px;
+    height: 7px;
+    background: rgba(168, 130, 106, 0.62);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 8'%3E%3Cpath d='M2 4 Q 9 1 16 4 T 30 4 T 44 4 T 58 4' stroke='black' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left center / 100% 100%;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 8'%3E%3Cpath d='M2 4 Q 9 1 16 4 T 30 4 T 44 4 T 58 4' stroke='black' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left center / 100% 100%;
   }
-  /* 不同 section 下划线颜色 */
-  .today-section[data-accent="sage"]     .ts-title em::after { background: rgba(124, 169, 116, 0.50); }
-  .today-section[data-accent="lavender"] .ts-title em::after { background: rgba(120, 95, 150, 0.40); }
-  .today-section[data-accent="butter"]   .ts-title em::after { background: rgba(170, 130, 50, 0.42); }
-  /* 居中标题（ts-head-c）下划线也要居中 */
+  /* 标题末尾一个小 ✿ 装饰（结尾点缀） */
+  .today-section .ts-title em::before {
+    content: '✿';
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-58%);
+    font-size: 10px;
+    color: rgba(168, 130, 106, 0.45);
+    font-style: normal;
+    letter-spacing: 0;
+    pointer-events: none;
+  }
+  /* 不同 section 波浪线颜色 */
+  .today-section[data-accent="sage"]     .ts-title em::after { background: rgba(124, 169, 116, 0.70); }
+  .today-section[data-accent="sage"]     .ts-title em::before { color: rgba(124, 169, 116, 0.55); }
+  .today-section[data-accent="lavender"] .ts-title em::after { background: rgba(120, 95, 150, 0.55); }
+  .today-section[data-accent="lavender"] .ts-title em::before { color: rgba(120, 95, 150, 0.50); }
+  .today-section[data-accent="butter"]   .ts-title em::after { background: rgba(170, 130, 50, 0.60); }
+  .today-section[data-accent="butter"]   .ts-title em::before { color: rgba(170, 130, 50, 0.55); }
+  /* 居中标题：波浪线居中 + ✿ 在波浪右端 */
   .today-section-head.ts-head-c .ts-title em::after {
     left: 50%;
     transform: translateX(-50%);
@@ -3866,7 +3891,7 @@
   <div class="search-bar">
     <input type="search" id="search-input" name="memory_query" placeholder="搜索记忆…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" />
   </div>
-  <span class="greeting"><em>榆榆</em><span class="greeting-mark">❀</span></span>
+  <span class="greeting greeting-emoji">🦉❤️🏝️</span>
   <button class="header-action-btn" onclick="doLogout()" title="退出登录">退出</button>
 </div>
 
