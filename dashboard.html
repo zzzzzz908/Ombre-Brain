@@ -2784,20 +2784,27 @@
     background: #FCEEE0;
     border: 1px solid #F4D8C3;
     border-radius: 22px;
-    padding: 26px 26px 24px;
-    margin-bottom: 26px;
+    padding: 28px 26px 26px;
+    margin-bottom: 36px;
     box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 8px 24px rgba(120, 95, 60, 0.05);
     position: relative;
     overflow: hidden;
   }
-  .today-greet-card::before {
-    /* 左侧色条 */
-    content: '';
+  .today-day-ribbon {
     position: absolute;
-    left: 0; top: 26px; bottom: 26px;
-    width: 4px;
-    background: #D89F7A;
-    border-radius: 0 3px 3px 0;
+    top: 22px;
+    right: 24px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: #B89274;
+    letter-spacing: 0.4px;
+    line-height: 1;
+  }
+  .today-day-ribbon b {
+    font-weight: 500;
+    color: #8B6043;
+    font-size: 16px;
   }
   .today-eyebrow {
     font-size: 10px;
@@ -2805,33 +2812,33 @@
     letter-spacing: 1.8px;
     color: #A8826A;
     font-weight: 500;
-    margin-bottom: 6px;
+    margin-bottom: 12px;
   }
   .today-date-line {
     font-family: var(--serif);
     font-style: italic;
     color: var(--ink);
-    line-height: 1;
+    line-height: 0.95;
     display: flex;
     align-items: baseline;
     gap: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
   }
   .today-date-num {
-    font-size: 56px;
+    font-size: 64px;
     font-weight: 500;
-    letter-spacing: -1px;
+    letter-spacing: -1.2px;
   }
   .today-date-suf {
-    font-size: 16px;
+    font-size: 18px;
     font-style: italic;
     color: var(--ink-2);
   }
   .today-month {
-    font-size: 28px;
+    font-size: 30px;
     font-style: italic;
     color: var(--ink-1);
-    margin-left: 4px;
+    margin-left: 6px;
   }
   .today-quote {
     font-family: var(--serif);
@@ -2839,25 +2846,63 @@
     font-size: 13px;
     color: #8B6F57;
     line-height: 1.5;
-    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(168, 130, 106, 0.32);
   }
 
-  /* Section 容器 */
-  .today-section { margin-bottom: 22px; }
+  /* Section 容器 —— 错位节奏 */
+  .today-section { margin-bottom: 30px; }
+  .today-section.tight { margin-bottom: 22px; }      /* 紧凑节奏 */
+  .today-section.loose { margin-bottom: 38px; }      /* 留更多呼吸 */
+
   .today-section-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: 10px;
-    padding: 0 4px;
+    margin-bottom: 14px;
+    padding: 0 2px;
+    position: relative;
   }
+  .today-section-head::before {
+    /* 左侧短色条 —— 不同 section 自定义颜色 */
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 14px;
+    width: 4px;
+    height: 16px;
+    border-radius: 2px;
+    background: var(--ink-3);
+  }
+  .today-section[data-accent="peach"]   .today-section-head::before { background: var(--c-peach-deep); }
+  .today-section[data-accent="butter"]  .today-section-head::before { background: var(--c-butter-deep); }
+  .today-section[data-accent="rose"]    .today-section-head::before { background: var(--c-rose-deep); }
+  .today-section[data-accent="sage"]    .today-section-head::before { background: var(--c-sage-deep); }
+  .today-section[data-accent="lavender"].today-section-head::before { background: var(--c-lavender-deep); }
+  .today-section[data-accent="sky"]     .today-section-head::before { background: #5B8898; }
+
   .ts-title {
     font-family: var(--serif);
-    font-size: 17px;
     color: var(--ink);
     letter-spacing: 0.3px;
+    line-height: 1.05;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
   }
-  .ts-title em { font-style: italic; font-weight: 500; }
+  .ts-title em {
+    font-style: italic;
+    font-weight: 500;
+    font-size: 24px;
+  }
+  .ts-title small {
+    font-style: italic;
+    font-weight: 400;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.3px;
+    text-transform: lowercase;
+  }
   .ts-link {
     background: transparent;
     border: none;
@@ -2866,8 +2911,10 @@
     font-size: 12.5px;
     color: var(--ink-2);
     cursor: pointer;
-    padding: 2px 6px;
+    padding: 2px 0;
     letter-spacing: 0.3px;
+    line-height: 1;
+    flex-shrink: 0;
   }
   .ts-link:hover { color: var(--ink); }
 
@@ -3114,6 +3161,304 @@
     letter-spacing: 0.4px;
   }
 
+  /* === Today 排版打破死板：补全扩展元素样式 === */
+
+  /* 问候卡 ❀ 邮票装饰 */
+  .today-greet-stamp {
+    position: absolute;
+    top: 22px;
+    right: 24px;
+    font-size: 14px;
+    color: #C99877;
+    opacity: 0.6;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  /* 问候卡底部 3 块统计 */
+  .today-stats {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(168, 130, 106, 0.32);
+  }
+  .today-quote + .today-stats {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: none;     /* quote 上面已经有虚线，避免重复 */
+  }
+  .ts-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .ts-block em {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .ts-block small {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: #A8826A;
+    font-weight: 500;
+  }
+  .ts-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(168, 130, 106, 0.28);
+  }
+
+  /* 标题对齐变体 */
+  .today-section-head.ts-head-c {
+    justify-content: center;
+    text-align: center;
+  }
+  .today-section-head.ts-head-c::before { display: none; }
+  .today-section-head.ts-head-l { justify-content: space-between; }
+
+  /* 今日记忆横向滑动卡片 */
+  .today-memories-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px 14px 8px;
+    margin: 0 -14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .today-memories-scroll::-webkit-scrollbar { display: none; }
+  .today-snap-card {
+    flex: 0 0 220px;
+    min-height: 116px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04);
+    scroll-snap-align: start;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.18s ease;
+  }
+  .today-snap-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(120, 95, 60, 0.06), 0 10px 22px rgba(120, 95, 60, 0.05);
+  }
+  .today-snap-card .tsc-ribbon {
+    position: absolute;
+    left: 0; top: 14px;
+    width: 4px;
+    height: 20px;
+    border-radius: 0 3px 3px 0;
+    background: var(--c-peach-deep);
+  }
+  .today-snap-card[data-type="permanent"] .tsc-ribbon { background: var(--c-butter-deep); }
+  .today-snap-card[data-type="feel"] .tsc-ribbon { background: var(--c-rose-deep); }
+  .today-snap-card[data-type="archived"] .tsc-ribbon { background: var(--ink-3); }
+  .today-snap-card.is-pinned .tsc-ribbon { background: var(--c-lavender-deep); }
+  .today-snap-card .tsc-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--ink-3);
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  .today-snap-card .tsc-icon {
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1;
+  }
+  .today-snap-card .tsc-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.35;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    padding-left: 4px;
+  }
+  .today-snap-card .tsc-time {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+    padding-left: 4px;
+  }
+
+  /* 常用领域居中布局 */
+  .today-section-tags .today-tags {
+    justify-content: center;
+    padding: 0 8px;
+  }
+
+  /* 快速入口：错位（左大右小） */
+  .today-quick-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .today-quick-card.tqc-primary {
+    padding: 22px 22px;
+  }
+  .tqc-arrow {
+    margin-left: auto;
+    font-size: 22px;
+    color: var(--ink-3);
+    font-family: var(--serif);
+    line-height: 1;
+    align-self: center;
+  }
+  .today-quick-card .tqc-label { flex: 1; }
+
+  /* === 大胆色块版：每个 section 用不同浅色卡承载 === */
+
+  .today-section.has-bg {
+    border-radius: 22px;
+    padding: 22px 18px 22px 22px;
+    border: 1px solid var(--line);
+    margin-bottom: 22px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 6px 16px rgba(120, 95, 60, 0.04);
+  }
+  .today-section.has-bg .today-section-head {
+    margin-bottom: 14px;
+    padding: 0;
+  }
+  .today-section.has-bg .today-section-head::before {
+    display: none;     /* has-bg section 内部不再加左色条 */
+  }
+  .today-section[data-accent="sky"].has-bg {
+    background: #E5EFF2;
+    border-color: #C8DCE0;
+  }
+  .today-section[data-accent="lavender"].has-bg {
+    background: #ECE6F2;
+    border-color: #D7CFE0;
+  }
+  .today-section[data-accent="butter"].has-bg {
+    background: #FBF3D8;
+    border-color: #ECE0B5;
+  }
+  .today-section[data-accent="sage"].has-bg {
+    background: #ECF0DE;
+    border-color: #D2DCBC;
+  }
+  .today-section[data-accent="rose"].has-bg {
+    background: #F5E2E2;
+    border-color: #E5C6C6;
+  }
+  .today-section[data-accent="peach"].has-bg {
+    background: #FBEEE0;
+    border-color: #F4D8C3;
+  }
+
+  /* 问候卡胶带条（右上角斜贴的浅米色胶带） */
+  .today-greet-tape {
+    position: absolute;
+    top: -10px;
+    right: 32px;
+    width: 64px;
+    height: 22px;
+    background: rgba(229, 191, 156, 0.42);
+    border-left: 1px dashed rgba(168, 130, 106, 0.28);
+    border-right: 1px dashed rgba(168, 130, 106, 0.28);
+    transform: rotate(-10deg);
+    pointer-events: none;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.06);
+  }
+
+  /* snap-card 按 type 自带色（不再都是米白纸） */
+  .today-snap-card[data-type="dynamic"] {
+    background: #FBEEE0;
+    border-color: #F4D8C3;
+  }
+  .today-snap-card[data-type="permanent"] {
+    background: #FBF3D8;
+    border-color: #ECE0B5;
+  }
+  .today-snap-card[data-type="feel"] {
+    background: #F5E2E2;
+    border-color: #E5C6C6;
+  }
+  .today-snap-card[data-type="archived"] {
+    background: var(--paper);
+    border-color: var(--line);
+    opacity: 0.85;
+  }
+  .today-snap-card.is-pinned {
+    background: #ECE6F2;
+    border-color: #D7CFE0;
+  }
+
+  /* 常用领域 chip 按 nth-child 循环色 */
+  .today-tag-chip {
+    border: none !important;
+    color: var(--ink-1) !important;
+  }
+  .today-tag-chip:nth-child(6n+1) { background: #F4D8C3; color: #7C4924 !important; }
+  .today-tag-chip:nth-child(6n+2) { background: #B7D1D9; color: #34555E !important; }
+  .today-tag-chip:nth-child(6n+3) { background: #CFD9B6; color: #455A30 !important; }
+  .today-tag-chip:nth-child(6n+4) { background: #EFE2A6; color: #6E5118 !important; }
+  .today-tag-chip:nth-child(6n+5) { background: #D6CCE0; color: #523E6E !important; }
+  .today-tag-chip:nth-child(6n)   { background: #EAC4C4; color: #6E3A3A !important; }
+  .today-tag-chip .ttc-count {
+    color: currentColor !important;
+    opacity: 0.55;
+  }
+
+  /* 快速入口卡按 accent 上色 */
+  .today-quick-card[data-accent="sky"] {
+    background: #DDE8EC;
+    border-color: #C0D4DA;
+  }
+  .today-quick-card[data-accent="sky"] .tqc-label em { color: #34555E; }
+  .today-quick-card[data-accent="sky"] .tqc-arrow { color: #5B8898; }
+
+  .today-quick-card[data-accent="lavender"] {
+    background: #E4DEEA;
+    border-color: #CDC2D9;
+  }
+  .today-quick-card[data-accent="lavender"] .tqc-label em { color: #523E6E; }
+  .today-quick-card[data-accent="lavender"] .tqc-arrow { color: #7A6594; }
+
+  /* 让 today-week 在 sky 色块里更精致 */
+  .today-section[data-accent="sky"] .today-week {
+    background: rgba(255, 254, 250, 0.55);
+    border: none;
+    box-shadow: none;
+  }
+  .today-section[data-accent="sky"] .tw-day.today {
+    background: rgba(91, 136, 152, 0.16);
+  }
+
+  /* 最新日记暖黄日记卡边框换成虚线（更日记感） */
+  .today-journal-card {
+    border-style: dashed;
+    border-color: rgba(168, 130, 106, 0.32);
+  }
+
   /* ============================================
      B1：手机端 —— 隐藏顶部 8-tab 横滚条 + 显示底栏 + 预留底部空间
      ============================================ */
@@ -3160,7 +3505,10 @@
      Today · 首页聚合 dashboard（B1）
      ========================================= -->
 <div class="content" id="today-view">
+  <!-- 1. 问候卡（带统计数字焦点） -->
   <div class="today-greet-card" id="today-greet-card">
+    <div class="today-greet-stamp">❀</div>
+    <div class="today-greet-tape"></div>
     <div class="today-eyebrow" id="today-eyebrow">— · — · —</div>
     <div class="today-date-line">
       <span class="today-date-num" id="today-date-num">—</span>
@@ -3168,31 +3516,41 @@
       <span class="today-month" id="today-month">—</span>
     </div>
     <div class="today-quote">慢慢来，生活自会给你答案。</div>
+    <div class="today-stats" id="today-stats">
+      <span class="ts-block"><em id="ts-today-n">—</em><small>今日</small></span>
+      <span class="ts-divider"></span>
+      <span class="ts-block"><em id="ts-week-n">—</em><small>本周</small></span>
+      <span class="ts-divider"></span>
+      <span class="ts-block"><em id="ts-total-n">—</em><small>累计</small></span>
+    </div>
   </div>
 
+  <!-- 2. 今日记忆 · 横向卡片滑动（snap-card 按 type 自带色） -->
   <div class="today-section">
-    <div class="today-section-head">
+    <div class="today-section-head ts-head-l">
       <span class="ts-title"><em>今日记忆</em></span>
       <button class="ts-link" data-jump="list">全部 ›</button>
     </div>
-    <div class="today-memories" id="today-memories">
+    <div class="today-memories-scroll" id="today-memories">
       <div class="today-empty">读取中…</div>
     </div>
   </div>
 
-  <div class="today-section">
-    <div class="today-section-head">
-      <span class="ts-title"><em>本周时间线</em></span>
-      <button class="ts-link" data-jump="timeline">详细 ›</button>
+  <!-- 3. 本周时间线（浅薄荷色块承载） -->
+  <div class="today-section has-bg" data-accent="sky">
+    <div class="today-section-head ts-head-l">
+      <span class="ts-title"><em>本周</em></span>
+      <button class="ts-link" data-jump="timeline">时间线 ›</button>
     </div>
     <div class="today-week" id="today-week">
       <div class="today-empty">读取中…</div>
     </div>
   </div>
 
+  <!-- 4. 最新日记 -->
   <div class="today-section">
-    <div class="today-section-head">
-      <span class="ts-title"><em>最新日记</em></span>
+    <div class="today-section-head ts-head-l">
+      <span class="ts-title"><em>最新一篇日记</em></span>
       <button class="ts-link" data-jump="diary">全部 ›</button>
     </div>
     <div class="today-journal" id="today-journal">
@@ -3200,21 +3558,25 @@
     </div>
   </div>
 
-  <div class="today-section">
-    <div class="today-section-head">
-      <span class="ts-title"><em>常用领域</em></span>
+  <!-- 5. 常用领域（浅紫色块承载，chip 散落多色） -->
+  <div class="today-section today-section-tags has-bg" data-accent="lavender">
+    <div class="today-section-head ts-head-c">
+      <span class="ts-title"><em>常去的地方</em></span>
     </div>
     <div class="today-tags" id="today-tags">
       <div class="today-empty">读取中…</div>
     </div>
   </div>
 
+  <!-- 6. 快速入口（左大右小 + 各自彩色） -->
   <div class="today-quick-row">
-    <button class="today-quick-card" data-jump="breath">
-      <span class="tqc-label"><em>Breath</em><small>呼吸 · 浮现</small></span>
+    <button class="today-quick-card tqc-primary" data-jump="breath" data-accent="sky">
+      <span class="tqc-label"><em>Breath</em><small>呼吸一下 · 让一段记忆浮起来</small></span>
+      <span class="tqc-arrow">›</span>
     </button>
-    <button class="today-quick-card" data-jump="network">
-      <span class="tqc-label"><em>Network</em><small>记忆星图</small></span>
+    <button class="today-quick-card" data-jump="network" data-accent="lavender">
+      <span class="tqc-label"><em>Network</em><small>记忆之间的连结</small></span>
+      <span class="tqc-arrow">›</span>
     </button>
   </div>
 </div>
@@ -3906,10 +4268,33 @@ async function loadToday() {
 
 function renderToday() {
   renderTodayGreet();
+  renderTodayStats();
   renderTodayMemories();
   renderTodayWeek();
   renderTodayJournal();
   renderTodayTags();
+}
+
+function renderTodayStats() {
+  var todayKey = new Date().toISOString().slice(0, 10);
+  var today = new Date();
+  var dow = today.getDay();
+  var diff = dow === 0 ? -6 : 1 - dow;
+  var monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  monday.setHours(0,0,0,0);
+  var todayN = 0, weekN = 0;
+  (allBuckets || []).forEach(function(b) {
+    if (!b.created) return;
+    if (b.created.slice(0, 10) === todayKey) todayN++;
+    var dt = new Date(b.created);
+    if (!isNaN(dt) && dt >= monday) weekN++;
+  });
+  var totalN = (allBuckets || []).length;
+  var setText = function(id, n) { var el = document.getElementById(id); if (el) el.textContent = n; };
+  setText('ts-today-n', todayN);
+  setText('ts-week-n', weekN);
+  setText('ts-total-n', totalN);
 }
 
 function renderTodayGreet() {
@@ -3944,18 +4329,19 @@ function renderTodayMemories() {
     el.innerHTML = '<div class="today-empty">今天还没有新记忆 · 在对话里跟小屿说点什么吧 ❀</div>';
     return;
   }
-  el.innerHTML = todays.slice(0, 5).map(function(b) {
+  el.innerHTML = todays.slice(0, 8).map(function(b) {
     var icon = iconFor(b);
     var t = new Date(b.created);
     var time = String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
     var typeAttr = b.type || 'dynamic';
-    var classes = ['today-mini-row'];
+    var typeLabel = b.pinned ? 'pinned' : (typeAttr || 'dynamic');
+    var classes = ['today-snap-card'];
     if (b.pinned) classes.push('is-pinned');
     return '<div class="' + classes.join(' ') + '" data-type="' + typeAttr + '" onclick="showDetail(\'' + b.id + '\')">' +
-      '<span class="ribbon"></span>' +
-      '<span class="icon">' + icon + '</span>' +
-      '<span class="name">' + esc(b.name || '无题') + '</span>' +
-      '<span class="time">' + time + '</span>' +
+      '<span class="tsc-ribbon"></span>' +
+      '<div class="tsc-eyebrow"><span class="tsc-icon">' + icon + '</span><span>' + typeLabel + '</span></div>' +
+      '<div class="tsc-name">' + esc(b.name || '无题') + '</div>' +
+      '<div class="tsc-time">' + time + '</div>' +
       '</div>';
   }).join('');
 }
