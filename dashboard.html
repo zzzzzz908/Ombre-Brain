@@ -1030,6 +1030,51 @@
   }
   .dm-action.primary:hover { background: var(--ink-1); border-color: var(--ink-1); }
 
+  /* 编辑模式：标题 input */
+  .dm-title-edit {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+    width: 100%;
+    border: none;
+    border-bottom: 2px dashed rgba(168, 130, 106, 0.4);
+    background: transparent;
+    padding: 4px 0 6px;
+    outline: none;
+    box-sizing: border-box;
+  }
+  .dm-title-edit:focus {
+    border-bottom-color: rgba(120, 95, 60, 0.65);
+    border-bottom-style: solid;
+  }
+  /* 编辑模式：正文 textarea（视觉上和暖桃 detail-content 一致） */
+  .dm-content-edit {
+    font-family: inherit;
+    font-size: 13.5px;
+    line-height: 1.9;
+    width: 100%;
+    background: #FCEEE0;
+    padding: 22px 24px;
+    border-radius: 12px;
+    border: 1px solid #F4D8C3;
+    border-left: 3px solid #D89F7A;
+    resize: vertical;
+    outline: none;
+    min-height: 200px;
+    color: var(--ink);
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    transition: box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+  .dm-content-edit:focus {
+    border-color: #D89F7A;
+    box-shadow: 0 0 0 3px rgba(216, 159, 122, 0.18);
+  }
+
   .detail-content {
     font-size: 13.5px;
     line-height: 1.9;
@@ -2466,6 +2511,8 @@
     .detail-modal .close-btn { top: 14px; right: 14px; }
     .dm-header { padding: 28px 22px 18px; }
     .dm-title { font-size: 26px; padding-right: 36px; margin-bottom: 14px; }
+    .dm-title-edit { font-size: 26px; }
+    .dm-content-edit { padding: 18px 20px; min-height: 160px; font-size: 13px; }
     .dm-eyebrow { gap: 6px; margin-bottom: 12px; font-size: 9px; }
     .dm-eyebrow .id-mono { font-size: 9.5px; }
     .dm-meta-row { gap: 10px; font-size: 11px; }
@@ -5287,7 +5334,79 @@ function memAction(id, action) {
 }
 
 function memEdit(id) {
-  alert('编辑功能 Phase 2B · 敬请期待 ❀');
+  var titleEl = document.querySelector('.detail-modal .dm-title');
+  var contentEl = document.querySelector('.detail-modal .detail-content');
+  var footerEl = document.querySelector('.detail-modal .dm-footer-actions');
+  if (!titleEl || !contentEl || !footerEl) {
+    alert('编辑加载失败，请重新打开记忆。');
+    return;
+  }
+
+  // 保存原值（HTML 字符 vs 文本）
+  var origName = titleEl.textContent || '';
+  var origContent = contentEl.textContent || '';
+
+  // 标题变 input
+  titleEl.innerHTML = '<input class="dm-title-edit" id="dm-edit-name" value="' + esc(origName) + '" maxlength="120" />';
+
+  // 正文变 textarea
+  contentEl.outerHTML = '<textarea class="dm-content-edit" id="dm-edit-content">' + esc(origContent) + '</textarea>';
+
+  // footer 按钮变 取消 / 保存
+  footerEl.innerHTML =
+    '<button class="dm-action" onclick="cancelDetail(\'' + id + '\')">✕ 取消</button>' +
+    '<button class="dm-action primary" id="dm-save-btn" onclick="saveDetail(\'' + id + '\')">✓ 保存</button>';
+
+  // textarea 自适应高度
+  var textarea = document.getElementById('dm-edit-content');
+  if (textarea) {
+    var autoResize = function() {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight + 4, window.innerHeight * 0.55) + 'px';
+    };
+    autoResize();
+    textarea.addEventListener('input', autoResize);
+  }
+  // 标题输入框聚焦
+  var nameEl = document.getElementById('dm-edit-name');
+  if (nameEl) nameEl.focus();
+}
+
+function cancelDetail(id) {
+  // 重新加载详情即可回到只读模式
+  showDetail(id);
+}
+
+async function saveDetail(id) {
+  var nameInput = document.getElementById('dm-edit-name');
+  var contentInput = document.getElementById('dm-edit-content');
+  if (!nameInput || !contentInput) return;
+
+  var name = nameInput.value.trim();
+  var content = contentInput.value;
+  if (!name) { alert('标题不能为空'); nameInput.focus(); return; }
+  if (!content.trim()) { alert('正文不能为空'); contentInput.focus(); return; }
+
+  var saveBtn = document.getElementById('dm-save-btn');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '保存中…'; }
+
+  try {
+    var resp = await fetch(BASE + '/api/bucket/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, content: content })
+    });
+    var data = await resp.json().catch(function() { return {}; });
+    if (!resp.ok) {
+      throw new Error(data.error || ('HTTP ' + resp.status));
+    }
+    // 成功：刷新桶列表 + 重新打开详情（回到只读 + 显示新内容）
+    await loadBuckets();
+    showDetail(id);
+  } catch (e) {
+    alert('保存失败: ' + e.message);
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '✓ 保存'; }
+  }
 }
 
 // === 时间线 v2 ===
