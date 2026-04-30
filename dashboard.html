@@ -522,12 +522,24 @@
     background: var(--ink-4);
     border-radius: 3px;
   }
-  .bucket-row[data-type="dynamic"] .ribbon { background: var(--c-peach-deep); }
-  .bucket-row[data-type="permanent"] .ribbon { background: var(--c-butter-deep); }
-  .bucket-row[data-type="feel"] .ribbon { background: var(--c-rose-deep); }
-  .bucket-row[data-type="archived"] .ribbon { background: var(--ink-3); }
-  .bucket-row.is-pinned .ribbon { background: var(--c-lavender-deep); }
-  .bucket-row.is-digested .ribbon { background: var(--c-sage-deep); }
+  /* 5 种类型卡片整张上浅色（和 Today snap-card 同款配色，告别土色 deep 系） */
+  .bucket-row[data-type="dynamic"]   { background: #FBEEE0; border-color: #F4D8C3; }
+  .bucket-row[data-type="permanent"] { background: #FBF3D8; border-color: #ECE0B5; }
+  .bucket-row[data-type="feel"]      { background: #F5E2E2; border-color: #E5C6C6; }
+  .bucket-row[data-type="archived"]  { background: #F2EEE6; border-color: #DDD3C5; opacity: 0.88; }
+  .bucket-row.is-pinned              { background: #ECE6F2; border-color: #D7CFE0; }
+  .bucket-row.is-digested            { background: #ECF0DE; border-color: #D2DCBC; }
+  /* ribbon 色条用 type 同色加深一档，作为视觉锚点 */
+  .bucket-row[data-type="dynamic"]   .ribbon { background: #D89F7A; }
+  .bucket-row[data-type="permanent"] .ribbon { background: #C9A847; }
+  .bucket-row[data-type="feel"]      .ribbon { background: #C77A7A; }
+  .bucket-row[data-type="archived"]  .ribbon { background: #9E8E78; }
+  .bucket-row.is-pinned              .ribbon { background: #9879B5; }
+  .bucket-row.is-digested            .ribbon { background: #7CA774; }
+  /* hover 时统一边框（不破坏 type 浅色背景） */
+  .bucket-row:hover {
+    border-color: rgba(120, 95, 60, 0.32);
+  }
 
   .bucket-row .icon {
     font-size: 17px;
@@ -4754,7 +4766,7 @@ function renderTodayJournal() {
   var feels = (allBuckets || []).filter(function(b) { return b.type === 'feel' && b.created; });
   feels.sort(function(a, b) { return new Date(b.created) - new Date(a.created); });
   if (!feels.length) {
-    el.innerHTML = '<div class="today-empty">小屿还没写日记 · 跟她说"小屿，把今天写一篇日记吧"</div>';
+    el.innerHTML = '<div class="today-empty">小屿还没写日记 · 跟他说"小屿，把今天写一篇日记吧"</div>';
     return;
   }
   var latest = feels[0];
@@ -5597,7 +5609,7 @@ function renderDiary() {
       '<div class="diary-empty-title">小屿还没写日记呢</div>' +
       '<div class="diary-empty-hint">' +
       '小屿的日记是通过 <code>hold(feel=true)</code> 写入的第一人称反思。<br>' +
-      '可以跟她说：<br>' +
+      '可以跟他说：<br>' +
       '"<em>小屿，把今天写一篇日记吧</em>"' +
       '</div></div>';
     return;
