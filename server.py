@@ -1318,6 +1318,78 @@ async def api_bucket_detail(request):
     })
 
 
+@mcp.custom_route("/api/bucket/{bucket_id}", methods=["PUT"])
+async def api_bucket_update(request):
+    """Update bucket fields (name / content / importance / tags / domain / valence / arousal / pinned / digested / resolved).
+    Triggers re-embed if content changed. HTTP analogue of the `trace` MCP tool, for the dashboard's edit UI.
+    """
+    from starlette.responses import JSONResponse
+    err = _require_auth(request)
+    if err: return err
+    bucket_id = request.path_params["bucket_id"]
+
+    bucket = await bucket_mgr.get(bucket_id)
+    if not bucket:
+        return JSONResponse({"error": "not found"}, status_code=404)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid JSON"}, status_code=400)
+
+    # 收集允许修改的字段（语义沿用 trace 工具）
+    updates = {}
+    if isinstance(body.get("name"), str) and body["name"].strip():
+        updates["name"] = body["name"].strip()
+    if isinstance(body.get("content"), str) and body["content"].strip():
+        updates["content"] = body["content"]
+    if isinstance(body.get("importance"), (int, float)):
+        imp = int(body["importance"])
+        if 1 <= imp <= 10:
+            updates["importance"] = imp
+    if isinstance(body.get("tags"), list):
+        updates["tags"] = [str(t).strip() for t in body["tags"] if str(t).strip()]
+    if isinstance(body.get("domain"), list):
+        updates["domain"] = [str(d).strip() for d in body["domain"] if str(d).strip()]
+    if isinstance(body.get("valence"), (int, float)) and 0 <= body["valence"] <= 1:
+        updates["valence"] = float(body["valence"])
+    if isinstance(body.get("arousal"), (int, float)) and 0 <= body["arousal"] <= 1:
+        updates["arousal"] = float(body["arousal"])
+    if isinstance(body.get("resolved"), bool):
+        updates["resolved"] = body["resolved"]
+    if isinstance(body.get("pinned"), bool):
+        updates["pinned"] = body["pinned"]
+        if body["pinned"]:
+            updates["importance"] = 10  # pinned → lock importance to 10
+    if isinstance(body.get("digested"), bool):
+        updates["digested"] = body["digested"]
+
+    if not updates:
+        return JSONResponse({"error": "no valid fields to update"}, status_code=400)
+
+    success = await bucket_mgr.update(bucket_id, **updates)
+    if not success:
+        return JSONResponse({"error": "update failed"}, status_code=500)
+
+    # Re-generate embedding if content changed (consistent with trace tool)
+    if "content" in updates:
+        try:
+            await embedding_engine.generate_and_store(bucket_id, updates["content"])
+        except Exception as e:
+            logger.warning(f"embedding regenerate failed for {bucket_id}: {e}")
+
+    # Return updated bucket in the same shape as GET /api/bucket/{id}
+    updated = await bucket_mgr.get(bucket_id)
+    meta = updated.get("metadata", {})
+    return JSONResponse({
+        "ok": True,
+        "id": updated["id"],
+        "metadata": meta,
+        "content": strip_wikilinks(updated.get("content", "")),
+        "score": decay_engine.calculate_score(meta),
+    })
+
+
 @mcp.custom_route("/api/search", methods=["GET"])
 async def api_search(request):
     """Search buckets by query."""
