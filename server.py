@@ -1469,30 +1469,43 @@ async def api_classify_suggestions(request):
             if len(neighbor_ids) >= 5:
                 break
 
-        if not neighbor_domains:
-            continue
-
-        # 众数投票
-        counter = Counter(neighbor_domains)
-        top_domain, top_count = counter.most_common(1)[0]
-        confidence = top_count / len(neighbor_domains)  # 0~1
+        # 即使没邻居也返回桶（让前端可以手动选 domain）
+        if neighbor_domains:
+            counter = Counter(neighbor_domains)
+            top_domain, top_count = counter.most_common(1)[0]
+            confidence = round(top_count / len(neighbor_domains), 2)
+        else:
+            top_domain = None
+            confidence = 0.0
 
         suggestions.append({
             "bucket_id": b["id"],
             "name": name,
             "tags": tags,
             "suggested_domain": top_domain,
-            "confidence": round(confidence, 2),
+            "confidence": confidence,
             "neighbor_ids": neighbor_ids,
         })
 
-    # 按 confidence 倒序
+    # 按 confidence 倒序（没建议的会沉到下面）
     suggestions.sort(key=lambda s: s["confidence"], reverse=True)
+
+    # 收集所有已知真实 domain（去重 + 推荐池 union），供前端 dropdown 用
+    domain_pool = set()
+    for rd in id_to_domain.values():
+        for d in rd:
+            domain_pool.add(d)
+    # 加上预设池作为兜底（用户可能 domain 池为空）
+    PRESET_DOMAINS = ["内心", "学习", "工作", "社交", "人际", "恋爱", "友谊",
+                      "自省", "成长", "日常", "数字", "心理", "身心", "计划", "灵感"]
+    for d in PRESET_DOMAINS:
+        domain_pool.add(d)
 
     return JSONResponse({
         "total_unclassified": len(unclassified),
-        "suggestions_count": len(suggestions),
+        "suggestions_count": len([s for s in suggestions if s["suggested_domain"]]),
         "suggestions": suggestions,
+        "domain_pool": sorted(domain_pool),
     })
 
 
