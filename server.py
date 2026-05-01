@@ -1408,23 +1408,29 @@ async def api_classify_suggestions(request):
     except Exception as e:
         return JSONResponse({"error": f"failed to list buckets: {e}"}, status_code=500)
 
-    # 索引：bucket_id -> domain 列表（只看有 domain 的桶）
-    id_to_domain = {}
-    for b in all_buckets:
-        meta = b.get("metadata", {})
+    # 占位符：这些值不是真实分类，应被视为未分类
+    PLACEHOLDER_DOMAINS = {"未分类", "uncategorized", "unknown", ""}
+
+    def real_domains_of(meta):
         domains = meta.get("domain") or []
         if isinstance(domains, str):
             domains = [domains]
-        if domains:
-            id_to_domain[b["id"]] = domains
+        return [d for d in domains if d and d not in PLACEHOLDER_DOMAINS]
 
-    # 找未分类桶（domain 为空，且 type=dynamic 或 permanent；archived/feel 跳过）
+    # 索引：bucket_id -> 真实 domain 列表（占位符已剥除）
+    id_to_domain = {}
+    for b in all_buckets:
+        meta = b.get("metadata", {})
+        rd = real_domains_of(meta)
+        if rd:
+            id_to_domain[b["id"]] = rd
+
+    # 找未分类桶（无真实 domain，type=dynamic/permanent；archived/feel 跳过）
     unclassified = []
     for b in all_buckets:
         meta = b.get("metadata", {})
-        domains = meta.get("domain") or []
         btype = meta.get("type") or "dynamic"
-        if domains:
+        if real_domains_of(meta):
             continue
         if btype in ("archived", "feel"):
             continue
