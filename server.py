@@ -1390,6 +1390,149 @@ async def api_bucket_update(request):
     })
 
 
+@mcp.custom_route("/api/buckets/classify-suggestions", methods=["GET"])
+async def api_classify_suggestions(request):
+    """For each bucket whose `domain` is empty, suggest a domain by:
+    1. Building a query string from name + tags
+    2. embedding_engine.search_similar to find K closest buckets that DO have domains
+    3. Take the majority-vote domain among those neighbors
+    Returns: { suggestions: [{bucket_id, name, tags, suggested_domain, confidence, neighbor_ids}] }
+    """
+    from starlette.responses import JSONResponse
+    from collections import Counter
+    err = _require_auth(request)
+    if err: return err
+
+    try:
+        all_buckets = await bucket_mgr.list_all()
+    except Exception as e:
+        return JSONResponse({"error": f"failed to list buckets: {e}"}, status_code=500)
+
+    # 索引：bucket_id -> domain 列表（只看有 domain 的桶）
+    id_to_domain = {}
+    for b in all_buckets:
+        meta = b.get("metadata", {})
+        domains = meta.get("domain") or []
+        if isinstance(domains, str):
+            domains = [domains]
+        if domains:
+            id_to_domain[b["id"]] = domains
+
+    # 找未分类桶（domain 为空，且 type=dynamic 或 permanent；archived/feel 跳过）
+    unclassified = []
+    for b in all_buckets:
+        meta = b.get("metadata", {})
+        domains = meta.get("domain") or []
+        btype = meta.get("type") or "dynamic"
+        if domains:
+            continue
+        if btype in ("archived", "feel"):
+            continue
+        unclassified.append(b)
+
+    suggestions = []
+    for b in unclassified:
+        meta = b.get("metadata", {})
+        name = meta.get("name") or b.get("name") or ""
+        tags = meta.get("tags") or []
+        if isinstance(tags, str):
+            tags = [tags]
+        # 拼 query：name + tags 一起作为语义信号
+        query_parts = [name] + [str(t) for t in tags if t]
+        query = " ".join(query_parts).strip()
+        if not query:
+            continue
+
+        try:
+            similar = await embedding_engine.search_similar(query, top_k=12)
+        except Exception as e:
+            logger.warning(f"classify suggestion failed for {b['id']}: {e}")
+            continue
+
+        # 过滤：去掉自己 + 只看有 domain 的邻居 + 取前 5 个
+        neighbor_domains = []
+        neighbor_ids = []
+        for sim_id, sim_score in similar:
+            if sim_id == b["id"]:
+                continue
+            if sim_id not in id_to_domain:
+                continue
+            for d in id_to_domain[sim_id]:
+                neighbor_domains.append(d)
+            neighbor_ids.append(sim_id)
+            if len(neighbor_ids) >= 5:
+                break
+
+        if not neighbor_domains:
+            continue
+
+        # 众数投票
+        counter = Counter(neighbor_domains)
+        top_domain, top_count = counter.most_common(1)[0]
+        confidence = top_count / len(neighbor_domains)  # 0~1
+
+        suggestions.append({
+            "bucket_id": b["id"],
+            "name": name,
+            "tags": tags,
+            "suggested_domain": top_domain,
+            "confidence": round(confidence, 2),
+            "neighbor_ids": neighbor_ids,
+        })
+
+    # 按 confidence 倒序
+    suggestions.sort(key=lambda s: s["confidence"], reverse=True)
+
+    return JSONResponse({
+        "total_unclassified": len(unclassified),
+        "suggestions_count": len(suggestions),
+        "suggestions": suggestions,
+    })
+
+
+@mcp.custom_route("/api/buckets/apply-classifications", methods=["POST"])
+async def api_apply_classifications(request):
+    """Batch apply classifications.
+    Body: { assignments: [{bucket_id, domain}, ...] }
+    Returns: { applied: N, failed: [{bucket_id, error}, ...] }
+    """
+    from starlette.responses import JSONResponse
+    err = _require_auth(request)
+    if err: return err
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid JSON"}, status_code=400)
+
+    assignments = body.get("assignments", [])
+    if not isinstance(assignments, list) or not assignments:
+        return JSONResponse({"error": "assignments must be a non-empty list"}, status_code=400)
+
+    applied = 0
+    failed = []
+    for item in assignments:
+        bid = item.get("bucket_id")
+        dom = item.get("domain")
+        if not bid or not dom:
+            failed.append({"bucket_id": bid, "error": "missing bucket_id or domain"})
+            continue
+        try:
+            ok = await bucket_mgr.update(bid, domain=[str(dom).strip()])
+            if ok:
+                applied += 1
+            else:
+                failed.append({"bucket_id": bid, "error": "update returned False"})
+        except Exception as e:
+            failed.append({"bucket_id": bid, "error": str(e)})
+
+    return JSONResponse({
+        "applied": applied,
+        "failed": failed,
+        "ok": True,
+    })
+
+
 @mcp.custom_route("/api/search", methods=["GET"])
 async def api_search(request):
     """Search buckets by query."""
