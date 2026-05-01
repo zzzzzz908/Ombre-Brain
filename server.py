@@ -1390,6 +1390,52 @@ async def api_bucket_update(request):
     })
 
 
+@mcp.custom_route("/api/export", methods=["GET"])
+async def api_export(request):
+    """Export ALL buckets as a single JSON file for backup.
+    Response is a download with Content-Disposition; filename includes timestamp.
+    Format: { exported_at, version, count, buckets: [...] }
+    """
+    from starlette.responses import JSONResponse, Response
+    import datetime
+    err = _require_auth(request)
+    if err: return err
+
+    try:
+        all_buckets = await bucket_mgr.list_all()
+    except Exception as e:
+        return JSONResponse({"error": f"failed to list buckets: {e}"}, status_code=500)
+
+    # 全量导出（含 metadata + content + score）
+    export_buckets = []
+    for b in all_buckets:
+        meta = b.get("metadata", {})
+        export_buckets.append({
+            "id": b["id"],
+            "metadata": meta,
+            "content": b.get("content", ""),
+            "score": decay_engine.calculate_score(meta),
+        })
+
+    now = datetime.datetime.now()
+    payload = {
+        "exported_at": now.isoformat(),
+        "version": "1.3.0",
+        "count": len(export_buckets),
+        "buckets": export_buckets,
+    }
+
+    body = _json_lib.dumps(payload, ensure_ascii=False, indent=2)
+    filename = f"ombre-brain-backup-{now.strftime('%Y%m%d-%H%M%S')}.json"
+    return Response(
+        content=body,
+        media_type="application/json; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
+
+
 @mcp.custom_route("/api/buckets/classify-suggestions", methods=["GET"])
 async def api_classify_suggestions(request):
     """For each bucket whose `domain` is empty, suggest a domain by:
