@@ -4102,9 +4102,31 @@
     border-radius: 999px;
     letter-spacing: 0.3px;
   }
-  .cm-suggest-conf.high { background: #CFD9B6; color: #455A30; }
-  .cm-suggest-conf.mid  { background: #EFE2A6; color: #6E5118; }
-  .cm-suggest-conf.low  { background: #E5DFD0; color: #6E635A; }
+  .cm-suggest-conf.high   { background: #CFD9B6; color: #455A30; }
+  .cm-suggest-conf.mid    { background: #EFE2A6; color: #6E5118; }
+  .cm-suggest-conf.low    { background: #E5DFD0; color: #6E635A; }
+  .cm-suggest-conf.manual { background: #ECE6F2; color: #523E6E; }
+  /* domain dropdown */
+  .cm-domain-select {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px dashed rgba(168, 130, 106, 0.40);
+    border-radius: 8px;
+    padding: 4px 6px;
+    cursor: pointer;
+    text-align: right;
+    text-align-last: right;
+    max-width: 100%;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .cm-domain-select:hover,
+  .cm-domain-select:focus { border-color: rgba(120, 95, 60, 0.60); }
+  .cm-row.no-suggest .cm-domain-select { border-style: solid; border-color: rgba(120, 95, 150, 0.35); }
   .cm-footer {
     display: flex;
     justify-content: flex-end;
@@ -5554,21 +5576,35 @@ async function openClassifyModal() {
     if (!resp.ok) throw new Error(data.error || ('HTTP ' + resp.status));
 
     document.getElementById('cm-meta').innerHTML =
-      '共 <b>' + data.total_unclassified + '</b> 条未分类，能给出建议 <b>' + (data.suggestions_count || 0) + '</b> 条';
+      '共 <b>' + data.total_unclassified + '</b> 条未分类，能自动建议 <b>' + (data.suggestions_count || 0) + '</b> 条；其余可在右侧 dropdown 手动选';
 
     if (!data.suggestions || data.suggestions.length === 0) {
-      body.innerHTML = '<div class="cm-empty">暂时没有可信建议（已分类的桶太少，无邻居可比）<br>等再分类几条之后再试，或手动给几条做"种子"</div>';
+      body.innerHTML = '<div class="cm-empty">没有未分类的桶 ❀</div>';
       return;
     }
 
+    var domainPool = data.domain_pool || [];
+    var domainOptionsHtml = domainPool.map(function(d) {
+      return '<option value="' + esc(d) + '">' + esc(d) + '</option>';
+    }).join('');
+
     body.innerHTML = data.suggestions.map(function(s) {
+      var hasSuggestion = !!s.suggested_domain;
       var conf = Math.round(s.confidence * 100);
       var confClass = s.confidence >= 0.6 ? 'high' : (s.confidence >= 0.4 ? 'mid' : 'low');
       var tagsHtml = (s.tags || []).slice(0, 3).map(function(t) {
         return '<span class="cm-tag">' + esc(t) + '</span>';
       }).join('');
-      var checked = s.confidence >= 0.4 ? 'checked' : '';
-      return '<label class="cm-row" data-bucket-id="' + s.bucket_id + '" data-domain="' + esc(s.suggested_domain) + '">' +
+      // 默认勾选：有建议且置信度 ≥ 40% 时勾选；无建议则不勾（强迫用户手动选后再勾）
+      var checked = (hasSuggestion && s.confidence >= 0.4) ? 'checked' : '';
+      var selectedAttr = function(d) {
+        return (hasSuggestion && d === s.suggested_domain) ? ' selected' : '';
+      };
+      var optionsWithSelected = domainPool.map(function(d) {
+        return '<option value="' + esc(d) + '"' + selectedAttr(d) + '>' + esc(d) + '</option>';
+      }).join('');
+
+      return '<label class="cm-row' + (hasSuggestion ? '' : ' no-suggest') + '" data-bucket-id="' + s.bucket_id + '">' +
         '<input type="checkbox" class="cm-check" ' + checked + ' />' +
         '<div class="cm-row-main">' +
           '<div class="cm-row-name">' + esc(s.name) + '</div>' +
@@ -5576,8 +5612,13 @@ async function openClassifyModal() {
         '</div>' +
         '<div class="cm-row-arrow">→</div>' +
         '<div class="cm-row-suggest">' +
-          '<div class="cm-suggest-domain">' + esc(s.suggested_domain) + '</div>' +
-          '<div class="cm-suggest-conf ' + confClass + '">' + conf + '%</div>' +
+          '<select class="cm-domain-select" onchange="onDomainSelectChange(this)">' +
+            (hasSuggestion ? '' : '<option value="">— 选 domain —</option>') +
+            optionsWithSelected +
+          '</select>' +
+          (hasSuggestion
+            ? '<div class="cm-suggest-conf ' + confClass + '">' + conf + '%</div>'
+            : '<div class="cm-suggest-conf manual">手选</div>') +
         '</div>' +
       '</label>';
     }).join('');
@@ -5594,20 +5635,32 @@ function closeClassifyModal() {
   document.body.style.overflow = '';
 }
 
+// 用户改 dropdown 时自动勾选这条 + 把"手选"标签升级为"已选"提示
+function onDomainSelectChange(sel) {
+  var row = sel.closest('.cm-row');
+  if (!row) return;
+  var cb = row.querySelector('.cm-check');
+  if (cb && sel.value) cb.checked = true;
+}
+
 async function applyClassifications() {
   var rows = document.querySelectorAll('.cm-row');
   var assignments = [];
+  var skipped = 0;
   rows.forEach(function(r) {
     var cb = r.querySelector('.cm-check');
+    var sel = r.querySelector('.cm-domain-select');
     if (cb && cb.checked) {
+      var dom = sel ? sel.value : '';
+      if (!dom) { skipped++; return; }
       assignments.push({
         bucket_id: r.dataset.bucketId,
-        domain: r.dataset.domain
+        domain: dom
       });
     }
   });
   if (!assignments.length) {
-    alert('请至少勾选一条');
+    alert(skipped > 0 ? '勾选的条目有 ' + skipped + ' 条还没选 domain' : '请至少勾选一条');
     return;
   }
   var btn = document.getElementById('cm-apply-btn');
