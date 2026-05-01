@@ -2741,6 +2741,13 @@
     .dm-title { font-size: 26px; padding-right: 36px; margin-bottom: 14px; }
     .dm-title-edit { font-size: 26px; }
     .dm-content-edit { padding: 18px 20px; min-height: 160px; font-size: 13px; }
+    /* 分类 modal 手机端 */
+    .classify-modal { width: calc(100vw - 24px); max-width: calc(100vw - 24px); border-radius: 22px; }
+    .classify-banner { flex-direction: column; align-items: stretch; gap: 12px; }
+    .cb-btn { width: 100%; }
+    .cm-row { grid-template-columns: 24px 1fr 16px 88px; gap: 8px; padding: 10px 12px; }
+    .cm-row-name { font-size: 13px; }
+    .cm-suggest-domain { font-size: 13px; }
     .dm-eyebrow { gap: 6px; margin-bottom: 12px; font-size: 9px; }
     .dm-eyebrow .id-mono { font-size: 9.5px; }
     .dm-meta-row { gap: 10px; font-size: 11px; }
@@ -3879,6 +3886,232 @@
   .today-footer .tf-text em {
     font-style: italic;
     color: var(--ink-2);
+  }
+
+  /* === 智能分类 banner（在未分类筛选时显示在列表顶部） === */
+  .classify-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #ECE6F2 0%, #F5E2E2 100%);
+    border: 1px dashed rgba(120, 95, 150, 0.35);
+    border-radius: 18px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 6px 16px rgba(120, 95, 60, 0.04);
+  }
+  .cb-text { flex: 1; min-width: 0; }
+  .cb-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .cb-title em { font-style: italic; font-weight: 500; }
+  .cb-sub {
+    font-size: 11.5px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  .cb-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    letter-spacing: 0.4px;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .cb-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  .cb-btn:active { transform: translateY(0); }
+
+  /* === 智能分类 modal === */
+  .classify-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(40, 32, 22, 0.32);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  .classify-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .classify-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    width: 92vw;
+    max-width: 720px;
+    max-height: 86vh;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    z-index: 101;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(80, 70, 50, 0.08), 0 24px 80px rgba(80, 70, 50, 0.14);
+    display: flex;
+    flex-direction: column;
+  }
+  .classify-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .cm-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-2);
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cm-header {
+    padding: 30px 32px 18px;
+    border-bottom: 1px dashed rgba(168, 130, 106, 0.28);
+  }
+  .cm-eyebrow {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink-3);
+    margin-bottom: 10px;
+  }
+  .cm-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .cm-title em { font-style: italic; font-weight: 500; }
+  .cm-meta {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.3px;
+  }
+  .cm-meta b { color: var(--ink); font-weight: 500; }
+  .cm-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cm-loading, .cm-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-3);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .cm-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 20px 110px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cm-row:hover {
+    border-color: rgba(120, 95, 60, 0.32);
+    background: var(--paper);
+  }
+  .cm-check {
+    width: 18px; height: 18px;
+    cursor: pointer;
+    accent-color: var(--ink);
+  }
+  .cm-row-main { min-width: 0; }
+  .cm-row-name {
+    font-size: 13.5px;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cm-row-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .cm-tag {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 8px;
+  }
+  .cm-row-arrow {
+    color: var(--ink-3);
+    font-size: 14px;
+    font-family: var(--serif);
+    text-align: center;
+  }
+  .cm-row-suggest {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  .cm-suggest-domain {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .cm-suggest-conf {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+  }
+  .cm-suggest-conf.high { background: #CFD9B6; color: #455A30; }
+  .cm-suggest-conf.mid  { background: #EFE2A6; color: #6E5118; }
+  .cm-suggest-conf.low  { background: #E5DFD0; color: #6E635A; }
+  .cm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 24px;
+    border-top: 1px dashed rgba(168, 130, 106, 0.28);
+    background: rgba(255, 254, 250, 0.6);
   }
 
   /* 横向滑动卡片增加邮票齿轮底（视觉提示是手账票） */
@@ -5124,6 +5357,13 @@ function updateStats() {
   if (sub) sub.innerHTML = '每一格都是一个被命名的瞬间 <span class="dot">·</span> <b>' + total + '</b> 格 <span class="dot">·</span> <b>' + pinned + '</b> 钉决 <span class="dot">·</span> <b>' + feels + '</b> feel';
 }
 
+function isUncategorized(b) {
+  // type 是 dynamic 或 permanent，且 domain 为空
+  var hasDomain = b.domain && b.domain.length > 0;
+  var validType = b.type === 'dynamic' || b.type === 'permanent';
+  return validType && !hasDomain;
+}
+
 function countFor(key) {
   if (key === 'all') return allBuckets.length;
   if (key === 'pinned') return allBuckets.filter(b => b.pinned).length;
@@ -5131,6 +5371,7 @@ function countFor(key) {
   if (key === 'unresolved') return allBuckets.filter(b => !b.resolved && b.type !== 'permanent' && !b.pinned).length;
   if (key === 'digested') return allBuckets.filter(b => b.digested).length;
   if (key === 'archived') return allBuckets.filter(b => b.type === 'archived' || b.score < 0.3).length;
+  if (key === 'uncategorized') return allBuckets.filter(isUncategorized).length;
   if (key.startsWith('domain:')) {
     const d = key.slice(7);
     return allBuckets.filter(b => (b.domain || []).includes(d)).length;
@@ -5149,6 +5390,7 @@ function buildFilters() {
     { key: 'unresolved', label: '未解决', dot: true },
     { key: 'digested', label: '已消化', dot: true },
     { key: 'archived', label: '已归档', dot: true },
+    { key: 'uncategorized', label: '未分类', dot: true },
   ];
 
   var typeRow = '<div class="filter-row">' + types.map(function(t) {
@@ -5198,6 +5440,7 @@ function filterBuckets(buckets) {
   if (currentFilter === 'unresolved') return buckets.filter(function(b) { return !b.resolved && b.type !== 'permanent' && !b.pinned; });
   if (currentFilter === 'digested') return buckets.filter(function(b) { return b.digested; });
   if (currentFilter === 'archived') return buckets.filter(function(b) { return b.type === 'archived' || b.score < 0.3; });
+  if (currentFilter === 'uncategorized') return buckets.filter(isUncategorized);
   if (currentFilter.startsWith('domain:')) {
     var d = currentFilter.slice(7);
     return buckets.filter(function(b) { return (b.domain || []).includes(d); });
@@ -5255,7 +5498,18 @@ function renderBuckets(buckets) {
 
   // list mode
   list.className = 'bucket-list';
-  list.innerHTML = buckets.map(function(b) {
+  // 当筛选切到「未分类」时，列表顶部插入一个「一键分类」横幅
+  var classifyBanner = '';
+  if (currentFilter === 'uncategorized' && buckets.length > 0) {
+    classifyBanner = '<div class="classify-banner">' +
+      '<div class="cb-text">' +
+        '<div class="cb-title"><em>这些桶还没有领域归属</em></div>' +
+        '<div class="cb-sub">用 embedding 找最相似的有归属桶 → 投票推荐 domain，你确认后批量应用</div>' +
+      '</div>' +
+      '<button class="cb-btn" onclick="openClassifyModal()">✨ 一键分类（' + buckets.length + '）</button>' +
+    '</div>';
+  }
+  list.innerHTML = classifyBanner + buckets.map(function(b) {
     var icon = iconFor(b);
     var vPos = Math.round(b.valence * 100);
     var modelV = b.model_valence != null ? ' V' + b.model_valence.toFixed(1) : '';
@@ -5276,6 +5530,104 @@ function renderBuckets(buckets) {
       '<span class="imp-badge' + impClass(b.importance) + '">' + imp + '</span>' +
     '</div>';
   }).join('');
+}
+
+// === 智能分类 modal ===
+async function openClassifyModal() {
+  var modal = document.getElementById('classify-modal');
+  var backdrop = document.getElementById('classify-backdrop');
+  var body = document.getElementById('cm-body');
+  if (!modal || !body) return;
+
+  modal.classList.add('open');
+  backdrop.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  body.innerHTML = '<div class="cm-loading">分析中… 给每条桶找最相似的邻居</div>';
+  document.getElementById('cm-meta').textContent = '加载中…';
+
+  try {
+    var resp = await fetch(BASE + '/api/buckets/classify-suggestions');
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+
+    document.getElementById('cm-meta').innerHTML =
+      '共 <b>' + data.total_unclassified + '</b> 条未分类，能给出建议 <b>' + (data.suggestions_count || 0) + '</b> 条';
+
+    if (!data.suggestions || data.suggestions.length === 0) {
+      body.innerHTML = '<div class="cm-empty">暂时没有可信建议（已分类的桶太少，无邻居可比）<br>等再分类几条之后再试，或手动给几条做"种子"</div>';
+      return;
+    }
+
+    body.innerHTML = data.suggestions.map(function(s) {
+      var conf = Math.round(s.confidence * 100);
+      var confClass = s.confidence >= 0.6 ? 'high' : (s.confidence >= 0.4 ? 'mid' : 'low');
+      var tagsHtml = (s.tags || []).slice(0, 3).map(function(t) {
+        return '<span class="cm-tag">' + esc(t) + '</span>';
+      }).join('');
+      var checked = s.confidence >= 0.4 ? 'checked' : '';
+      return '<label class="cm-row" data-bucket-id="' + s.bucket_id + '" data-domain="' + esc(s.suggested_domain) + '">' +
+        '<input type="checkbox" class="cm-check" ' + checked + ' />' +
+        '<div class="cm-row-main">' +
+          '<div class="cm-row-name">' + esc(s.name) + '</div>' +
+          (tagsHtml ? '<div class="cm-row-tags">' + tagsHtml + '</div>' : '') +
+        '</div>' +
+        '<div class="cm-row-arrow">→</div>' +
+        '<div class="cm-row-suggest">' +
+          '<div class="cm-suggest-domain">' + esc(s.suggested_domain) + '</div>' +
+          '<div class="cm-suggest-conf ' + confClass + '">' + conf + '%</div>' +
+        '</div>' +
+      '</label>';
+    }).join('');
+  } catch (e) {
+    body.innerHTML = '<div class="cm-loading" style="color:var(--negative);">加载失败: ' + esc(e.message) + '</div>';
+  }
+}
+
+function closeClassifyModal() {
+  var modal = document.getElementById('classify-modal');
+  var backdrop = document.getElementById('classify-backdrop');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+async function applyClassifications() {
+  var rows = document.querySelectorAll('.cm-row');
+  var assignments = [];
+  rows.forEach(function(r) {
+    var cb = r.querySelector('.cm-check');
+    if (cb && cb.checked) {
+      assignments.push({
+        bucket_id: r.dataset.bucketId,
+        domain: r.dataset.domain
+      });
+    }
+  });
+  if (!assignments.length) {
+    alert('请至少勾选一条');
+    return;
+  }
+  var btn = document.getElementById('cm-apply-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '应用中…'; }
+  try {
+    var resp = await fetch(BASE + '/api/buckets/apply-classifications', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ assignments: assignments })
+    });
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+    var msg = '✓ 已应用 ' + data.applied + ' 条';
+    if (data.failed && data.failed.length) {
+      msg += '\n失败 ' + data.failed.length + ' 条';
+    }
+    alert(msg);
+    closeClassifyModal();
+    await loadBuckets();
+  } catch (e) {
+    alert('保存失败: ' + e.message);
+    if (btn) { btn.disabled = false; btn.textContent = '✓ 应用所选'; }
+  }
 }
 
 async function searchBuckets(query) {
@@ -7060,6 +7412,24 @@ async function batchReview(idsJson, action) {
       <span class="mdi-label"><em>Settings</em><small>账号 · 密码</small></span>
       <span class="mdi-arrow">›</span>
     </button>
+  </div>
+</div>
+
+<!-- 智能分类 modal -->
+<div class="classify-backdrop" id="classify-backdrop" onclick="closeClassifyModal()"></div>
+<div class="classify-modal" id="classify-modal">
+  <button class="cm-close" onclick="closeClassifyModal()">×</button>
+  <div class="cm-header">
+    <div class="cm-eyebrow">SUGGEST · 智能分类</div>
+    <div class="cm-title"><em>给这些桶找个家</em></div>
+    <div class="cm-meta" id="cm-meta">读取中…</div>
+  </div>
+  <div class="cm-body" id="cm-body">
+    <div class="cm-loading">分析中…</div>
+  </div>
+  <div class="cm-footer">
+    <button class="dm-action" onclick="closeClassifyModal()">✕ 取消</button>
+    <button class="dm-action primary" id="cm-apply-btn" onclick="applyClassifications()">✓ 应用所选</button>
   </div>
 </div>
 
