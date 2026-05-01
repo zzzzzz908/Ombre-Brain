@@ -507,9 +507,9 @@
   .bucket-list { display: flex; flex-direction: column; gap: 10px; background: transparent; border: none; border-radius: 0; overflow: visible; }
   .bucket-row {
     display: grid;
-    grid-template-columns: 5px 28px 220px 1fr 90px 56px 64px 36px;
+    grid-template-columns: 5px 24px 220px 1fr 90px 56px 64px 50px;
     gap: 14px;
-    padding: 16px 22px 16px 18px;
+    padding: 18px 24px 18px 18px;
     font-size: 13px;
     align-items: center;
     cursor: pointer;
@@ -518,6 +518,17 @@
     border: 1px solid var(--line);
     border-radius: 16px;
     box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04), 0 4px 14px rgba(120, 95, 60, 0.03);
+    position: relative;
+  }
+  /* 手账元素：右上角小折角（轻微立体） */
+  .bucket-row::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 14px; height: 14px;
+    background: linear-gradient(225deg, rgba(255, 254, 250, 0.7) 50%, transparent 50%);
+    border-radius: 0 16px 0 4px;
+    pointer-events: none;
   }
   .bucket-row:hover {
     transform: translateY(-1px);
@@ -526,7 +537,7 @@
   }
   .bucket-row .ribbon {
     width: 5px;
-    height: 28px;
+    height: 22px;
     background: var(--ink-4);
     border-radius: 3px;
   }
@@ -550,19 +561,25 @@
   }
 
   .bucket-row .icon {
-    font-size: 17px;
+    font-size: 14px;
     text-align: center;
-    color: var(--ink-2);
+    color: rgba(120, 95, 60, 0.55);
     line-height: 1;
   }
+  /* pinned 心形用紫色，feel 用粉色，呼应 ribbon */
+  .bucket-row.is-pinned .icon { color: #9879B5; }
+  .bucket-row[data-type="feel"] .icon { color: #C77A7A; }
+  .bucket-row.is-digested .icon { color: #7CA774; }
   .bucket-row .name {
+    font-family: var(--serif);
+    font-style: italic;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     color: var(--ink);
-    letter-spacing: 0.05px;
-    font-size: 13.5px;
+    letter-spacing: 0.2px;
+    font-size: 16px;
   }
   .bucket-row .preview {
     font-size: 12px;
@@ -594,13 +611,25 @@
   .bucket-row .imp-badge {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 24px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--ink-1);
     text-align: right;
     line-height: 1;
-    letter-spacing: -0.3px;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 3px;
   }
+  .bucket-row .imp-badge::before {
+    content: '★';
+    font-size: 11px;
+    color: rgba(120, 95, 60, 0.55);
+    font-style: normal;
+    letter-spacing: 0;
+  }
+  .bucket-row.is-pinned .imp-badge::before { color: #9879B5; }
   .bucket-row .imp-badge.dim { color: var(--ink-3); }
   .bucket-row .imp-badge.high { color: var(--ink); }
 
@@ -1161,17 +1190,17 @@
     border-bottom-color: rgba(120, 95, 60, 0.65);
     border-bottom-style: solid;
   }
-  /* 编辑模式：正文 textarea（视觉上和暖桃 detail-content 一致） */
+  /* 编辑模式：正文 textarea（视觉上和粉色 detail-content 一致） */
   .dm-content-edit {
     font-family: inherit;
     font-size: 13.5px;
     line-height: 1.9;
     width: 100%;
-    background: #FCEEE0;
+    background: #F5E2E2;
     padding: 22px 24px;
     border-radius: 12px;
-    border: 1px solid #F4D8C3;
-    border-left: 3px solid #D89F7A;
+    border: 1px solid #E5C6C6;
+    border-left: 3px solid #C77A7A;
     resize: vertical;
     outline: none;
     min-height: 200px;
@@ -1181,19 +1210,19 @@
     transition: box-shadow 0.18s ease, border-color 0.18s ease;
   }
   .dm-content-edit:focus {
-    border-color: #D89F7A;
-    box-shadow: 0 0 0 3px rgba(216, 159, 122, 0.18);
+    border-color: #C77A7A;
+    box-shadow: 0 0 0 3px rgba(199, 122, 122, 0.18);
   }
 
   .detail-content {
     font-size: 13.5px;
     line-height: 1.9;
     white-space: pre-wrap;
-    background: #FCEEE0;
+    background: #F5E2E2;
     padding: 22px 24px;
     border-radius: 12px;
-    border: 1px solid #F4D8C3;
-    border-left: 3px solid #D89F7A;
+    border: 1px solid #E5C6C6;
+    border-left: 3px solid #C77A7A;
     max-height: 52vh;
     overflow-y: auto;
     color: var(--ink);
@@ -1332,6 +1361,95 @@
     gap: 28px;
     max-width: 720px;
     margin: 0 auto;
+  }
+
+  /* 日记日期切换抽屉 */
+  .diary-date-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .diary-date-toggle {
+    background: var(--paper);
+    border: 1px dashed rgba(168, 130, 106, 0.45);
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--ink-1);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.4px;
+    transition: all 0.18s ease;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04);
+  }
+  .diary-date-toggle:hover {
+    background: #FBF3D8;
+    border-color: rgba(168, 130, 106, 0.65);
+    box-shadow: 0 2px 6px rgba(120, 95, 60, 0.08);
+  }
+  .diary-date-toggle .ddb-icon {
+    font-size: 13px;
+    line-height: 1;
+    font-style: normal;
+  }
+  .diary-date-toggle .ddb-caret {
+    font-size: 10px;
+    color: var(--ink-3);
+    font-style: normal;
+    margin-left: 2px;
+  }
+  .diary-date-drawer {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px;
+    max-width: 600px;
+    padding: 14px 12px;
+    background: var(--paper);
+    border: 1px dashed rgba(168, 130, 106, 0.32);
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(120, 95, 60, 0.04);
+  }
+  .diary-date-chip {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--ink-2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.15s ease;
+    letter-spacing: 0.2px;
+  }
+  .diary-date-chip:hover {
+    border-color: rgba(168, 130, 106, 0.50);
+    color: var(--ink);
+    background: #FBF3D8;
+  }
+  .diary-date-chip.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .diary-date-chip .ddc-count {
+    font-size: 10.5px;
+    opacity: 0.62;
+    font-style: normal;
+    font-family: var(--sans);
+  }
+  .diary-date-chip.active .ddc-count {
+    color: rgba(255,255,255,0.7);
+    opacity: 1;
   }
   .diary-day {
     background: #FCEEE0;
@@ -5913,6 +6031,26 @@ async function loadDiary() {
   renderDiary();
 }
 
+// 当前选中的日记日期（null = 自动选最新一天）
+var currentDiaryDateKey = null;
+
+function setDiaryDate(key) {
+  currentDiaryDateKey = key;
+  renderDiary();
+}
+
+function toggleDiaryDateDrawer() {
+  var drawer = document.getElementById('diary-date-drawer');
+  var toggle = document.getElementById('diary-date-toggle');
+  if (!drawer) return;
+  var isOpen = drawer.style.display === 'flex';
+  drawer.style.display = isOpen ? 'none' : 'flex';
+  if (toggle) {
+    var caret = toggle.querySelector('.ddb-caret');
+    if (caret) caret.textContent = isOpen ? '▾' : '▴';
+  }
+}
+
 function renderDiary() {
   var list = document.getElementById('diary-list');
   var statsEl = document.getElementById('diary-stats');
@@ -5952,6 +6090,13 @@ function renderDiary() {
     statsEl.innerHTML = '<b>' + diaryEntries.length + '</b> 篇日记 <span class="dot">·</span> <b>' + totalDays + '</b> 个日子';
   }
 
+  // 决定当前显示日期：用户选的 / 否则最新
+  var activeKey = currentDiaryDateKey;
+  if (!activeKey || !grouped[activeKey]) {
+    activeKey = dateKeys[0];
+    currentDiaryDateKey = activeKey;
+  }
+
   var monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
@@ -5965,54 +6110,77 @@ function renderDiary() {
   }
 
   var html = '';
-  dateKeys.forEach(function(key) {
-    var parts = key.split('-');
-    var year = parseInt(parts[0], 10);
-    var month = parseInt(parts[1], 10);
-    var day = parseInt(parts[2], 10);
-    var d = new Date(key + 'T00:00:00');
-    var dow = dayNames[d.getDay()];
-    var entries = grouped[key].slice().sort(function(a, b) {
-      return new Date(a.created) - new Date(b.created);
-    });
 
-    html += '<article class="diary-day">';
-    html += '<div class="diary-day-eyebrow">DIARY <span style="color:var(--ink-4);">·</span> ' + key + '</div>';
-    html += '<div class="diary-day-head">';
-    html += '<span class="diary-day-num">' + day + '<sup>' + ordinal(day) + '</sup></span>';
-    html += '<span class="diary-day-month">' + monthNames[month] + '</span>';
-    html += '<div class="diary-day-meta">';
-    html += year;
-    html += '<span class="dow">' + dow + '</span>';
-    html += '</div>';
-    html += '</div>';
-
-    html += '<div class="diary-entries">';
-    entries.forEach(function(b) {
-      var t = new Date(b.created);
-      var time = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
-      html += '<div class="diary-entry" onclick="showDetail(\'' + b.id + '\')">';
-      html += '<div class="diary-entry-head">';
-      html += '<span class="diary-entry-time">' + time + '</span>';
-      html += '<span class="diary-entry-title">' + esc(b.name || '无题') + '</span>';
-      html += '</div>';
-      var contentText = b.content_preview || b.content || '';
-      if (contentText) {
-        html += '<div class="diary-entry-content">' + esc(contentText) + '</div>';
-      }
-      var tags = b.tags || b.domain || [];
-      if (tags && tags.length) {
-        html += '<div class="diary-entry-tags">';
-        tags.slice(0, 6).forEach(function(t) {
-          html += '<span class="diary-entry-tag">' + esc(t) + '</span>';
-        });
-        html += '</div>';
-      }
-      html += '</div>';
-    });
-    html += '</div>';
-    html += '</article>';
+  // === 顶部日期切换抽屉 ===
+  var activeDate = new Date(activeKey + 'T00:00:00');
+  var activeLabel = activeDate.getFullYear() + ' · ' + (activeDate.getMonth() + 1) + '月' + activeDate.getDate() + '日 · ' + dayNames[activeDate.getDay()];
+  html += '<div class="diary-date-bar">';
+  html += '<button class="diary-date-toggle" id="diary-date-toggle" type="button" onclick="toggleDiaryDateDrawer()">';
+  html += '<span class="ddb-icon">📅</span>';
+  html += '<span class="ddb-label">' + esc(activeLabel) + '</span>';
+  html += '<span class="ddb-caret">▾</span>';
+  html += '</button>';
+  html += '<div class="diary-date-drawer" id="diary-date-drawer" style="display:none">';
+  dateKeys.forEach(function(k) {
+    var n = grouped[k].length;
+    var d = new Date(k + 'T00:00:00');
+    var label = (d.getMonth() + 1) + '/' + d.getDate();
+    var classes = ['diary-date-chip'];
+    if (k === activeKey) classes.push('active');
+    html += '<button class="' + classes.join(' ') + '" onclick="setDiaryDate(\'' + k + '\')">';
+    html += '<span class="ddc-date">' + label + '</span>';
+    html += '<span class="ddc-count">' + n + '</span>';
+    html += '</button>';
   });
+  html += '</div>';
+  html += '</div>';
+
+  // === 只渲染选中日期的日记 ===
+  var entries = grouped[activeKey].slice().sort(function(a, b) {
+    return new Date(a.created) - new Date(b.created);
+  });
+  var parts = activeKey.split('-');
+  var year = parseInt(parts[0], 10);
+  var month = parseInt(parts[1], 10);
+  var day = parseInt(parts[2], 10);
+  var dow = dayNames[activeDate.getDay()];
+
+  html += '<article class="diary-day">';
+  html += '<div class="diary-day-eyebrow">DIARY <span style="color:var(--ink-4);">·</span> ' + activeKey + '</div>';
+  html += '<div class="diary-day-head">';
+  html += '<span class="diary-day-num">' + day + '<sup>' + ordinal(day) + '</sup></span>';
+  html += '<span class="diary-day-month">' + monthNames[month] + '</span>';
+  html += '<div class="diary-day-meta">';
+  html += year;
+  html += '<span class="dow">' + dow + '</span>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '<div class="diary-entries">';
+  entries.forEach(function(b) {
+    var t = new Date(b.created);
+    var time = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+    html += '<div class="diary-entry" onclick="showDetail(\'' + b.id + '\')">';
+    html += '<div class="diary-entry-head">';
+    html += '<span class="diary-entry-time">' + time + '</span>';
+    html += '<span class="diary-entry-title">' + esc(b.name || '无题') + '</span>';
+    html += '</div>';
+    var contentText = b.content_preview || b.content || '';
+    if (contentText) {
+      html += '<div class="diary-entry-content">' + esc(contentText) + '</div>';
+    }
+    var tags = b.tags || b.domain || [];
+    if (tags && tags.length) {
+      html += '<div class="diary-entry-tags">';
+      tags.slice(0, 6).forEach(function(t) {
+        html += '<span class="diary-entry-tag">' + esc(t) + '</span>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '</article>';
 
   list.innerHTML = html;
 }
