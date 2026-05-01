@@ -23,6 +23,7 @@ import math
 import asyncio
 import logging
 from datetime import datetime
+from utils import now_bjt
 
 logger = logging.getLogger("ombre_brain.decay")
 
@@ -118,7 +119,9 @@ class DecayEngine:
         last_active_str = metadata.get("last_active", metadata.get("created", ""))
         try:
             last_active = datetime.fromisoformat(str(last_active_str))
-            days_since = max(0.0, (datetime.now() - last_active).total_seconds() / 86400)
+            if last_active.tzinfo is not None:
+                last_active = last_active.replace(tzinfo=None)
+            days_since = max(0.0, (now_bjt() - last_active).total_seconds() / 86400)
         except (ValueError, TypeError):
             days_since = 30
 
@@ -209,7 +212,9 @@ class DecayEngine:
                 last_active_str = meta.get("last_active", meta.get("created", ""))
                 try:
                     last_active = datetime.fromisoformat(str(last_active_str))
-                    days_since = (datetime.now() - last_active).total_seconds() / 86400
+                    if last_active.tzinfo is not None:
+                        last_active = last_active.replace(tzinfo=None)
+                    days_since = (now_bjt() - last_active).total_seconds() / 86400
                 except (ValueError, TypeError):
                     days_since = 999
                 if imp <= 4 and days_since > 30:

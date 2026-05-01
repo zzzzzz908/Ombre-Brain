@@ -15,7 +15,16 @@ import uuid
 import yaml
 import logging
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+# Beijing Time (UTC+8). All timestamps are recorded in BJT regardless of where
+# the server is hosted, so 小屿 perceives time the way the user does.
+BJT = timezone(timedelta(hours=8))
+
+
+def now_bjt() -> datetime:
+    """Return current Beijing time as a naive datetime (no tzinfo suffix in ISO output)."""
+    return datetime.now(BJT).replace(tzinfo=None)
 
 
 def load_config(config_path: str = None) -> dict:
@@ -229,4 +238,4 @@ def now_iso() -> str:
     Return current time as ISO format string.
     返回当前时间的 ISO 格式字符串。
     """
-    return datetime.now().isoformat(timespec="seconds")
+    return now_bjt().isoformat(timespec="seconds")

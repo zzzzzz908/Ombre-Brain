@@ -1397,7 +1397,7 @@ async def api_export(request):
     Format: { exported_at, version, count, buckets: [...] }
     """
     from starlette.responses import JSONResponse, Response
-    import datetime
+    from utils import now_bjt
     err = _require_auth(request)
     if err: return err
 
@@ -1417,7 +1417,7 @@ async def api_export(request):
             "score": decay_engine.calculate_score(meta),
         })
 
-    now = datetime.datetime.now()
+    now = now_bjt()
     payload = {
         "exported_at": now.isoformat(),
         "version": "1.3.0",
