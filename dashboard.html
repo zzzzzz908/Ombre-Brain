@@ -5358,10 +5358,13 @@ function updateStats() {
 }
 
 function isUncategorized(b) {
-  // type 是 dynamic 或 permanent，且 domain 为空
-  var hasDomain = b.domain && b.domain.length > 0;
+  // type 是 dynamic 或 permanent，且 domain 为空 OR 只有占位字符串"未分类"
+  var domains = b.domain || [];
+  var realDomains = domains.filter(function(d) {
+    return d && d !== '未分类' && d !== 'uncategorized';
+  });
   var validType = b.type === 'dynamic' || b.type === 'permanent';
-  return validType && !hasDomain;
+  return validType && realDomains.length === 0;
 }
 
 function countFor(key) {
